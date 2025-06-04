@@ -3,7 +3,7 @@ const { Router } = require("express");
 const mainRouter = Router();
 
 // Import database queries
-// const db = require("../db/queries");
+const db = require("../db/queries");
 
 // GET routes
 
