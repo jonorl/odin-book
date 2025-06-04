@@ -50,7 +50,7 @@ const Sidebar = ({ darkMode, toggleDarkMode }) => {
   ];
 
   return (
-    <div className={`w-64 h-screen border-r p-4 fixed left-0 top-0 ${
+    <div className={`w-64 h-screen border-r p-4  left-0 top-0 ${
       darkMode 
         ? 'bg-black border-gray-800' 
         : 'bg-white border-gray-200'
@@ -88,11 +88,7 @@ const Sidebar = ({ darkMode, toggleDarkMode }) => {
         })}
       </nav>
       
-      <button className="w-full bg-blue-500 text-white py-3 rounded-full font-bold mt-8 hover:bg-blue-600 transition-colors">
-        Post
-      </button>
-      
-      <div className="absolute bottom-4 left-4 right-4">
+      <div className="bottom-4 left-4 right-4">
         <div className={`flex items-center space-x-3 p-3 rounded-full cursor-pointer transition-colors ${
           darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'
         }`}>
@@ -317,10 +313,10 @@ const RightSidebar = ({ darkMode }) => {
 
 const MainFeed = ({ darkMode }) => {
   return (
-    <div className={`flex-1 border-r ${
+    <div className={`flex-1 border-r  ${
       darkMode ? 'border-gray-800' : 'border-gray-200'
     }`}>
-      <div className={`sticky top-0 backdrop-blur border-b p-4 ${
+      <div className={` sticky top-0 backdrop-blur border-b p-4 ${
         darkMode 
           ? 'bg-black/80 border-gray-800' 
           : 'bg-white/80 border-gray-200'
@@ -347,10 +343,10 @@ export default function OdinBook() {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-black' : 'bg-white'}`}>
-      <div className="flex max-w-7xl mx-auto">
-        <Sidebar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-        <div className="ml-64 flex-1 flex">
+    <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
+      <div className="flex max-w-7xl mr-auto ml-auto">
+        <Sidebar className="flex ml-64" darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <div className="flex-1 flex mr-auto ml-auto">
           <MainFeed darkMode={darkMode} />
           <RightSidebar darkMode={darkMode} />
         </div>
