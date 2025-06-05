@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("LOCAL_DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  surname       String
+  handle        String   @unique
+  passwordHash  String
+  profilePicUrl String?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  posts      Post[]
+  comments   Comment[]
+  favourites Favourite[]
+  reposts    Repost[]
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  authorId  String
+  text      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments   Comment[]
+  favourites Favourite[]
+  reposts    Repost[]
+}
+
+model Repost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  comment   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Prevent duplicate reposts
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  text      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Favourite {
+  userId String
+  postId String
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+}

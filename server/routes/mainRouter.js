@@ -1,14 +1,25 @@
 // Express set-up
-const { Router } = require("express");
+import Router from 'express'
 const mainRouter = Router();
 
 // Import database queries
-const db = require("../db/queries");
+import { fetchAllUsers, fetchAllPosts, fetchAllComments } from "../db/queries.js";
 
 // GET routes
 
 mainRouter.get("/api/v1/test/", async (req, res) => {
-  res.json({ message: "working" });
+  const users = await fetchAllUsers();
+  res.json({ users });
 });
 
-module.exports = mainRouter;
+mainRouter.get("/api/v1/test2/", async (req, res) => {
+  const posts = await fetchAllPosts();
+  res.json({ posts });
+});
+
+mainRouter.get("/api/v1/test3/", async (req, res) => {
+  const comments = await fetchAllComments("cmbjef3kp001fjl1l4v6gt6es");
+  res.json({ comments });
+});
+
+export default mainRouter;

@@ -1,20 +1,26 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import seeds from "./prisma/seeds.js";
+import mainRouter from "./routes/mainRouter.js";
+
 // Config
 
-require('dotenv').config();
-
 // Express setup
-const express = require("express");
-const path = require('path')
 const app = express();
 
 // CORS setup
-const cors = require("cors");
 app.use(cors());
 app.use(express.json());
 
 // Router triggering
-const mainRouter = require("./routes/mainRouter");
 app.use("/", mainRouter);
+
+// Generate random users
+// seeds();
+
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 // Launch and port confirmation
 app.listen(process.env.PORT, () =>
