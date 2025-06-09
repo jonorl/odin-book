@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import seeds from "./prisma/seeds.js";
 import mainRouter from "./routes/mainRouter.js";
 
 // Config

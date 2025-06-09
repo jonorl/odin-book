@@ -2,7 +2,9 @@ import mockPosts from "../lib/utils"
 import PostComposer from './PostComposer';
 import Post from './Post';
 
+
 const MainFeed = ({ darkMode }) => {
+
   return (
     <div className={`flex-1 border-r  ${darkMode ? 'border-gray-800' : 'border-gray-200'
       }`}>

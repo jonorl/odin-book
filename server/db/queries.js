@@ -7,7 +7,7 @@ async function fetchAllUsers() {
 }
 
 async function fetchAllPosts() {
-  const users = await prisma.post.findMany({});
+  const users = await prisma.post.findMany({take: 10,});
   return users;
 }
 
