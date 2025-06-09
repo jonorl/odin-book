@@ -26,3 +26,5 @@ const prisma = new PrismaClient();
 app.listen(process.env.PORT, () =>
   console.log(`Listeining on port ${process.env.PORT}`)
 );
+
+export default app;
