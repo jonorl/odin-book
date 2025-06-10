@@ -80,13 +80,13 @@ function formatPostsForFeed(posts, users) {
     return {
       id: post.id,
       user: {
-        id: user ? user.id : "unknown", // Ensure user ID is passed
-        name: user ? user.name + " " + user.surname : "Unknown User",
-        username: user ? user.handle : "unknown_user",
-        avatar: user ? user.profilePicUrl : "https://via.placeholder.com/40", // Use profilePicUrl as avatar
+        id: user.id,
+        name: user.name + " " + user.surname ,
+        username: user.handle,
+        avatar: user.profilePicUrl,
       },
       content: post.text,
-      timestamp: getTimeAgo(post.createdAt), // Calculate "time ago"
+      timestamp: getTimeAgo(post.createdAt),
       likes: likes,
       retweets: retweets,
       replies: replies,
