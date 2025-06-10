@@ -1,9 +1,13 @@
-import mockPosts from "../lib/utils"
+import { mockPosts } from "../utils/utils"
 import PostComposer from './PostComposer';
 import Post from './Post';
 
 
-const MainFeed = ({ darkMode }) => {
+const MainFeed = ({ darkMode, formattedPosts }) => {
+
+  // console.log("posts", posts)
+  // console.log("users", users)
+  console.log("formattedPosts", formattedPosts)
 
   return (
     <div className={`flex-1 border-r  ${darkMode ? 'border-gray-800' : 'border-gray-200'
@@ -18,7 +22,7 @@ const MainFeed = ({ darkMode }) => {
       <PostComposer darkMode={darkMode} />
 
       <div>
-        {mockPosts.map(post => (
+        {formattedPosts.map(post => (
           <Post key={post.id} post={post} darkMode={darkMode} />
         ))}
       </div>

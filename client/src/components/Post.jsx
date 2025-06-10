@@ -23,9 +23,7 @@ const Post = ({ post, darkMode }) => {
             : 'border-gray-200 hover:bg-gray-50'
             }`}>
             <div className="flex space-x-3">
-                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
-                    {post.user.avatar}
-                </div>
+                    <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
                 <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
                         <span className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>{post.user.name}</span>
