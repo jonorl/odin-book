@@ -7,6 +7,7 @@ const MainFeed = ({ darkMode, formattedPosts }) => {
 
   // console.log("posts", posts)
   // console.log("users", users)
+  console.log("WTF?")
   console.log("formattedPosts", formattedPosts)
 
   return (

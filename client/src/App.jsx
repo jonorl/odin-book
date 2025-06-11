@@ -2,14 +2,13 @@ import { useState, useEffect } from 'react';
 import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import MainFeed from "./components/MainFeed"
-import { formatPostsForFeed } from "./utils/utils.js"
 
 const HOST = import.meta.env.VITE_LOCALHOST
 
 export default function OdinBook() {
   const [darkMode, setDarkMode] = useState(true);
-  const [posts, setPosts] = useState([])
-  const [users, setUsers] = useState([])
+  // const [posts, setPosts] = useState([])
+  // const [users, setUsers] = useState([])
   const [formattedPosts, setFormattedPosts] = useState([]);
 
   const toggleDarkMode = () => {
@@ -17,24 +16,24 @@ export default function OdinBook() {
   };
 
   // Fetch posts
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch(`${HOST}/api/v1/test2`, {
-          // headers: { authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setPosts(data || []);
-        return data
-      } catch (err) {
-        console.error("Failed to fetch posts:", err);
-      }
-    };
-    fetchPosts();
-  }, []);
+  // useEffect(() => {
+  //   const fetchPosts = async () => {
+  //     try {
+  //       const res = await fetch(`${HOST}/api/v1/test2`, {
+  //         // headers: { authorization: `Bearer ${token}` },
+  //       });
+  //       const data = await res.json();
+  //       setPosts(data || []);
+  //       return data
+  //     } catch (err) {
+  //       console.error("Failed to fetch posts:", err);
+  //     }
+  //   };
+  //   fetchPosts();
+  // }, []);
 
   // Fetch  users
-  useEffect(() => {
+ /*  useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await fetch(`${HOST}/api/v1/test`, {
@@ -48,16 +47,24 @@ export default function OdinBook() {
       }
     };
     fetchUsers();
-  }, []);
+  }, []); */
 
   // Create new mapped object fusing posts and users
   useEffect(() => {
-    if (posts.posts && posts.posts.length > 0 && users.users && users.users.length > 0) {
-      const formatted = formatPostsForFeed(posts.posts, users.users);
-      console.log(formatted)
-      setFormattedPosts(formatted);
-    }
-  }, [posts, users]);
+    const fetchFormattedPosts = async () => {
+      try {
+        const res = await fetch(`${HOST}/api/v1/getPosts/`, {
+          // headers: { authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setFormattedPosts(data.postFeed || []);
+        return data
+      } catch (err) {
+        console.error("Failed to fetch formatted posts:", err);
+      }
+    };
+    fetchFormattedPosts();
+  }, [])
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
