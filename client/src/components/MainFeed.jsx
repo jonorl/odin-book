@@ -2,13 +2,11 @@
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-
-const MainFeed = ({ darkMode, formattedPosts }) => {
+const MainFeed = ({ darkMode, formattedPosts, isLoading }) => {
 
   // console.log("posts", posts)
   // console.log("users", users)
-  console.log("WTF?")
-  console.log("formattedPosts", formattedPosts)
+  // console.log("formattedPosts", formattedPosts)
 
   return (
     <div className={`flex-1 border-r  ${darkMode ? 'border-gray-800' : 'border-gray-200'
@@ -22,11 +20,13 @@ const MainFeed = ({ darkMode, formattedPosts }) => {
 
       <PostComposer darkMode={darkMode} />
 
-      <div>
-        {formattedPosts.map(post => (
-          <Post key={post.id} post={post} darkMode={darkMode} />
-        ))}
-      </div>
+      {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
+        <div>
+          {formattedPosts.map(post => (
+            <Post key={post.id} post={post} darkMode={darkMode} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

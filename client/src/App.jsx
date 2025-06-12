@@ -10,6 +10,8 @@ export default function OdinBook() {
   // const [posts, setPosts] = useState([])
   // const [users, setUsers] = useState([])
   const [formattedPosts, setFormattedPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -58,6 +60,7 @@ export default function OdinBook() {
         });
         const data = await res.json();
         setFormattedPosts(data.postFeed || []);
+        setIsLoading(false)
         return data
       } catch (err) {
         console.error("Failed to fetch formatted posts:", err);
@@ -71,7 +74,7 @@ export default function OdinBook() {
       <div className="flex max-w-7xl mr-auto ml-auto">
         <Sidebar className="flex ml-64" darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
-          {formattedPosts.length > 0 && <MainFeed darkMode={darkMode} formattedPosts={formattedPosts} />}
+          <MainFeed isLoading={isLoading} darkMode={darkMode} formattedPosts={formattedPosts} />
           <RightSidebar darkMode={darkMode} />
         </div>
       </div>

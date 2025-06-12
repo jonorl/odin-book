@@ -1,17 +1,32 @@
-function formatPostsForFeed(posts, users) {
+function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount) {
   // Create a map of users for quick lookup by ID
   const usersMap = new Map();
   users.forEach((user) => {
     usersMap.set(user.id, user);
   });
-  console.log("usersMap", usersMap)
+
+  // Create a map of post likes for quick lookup by postId
+  const postLikesMap = new Map();
+  favourites.forEach((fav) => {
+    postLikesMap.set(fav.postId, fav._count._all);
+  });
+
+  const commentCountMap = new Map();
+  commentCount.forEach((com) => {
+    commentCountMap.set(com.postId, com._count.id);
+  });
+
+  const retweetCountMap = new Map();
+  retweetCount.forEach((retweet) => {
+    retweetCountMap.set(retweet.postId, retweet._count.id);
+  });
 
   // Map over the posts to transform them
   const formattedPosts = posts.map((post) => {
     const user = usersMap.get(post.authorId); // Find the corresponding user
-    const likes = Math.floor(Math.random() * 100); // Example: random likes
-    const retweets = Math.floor(Math.random() * 20); // Example: random retweets
-    const replies = Math.floor(Math.random() * 15); // Example: random replies
+    const likes = postLikesMap.get(post.id) || 0;
+    const retweets = retweetCountMap.get(post.id) || 0;
+    const replies = commentCountMap.get(post.id) || 0;
     const liked = false;
     const retweeted = false;
 
@@ -34,7 +49,7 @@ function formatPostsForFeed(posts, users) {
       id: post.id,
       user: {
         id: user.id,
-        name: user.name + " " + user.surname ,
+        name: user.name + " " + user.surname,
         username: user.handle,
         avatar: user.profilePicUrl,
       },
@@ -48,8 +63,7 @@ function formatPostsForFeed(posts, users) {
     };
   });
 
-  console.log(formattedPosts.length)
-  return  formattedPosts;
+  return formattedPosts;
 }
 
 export { formatPostsForFeed };

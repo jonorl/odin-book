@@ -7,6 +7,7 @@ const Post = ({ post, darkMode }) => {
     const [likes, setLikes] = useState(post.likes);
     const [retweets, setRetweets] = useState(post.retweets);
 
+
     const handleLike = () => {
         setLiked(!liked);
         setLikes(liked ? likes - 1 : likes + 1);

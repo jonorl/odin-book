@@ -4,7 +4,7 @@ import { formatPostsForFeed } from '../services/feedService.js'
 const mainRouter = Router();
 
 // Import database queries
-import { fetchAllUsers, fetchAllPosts, fetchAllComments } from "../db/queries.js";
+import { fetchAllUsers, fetchAllPosts, fetchAllComments, countAllLikes, countAllComments, countAllRetweets } from "../db/queries.js";
 
 // GET routes
 
@@ -26,7 +26,10 @@ mainRouter.get("/api/v1/test3/", async (req, res) => {
 mainRouter.get("/api/v1/getPosts/", async (req, res) => {
   const users = await fetchAllUsers();
   const posts = await fetchAllPosts();
-  const postFeed = formatPostsForFeed(posts, users);
+  const favourites = await countAllLikes();
+  const commentCount = await countAllComments();
+  const retweetCount = await countAllRetweets(); 
+  const postFeed = formatPostsForFeed(posts, users, favourites, commentCount, retweetCount);
   res.json ({ postFeed })
 });
 

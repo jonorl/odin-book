@@ -3,6 +3,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3); /* Light white border */
+  border-top: 4px solid #ffffff; /* Solid white top border for animation */
+  border-radius: 50%; /* Makes it a circle */
+  animation: spin 1s linear infinite; /* Animation properties */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Optional: Centering the spinner */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  width: 100px;
+  height: 100px;
+}
+
 @theme inline {
 
   --radius-sm: calc(var(--radius) - 4px);
