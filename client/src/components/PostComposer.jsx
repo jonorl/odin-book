@@ -1,7 +1,21 @@
 import { useState } from 'react';
 
-const PostComposer = ({ darkMode }) => {
+const PostComposer = ({ darkMode, HOST }) => {
     const [postText, setPostText] = useState('');
+
+    const postMessage = async () => {
+        try {
+            const res = await fetch(`${HOST}/api/v1/newPost/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ postText }),
+            });
+            const data = await res.json();
+            return data
+        } catch (err) {
+            console.error("Failed to post new message:", err);
+        }
+    }
 
     return (
         <div className={`border-b p-4 ${darkMode
@@ -20,6 +34,7 @@ const PostComposer = ({ darkMode }) => {
                             }`}
                         placeholder="What's happening?"
                         rows={3}
+                        name="text"
                         value={postText}
                         onChange={(e) => setPostText(e.target.value)}
                     />
@@ -34,6 +49,7 @@ const PostComposer = ({ darkMode }) => {
                                 : 'bg-blue-300 text-white cursor-not-allowed'
                                 }`}
                             disabled={!postText.trim()}
+                            onClick={postMessage}
                         >
                             Post
                         </button>

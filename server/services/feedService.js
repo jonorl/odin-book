@@ -23,7 +23,10 @@ function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount
 
   // Map over the posts to transform them
   const formattedPosts = posts.map((post) => {
+    console.log("userMap", usersMap)
+    console.log("authorId", post.authorId)
     const user = usersMap.get(post.authorId); // Find the corresponding user
+    console.log("user12", user)
     const likes = postLikesMap.get(post.id) || 0;
     const retweets = retweetCountMap.get(post.id) || 0;
     const replies = commentCountMap.get(post.id) || 0;
@@ -44,6 +47,7 @@ function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount
       const days = Math.floor(hours / 24);
       return `${days}d`;
     };
+    console.log("users", users);
 
     return {
       id: post.id,

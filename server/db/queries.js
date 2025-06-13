@@ -2,17 +2,31 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function fetchAllUsers() {
-  const users = await prisma.user.findMany({ take: 10 });
+  const users = await prisma.user.findMany({ /* take: 10 */ });
   return users;
 }
 
 async function fetchAllPosts() {
-  const users = await prisma.post.findMany({ take: 10 });
+  const users = await prisma.post.findMany({
+    // take: 10,
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
+  });
   return users;
 }
 
 async function fetchAllComments(postId) {
-  const users = await prisma.comment.findMany({ where: { postId } });
+  const users = await prisma.comment.findMany({
+    where: { postId },
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
+  });
   return users;
 }
 
@@ -46,4 +60,23 @@ async function countAllRetweets() {
   return retweetCount;
 }
 
-export { fetchAllUsers, fetchAllPosts, fetchAllComments, countAllLikes, countAllComments, countAllRetweets };
+async function newPost(userId, text, imageUrl) {
+  const newPost = await prisma.post.create({
+    data: {
+      authorId: userId,
+      text: text,
+      imageUrl: imageUrl || null,
+    },
+  });
+  return newPost;
+}
+
+export {
+  fetchAllUsers,
+  fetchAllPosts,
+  fetchAllComments,
+  countAllLikes,
+  countAllComments,
+  countAllRetweets,
+  newPost,
+};

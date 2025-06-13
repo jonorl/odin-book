@@ -2,7 +2,7 @@
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-const MainFeed = ({ darkMode, formattedPosts, isLoading }) => {
+const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST }) => {
 
   // console.log("posts", posts)
   // console.log("users", users)
@@ -18,7 +18,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading }) => {
         <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>Home</h1>
       </div>
 
-      <PostComposer darkMode={darkMode} />
+      <PostComposer darkMode={darkMode} HOST={HOST} />
 
       {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
         <div>
