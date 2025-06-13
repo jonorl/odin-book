@@ -2,7 +2,9 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function fetchAllUsers() {
-  const users = await prisma.user.findMany({ /* take: 10 */ });
+  const users = await prisma.user.findMany({
+    /* take: 10 */
+  });
   return users;
 }
 
@@ -71,6 +73,13 @@ async function newPost(userId, text, imageUrl) {
   return newPost;
 }
 
+async function newLike(userId, postId) {
+  const postLike = await prisma.favourite.create({
+    data: { userId: userId, postId: postId },
+  });
+  return postLike
+}
+
 export {
   fetchAllUsers,
   fetchAllPosts,
@@ -79,4 +88,5 @@ export {
   countAllComments,
   countAllRetweets,
   newPost,
+  newLike,
 };

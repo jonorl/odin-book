@@ -12,7 +12,9 @@ import {
   countAllComments,
   countAllRetweets,
   newPost,
+  newLike,
 } from "../db/queries.js";
+import { body } from "express-validator";
 
 // GET routes
 
@@ -36,10 +38,17 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
 
 mainRouter.post("/api/v1/newPost/", async (req, res) => {
   const placeHolderUser = "cmbjef3kg0000jl1l8kj2wprc"; // add user data later on
-  const text = req.body.postText
-  const imageUrl = req.body.imageUrl || null
+  const text = req.body.postText;
+  const imageUrl = req.body.imageUrl || null;
   const post = await newPost(placeHolderUser, text);
   res.json({ post });
+});
+
+mainRouter.post("/api/v1/newLike", async (req, res) => {
+  const placeHolderUser = "cmbjef3kg0000jl1l8kj2wprc"; // add user data later on
+  const postId = req.body.id;
+  const postLiked = await newLike(placeHolderUser, postId);
+  res.json({ postLiked });
 });
 
 export default mainRouter;

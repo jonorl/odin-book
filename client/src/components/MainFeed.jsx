@@ -4,10 +4,6 @@ import Post from './Post';
 
 const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST }) => {
 
-  // console.log("posts", posts)
-  // console.log("users", users)
-  // console.log("formattedPosts", formattedPosts)
-
   return (
     <div className={`flex-1 border-r  ${darkMode ? 'border-gray-800' : 'border-gray-200'
       }`}>
@@ -23,7 +19,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST }) => {
       {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
         <div>
           {formattedPosts.map(post => (
-            <Post key={post.id} post={post} darkMode={darkMode} />
+            <Post HOST={HOST} key={post.id} post={post} darkMode={darkMode} />
           ))}
         </div>
       )}

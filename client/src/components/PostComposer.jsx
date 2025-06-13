@@ -11,6 +11,7 @@ const PostComposer = ({ darkMode, HOST }) => {
                 body: JSON.stringify({ postText }),
             });
             const data = await res.json();
+            window.location.reload()
             return data
         } catch (err) {
             console.error("Failed to post new message:", err);

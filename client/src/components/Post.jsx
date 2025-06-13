@@ -1,16 +1,32 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
 
-const Post = ({ post, darkMode }) => {
+const Post = ({ post, darkMode, HOST }) => {
     const [liked, setLiked] = useState(post.liked);
     const [retweeted, setRetweeted] = useState(post.retweeted);
     const [likes, setLikes] = useState(post.likes);
     const [retweets, setRetweets] = useState(post.retweets);
 
+    const postLike = async () => {
+        console.log("post.id", post.id)
+        const id = post.id
+        try {
+            const res = await fetch(`${HOST}/api/v1/newLike/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id }),
+            });
+            const data = await res.json();
+            return data
+        } catch (err) {
+            console.error("Failed to post new message:", err);
+        }
+    }
 
     const handleLike = () => {
         setLiked(!liked);
         setLikes(liked ? likes - 1 : likes + 1);
+        postLike()
     };
 
     const handleRetweet = () => {
@@ -24,7 +40,7 @@ const Post = ({ post, darkMode }) => {
             : 'border-gray-200 hover:bg-gray-50'
             }`}>
             <div className="flex space-x-3">
-                    <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
+                <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
                 <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
                         <span className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>{post.user.name}</span>
