@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Search} from 'lucide-react';
 import { Input } from "./ui/input";
+import SignUpCard from "./Signup"
 
 const RightSidebar = ({ darkMode }) => {
   const trends = [
@@ -29,6 +30,7 @@ const RightSidebar = ({ darkMode }) => {
   return (
     <>
       <div className="w-80 p-4 space-y-4">
+      <SignUpCard />
 
         <div className="flex items-center p-2">
 
