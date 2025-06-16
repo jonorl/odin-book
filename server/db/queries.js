@@ -8,9 +8,31 @@ async function fetchAllUsers() {
   return users;
 }
 
+async function getPostsComments(postIdArray) {
+  const comments = await prisma.comment.findMany({
+    where: {
+      postId: {
+        in: postIdArray,
+      },
+    },
+  });
+  return comments;
+}
+
+async function getPostUsers(postUsersArray) {
+  const users = await prisma.user.findMany({
+    where: {
+      id: {
+        in: postUsersArray,
+      },
+    },
+  });
+  return users;
+}
+
 async function fetchAllPosts() {
   const users = await prisma.post.findMany({
-    // take: 10,
+    take: 10,
     orderBy: [
       {
         createdAt: "desc",
@@ -32,8 +54,9 @@ async function fetchAllComments(postId) {
   return users;
 }
 
-async function countAllLikes() {
+async function countAllLikes(postsIdArray) {
   const likes = await prisma.favourite.groupBy({
+    where: { postId: { in: postsIdArray } },
     by: ["postId"],
     _count: {
       _all: true,
@@ -42,8 +65,9 @@ async function countAllLikes() {
   return likes;
 }
 
-async function countAllComments() {
+async function countAllComments(postsIdArray) {
   const commentCount = await prisma.comment.groupBy({
+    where: { postId: { in: postsIdArray } },
     by: ["postId"],
     _count: {
       id: true,
@@ -52,8 +76,9 @@ async function countAllComments() {
   return commentCount;
 }
 
-async function countAllRetweets() {
+async function countAllRetweets(postsIdArray) {
   const retweetCount = await prisma.repost.groupBy({
+    where: { postId: { in: postsIdArray } },
     by: ["postId"],
     _count: {
       id: true,
@@ -77,7 +102,7 @@ async function newLike(userId, postId) {
   const postLike = await prisma.favourite.create({
     data: { userId: userId, postId: postId },
   });
-  return postLike
+  return postLike;
 }
 
 export {
@@ -89,4 +114,6 @@ export {
   countAllRetweets,
   newPost,
   newLike,
+  getPostsComments,
+  getPostUsers,
 };

@@ -13,20 +13,26 @@ import {
   countAllRetweets,
   newPost,
   newLike,
+  getPostsComments,
+  getPostUsers,
 } from "../db/queries.js";
 import { body } from "express-validator";
 
 // GET routes
 
 mainRouter.get("/api/v1/getPosts/", async (req, res) => {
-  const users = await fetchAllUsers();
   const posts = await fetchAllPosts();
-  const favourites = await countAllLikes();
-  const commentCount = await countAllComments();
-  const retweetCount = await countAllRetweets();
+  const postsIdArray = posts.map(obj => obj.id);
+  const postsComments = await getPostsComments(postsIdArray);
+  const postsUserArray = posts.map(obj => obj.authorId);
+  const postsUsers = await getPostUsers(postsUserArray);
+  const users = await fetchAllUsers();
+  const favourites = await countAllLikes(postsIdArray);
+  const commentCount = await countAllComments(postsIdArray);
+  const retweetCount = await countAllRetweets(postsIdArray);
   const postFeed = formatPostsForFeed(
     posts,
-    users,
+    postsUsers,
     favourites,
     commentCount,
     retweetCount

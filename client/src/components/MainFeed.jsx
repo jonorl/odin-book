@@ -5,7 +5,7 @@ import Post from './Post';
 const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST }) => {
 
   return (
-    <div className={`flex-1 border-r  ${darkMode ? 'border-gray-800' : 'border-gray-200'
+    <div className={`flex-1 border  ${darkMode ? 'border-gray-800' : 'border-gray-200'
       }`}>
       <div className={` sticky top-0 backdrop-blur border-b p-4 ${darkMode
         ? 'bg-black/80 border-gray-800'
