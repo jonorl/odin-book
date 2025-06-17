@@ -105,7 +105,32 @@ async function newLike(userId, postId) {
   return postLike;
 }
 
-export {
+async function getUserByEmail(email) {
+  const user = await prisma.user.findUnique({
+    where: { email: email },
+  });
+  return user
+}
+
+async function createUser(name, email, hashedPassword) {
+  const newUser = await prisma.user.create({
+    data: {
+      name: name,
+      email: email,
+      passwordHash: hashedPassword,
+    },
+  });
+  return newUser;
+}
+
+async function getMe(user) {
+  const users = await prisma.user.findUnique({
+    where: { id: user.userId },
+  });
+  return users;
+}
+
+export default {
   fetchAllUsers,
   fetchAllPosts,
   fetchAllComments,
@@ -116,4 +141,7 @@ export {
   newLike,
   getPostsComments,
   getPostUsers,
+  getUserByEmail,
+  createUser,
+  getMe,
 };

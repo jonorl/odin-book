@@ -7,49 +7,36 @@ const HOST = import.meta.env.VITE_LOCALHOST
 
 export default function OdinBook() {
   const [darkMode, setDarkMode] = useState(true);
-  // const [posts, setPosts] = useState([])
-  // const [users, setUsers] = useState([])
+  const [user, setUser] = useState(null)
+  const [isLoadingUser, setIsLoadingUser] = useState(true)
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const token = localStorage.getItem("token");
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  // Fetch posts
-  // useEffect(() => {
-  //   const fetchPosts = async () => {
-  //     try {
-  //       const res = await fetch(`${HOST}/api/v1/test2`, {
-  //         // headers: { authorization: `Bearer ${token}` },
-  //       });
-  //       const data = await res.json();
-  //       setPosts(data || []);
-  //       return data
-  //     } catch (err) {
-  //       console.error("Failed to fetch posts:", err);
-  //     }
-  //   };
-  //   fetchPosts();
-  // }, []);
-
-  // Fetch  users
- /*  useEffect(() => {
-    const fetchUsers = async () => {
+  // Fetch user data
+  useEffect(() => {
+    async function fetchUser() {
+      if (!token) return;
+      setIsLoadingUser(true);
       try {
-        const res = await fetch(`${HOST}/api/v1/test`, {
-          // headers: { authorization: `Bearer ${token}` },
+        const res = await fetch(`${HOST}/api/v1/me`, {
+          headers: { authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        setUsers(data || []);
-        return data
+        setUser(data.user);
       } catch (err) {
-        console.error("Failed to fetch online users:", err);
+        console.error("Error fetching user:", err);
+      } finally {
+        setIsLoadingUser(false);
       }
-    };
-    fetchUsers();
-  }, []); */
+    }
+    fetchUser();
+  }, [token]);
 
   // Create new mapped object fusing posts and users
   useEffect(() => {

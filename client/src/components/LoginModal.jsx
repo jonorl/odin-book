@@ -1,4 +1,4 @@
-const SignUpModal = ({ onClose }) => {
+const LoginModal = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
       <div className="bg-black text-white rounded-xl w-full max-w-md p-6 relative shadow-xl">
@@ -30,29 +30,18 @@ const SignUpModal = ({ onClose }) => {
         </div>
 
         {/* Title */}
-        <h2 className="text-2xl font-bold mb-6">Create your account</h2>
+        <h2 className="text-2xl font-bold mb-6">Login</h2>
 
         {/* Form */}
         <form className="flex flex-col space-y-4">
           <input
             type="text"
-            placeholder="Handle"
-            className="bg-transparent border border-gray-600 rounded p-3 placeholder-gray-400 focus:outline-none"
-          />
-          <input
-            type="email"
             placeholder="Email"
             className="bg-transparent border border-gray-600 rounded p-3 placeholder-gray-400 focus:outline-none"
           />
           <input
-            type="password"
+            type="email"
             placeholder="Password"
-            className="bg-transparent border border-gray-600 rounded p-3 placeholder-gray-400 focus:outline-none"
-          />
-
-          <input
-            type="password"
-            placeholder="Password Confirmation"
             className="bg-transparent border border-gray-600 rounded p-3 placeholder-gray-400 focus:outline-none"
           />
 
@@ -68,4 +57,4 @@ const SignUpModal = ({ onClose }) => {
   );
 };
 
-export default SignUpModal;
+export default LoginModal;

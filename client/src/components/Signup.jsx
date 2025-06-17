@@ -1,8 +1,10 @@
 import { useState } from "react";
 import SignUpModal from "./SignUpModal";
+import LoginModal from "./LoginModal";
 
 const SignUpCard = () => {
-  const [showModal, setShowModal] = useState(false);
+  const [showSingupModal, setShowSingupModal] = useState(false);
+  const [showLoginModal, setLoginModal] = useState(false);
   return (
     <>
       <div className="bg-black text-white rounded-xl p-6 max-w-sm mx-auto border border-gray-700">
@@ -11,10 +13,17 @@ const SignUpCard = () => {
           Sign up now to get your own personalized timeline!
         </p>
 
-        <button onClick={() => setShowModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+        <button onClick={() => setShowSingupModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
           Create account
         </button>
-        {showModal && <SignUpModal onClose={() => setShowModal(false)} />}
+        {showSingupModal && <SignUpModal onClose={() => setShowSingupModal(false)} />}
+
+        <p className="mb-2 text-gray-400">Or login:</p>
+
+        <button onClick={() => setLoginModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          Login
+        </button>
+        {showLoginModal && <LoginModal onClose={() => setLoginModal(false)} />}
 
         <p className="text-xs text-gray-500">
           By signing up, you agree to the{" "}

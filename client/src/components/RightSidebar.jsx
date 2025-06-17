@@ -3,6 +3,7 @@ import { Search} from 'lucide-react';
 import { Input } from "./ui/input";
 import SignUpCard from "./Signup"
 
+
 const RightSidebar = ({ darkMode }) => {
   const trends = [
     { topic: 'Technology', tag: '#ReactJS', posts: '45.2K posts' },
