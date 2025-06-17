@@ -2,8 +2,9 @@
 import Router from "express";
 import { formatPostsForFeed } from "../services/feedService.js";
 import validateUser from "../controllers/formValidation.js";
-import authenticateToken from "../controllers/authentication.js";
+import { authenticateToken, signToken } from "../controllers/authentication.js";
 import upload from "../controllers/multer.js";
+import bcrypt from "bcrypt";
 const mainRouter = Router();
 
 // Import database queries
@@ -33,7 +34,7 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
 
 mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
   try {
-    const user = await db.getMe(req.user);
+    const user = await queries.getMe(req.user);
     res.json({ user });
   } catch (err) {
     console.error("Failed to get user:", err);
@@ -58,28 +59,33 @@ mainRouter.post("/api/v1/newLike", async (req, res) => {
   res.json({ postLiked });
 });
 
-mainRouter.post("/api/v1/signup/", validateUser, async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+mainRouter.post(
+  "/api/v1/signup/",
+  validateUser,
+  async (req, res, next) => {
+    try {
+      const { handle, name, surname, email, password } = req.body;
 
-    const existingUser = await queries.getUserByEmail(email);
-    if (existingUser) {
-      return res.status(409).json({ message: "Email already in use" });
+      const existingUser = await queries.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await queries.createUser(
+        handle,
+        name,
+        surname,
+        email,
+        hashedPassword
+      );
+      req.newUser = newUser;
+      next();
+    } catch (err) {
+      console.error("Signup error:", err);
+      res.status(500).json({ message: "Server error" });
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await queries.createUser(name, email, hashedPassword);
-
-    const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.status(201).json({ token });
-  } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+  },
+  signToken
+);
 
 export default mainRouter;

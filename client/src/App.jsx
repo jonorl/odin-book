@@ -62,7 +62,7 @@ export default function OdinBook() {
         <Sidebar className="flex ml-64" darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
           <MainFeed isLoading={isLoading} HOST={HOST} darkMode={darkMode} formattedPosts={formattedPosts} />
-          <RightSidebar darkMode={darkMode} />
+          <RightSidebar darkMode={darkMode} HOST={HOST} />
         </div>
       </div>
     </div>

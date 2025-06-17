@@ -112,10 +112,12 @@ async function getUserByEmail(email) {
   return user
 }
 
-async function createUser(name, email, hashedPassword) {
+async function createUser(handle, name, surname, email, hashedPassword) {
   const newUser = await prisma.user.create({
     data: {
+      handle: handle,
       name: name,
+      surname: surname,
       email: email,
       passwordHash: hashedPassword,
     },
@@ -124,6 +126,7 @@ async function createUser(name, email, hashedPassword) {
 }
 
 async function getMe(user) {
+  console.log("user", user)
   const users = await prisma.user.findUnique({
     where: { id: user.userId },
   });

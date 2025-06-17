@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import SignUpCard from "./Signup"
 
 
-const RightSidebar = ({ darkMode }) => {
+const RightSidebar = ({ darkMode, HOST }) => {
   const trends = [
     { topic: 'Technology', tag: '#ReactJS', posts: '45.2K posts' },
     { topic: 'Programming', tag: '#JavaScript', posts: '32.1K posts' },
@@ -31,7 +31,7 @@ const RightSidebar = ({ darkMode }) => {
   return (
     <>
       <div className="w-80 p-4 space-y-4">
-      <SignUpCard />
+      <SignUpCard HOST={HOST} />
 
         <div className="flex items-center p-2">
 

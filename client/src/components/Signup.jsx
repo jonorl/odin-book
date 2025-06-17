@@ -2,7 +2,7 @@ import { useState } from "react";
 import SignUpModal from "./SignUpModal";
 import LoginModal from "./LoginModal";
 
-const SignUpCard = () => {
+const SignUpCard = ({HOST}) => {
   const [showSingupModal, setShowSingupModal] = useState(false);
   const [showLoginModal, setLoginModal] = useState(false);
   return (
@@ -16,14 +16,14 @@ const SignUpCard = () => {
         <button onClick={() => setShowSingupModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
           Create account
         </button>
-        {showSingupModal && <SignUpModal onClose={() => setShowSingupModal(false)} />}
+        {showSingupModal && <SignUpModal HOST={HOST} onClose={() => setShowSingupModal(false)} />}
 
         <p className="mb-2 text-gray-400">Or login:</p>
 
         <button onClick={() => setLoginModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
           Login
         </button>
-        {showLoginModal && <LoginModal onClose={() => setLoginModal(false)} />}
+        {showLoginModal && <LoginModal HOST={HOST} onClose={() => setLoginModal(false)} />}
 
         <p className="text-xs text-gray-500">
           By signing up, you agree to the{" "}

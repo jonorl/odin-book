@@ -1,6 +1,6 @@
 // JWT authentication to return the payload as req.user
 
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -16,4 +16,15 @@ function authenticateToken(req, res, next) {
   });
 }
 
-export default authenticateToken;
+function signToken(req, res, next) {
+  const newUser = req.newUser;
+  const token = jwt.sign(
+    { userId: newUser.id, email: newUser.email },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+  console.log(token)
+  res.status(201).json({ token });
+}
+
+export { authenticateToken, signToken };
