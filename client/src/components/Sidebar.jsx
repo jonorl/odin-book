@@ -3,8 +3,6 @@ import { MoreHorizontal, Home, Mail, Bookmark, User, Settings, Moon, Sun } from 
 const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
   const menuItems = [
     { icon: Home, label: 'Home', active: true },
-    { icon: Mail, label: 'Messages' },
-    { icon: Bookmark, label: 'Bookmarks' },
     { icon: User, label: 'Profile' },
     { icon: Settings, label: 'Settings' }
   ];

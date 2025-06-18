@@ -3,7 +3,7 @@ import Router from "express";
 import { formatPostsForFeed } from "../services/feedService.js";
 import validateUser from "../controllers/formValidation.js";
 import { authenticateToken, signToken } from "../controllers/authentication.js";
-import upload from "../controllers/multer.js";
+import { parser, processCloudinaryUpload } from "../controllers/multer.js";
 import bcrypt from "bcrypt";
 const mainRouter = Router();
 
@@ -44,11 +44,13 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
 
 // POST routes
 
-mainRouter.post("/api/v1/newPost/", async (req, res) => {
-  const placeHolderUser = "cmbjef3kg0000jl1l8kj2wprc"; // add user data later on
+mainRouter.post("/api/v1/newPost/", parser.single("imageFile"), processCloudinaryUpload, async (req, res) => {
+  const user = req.body.user.id;
   const text = req.body.postText;
-  const imageUrl = req.body.imageUrl || null;
-  const post = await queries.newPost(placeHolderUser, text);
+  const imageUrl = req.imageUrl;
+  console.log(imageUrl)
+  
+  const post = await queries.newPost(user, text, imageUrl);
   res.json({ post });
 });
 

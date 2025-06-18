@@ -14,7 +14,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user }) => {
         <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>Home</h1>
       </div>
       {user !== null &&
-        <PostComposer darkMode={darkMode} HOST={HOST} />
+        <PostComposer darkMode={darkMode} HOST={HOST} user={user} />
       }
       {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
         <div>

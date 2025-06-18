@@ -1,14 +1,21 @@
 import { useState } from 'react';
+import { Paperclip } from 'lucide-react'
 
-const PostComposer = ({ darkMode, HOST }) => {
+const PostComposer = ({ darkMode, HOST, user }) => {
     const [postText, setPostText] = useState('');
+    const [imageFile, setImageFile] = useState(null);
 
     const postMessage = async () => {
+        const formData = new FormData();
+        if (imageFile) {
+            formData.append('imageFile', imageFile); // 'imageFile' is your actual File object from state
+        }
+        formData.append('user[id]', user.id);
+        formData.append('postText', JSON.stringify(postText));
         try {
             const res = await fetch(`${HOST}/api/v1/newPost/`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ postText }),
+                body: formData,
             });
             const data = await res.json();
             window.location.reload()
@@ -39,22 +46,43 @@ const PostComposer = ({ darkMode, HOST }) => {
                         value={postText}
                         onChange={(e) => setPostText(e.target.value)}
                     />
-                    <div className="flex justify-between items-center mt-3">
+                    {/* <div className="flex justify-between items-center mt-3">
                         <div className="flex space-x-4 text-blue-500">
                             <button className={`p-2 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-blue-50'
                                 }`}>📷</button>
+                            </div> */}
+
+                    <>
+                        <div className="relative flex items-center">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                id="file-upload"
+                                name="imageFile"
+                                onChange={(e) => setImageFile(e.target.files[0])}
+                                className="hidden"
+                            />
+                            <label htmlFor="file-upload" className="flex cursor-pointer items-center">
+                                <Paperclip className="text-gray-300 hover:text-white w-5 h-5" />
+                                {imageFile && (
+                                    <span className="text-sm text-gray-400 ml-2 truncate max-w-[60px]">
+                                        {imageFile.name}{console.log("imageFile", imageFile)}
+                                    </span>
+                                )}
+                            </label>
                         </div>
-                        <button
-                            className={`px-6 py-2 rounded-full font-bold ${postText.trim()
-                                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                                : 'bg-blue-300 text-white cursor-not-allowed'
-                                }`}
-                            disabled={!postText.trim()}
-                            onClick={postMessage}
-                        >
-                            Post
-                        </button>
-                    </div>
+                    </>
+
+                    <button
+                        className={`px-6 py-2 rounded-full font-bold ${postText.trim()
+                            ? 'bg-blue-500 text-white hover:bg-blue-600'
+                            : 'bg-blue-300 text-white cursor-not-allowed'
+                            }`}
+                        disabled={!postText.trim()}
+                        onClick={postMessage}
+                    >
+                        Post
+                    </button>
                 </div>
             </div>
         </div>
