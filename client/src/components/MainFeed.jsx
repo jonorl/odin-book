@@ -2,7 +2,7 @@
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST }) => {
+const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user }) => {
 
   return (
     <div className={`flex-1 border  ${darkMode ? 'border-gray-800' : 'border-gray-200'
@@ -13,9 +13,9 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST }) => {
         }`}>
         <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>Home</h1>
       </div>
-
-      <PostComposer darkMode={darkMode} HOST={HOST} />
-
+      {user !== null &&
+        <PostComposer darkMode={darkMode} HOST={HOST} />
+      }
       {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
         <div>
           {formattedPosts.map(post => (

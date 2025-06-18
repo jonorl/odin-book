@@ -23,7 +23,6 @@ function signToken(req, res, next) {
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
-  console.log(token)
   res.status(201).json({ token });
 }
 

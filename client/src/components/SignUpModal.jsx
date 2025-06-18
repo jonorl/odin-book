@@ -23,7 +23,6 @@ const SignUpModal = ({ onClose, HOST }) => {
       if (response.ok && data.token) {
         localStorage.setItem("token", data.token);
         window.location.reload()
-        console.log("why am i not navigating?")
         return
       } else {
         setError(data.message || "Signup failed");

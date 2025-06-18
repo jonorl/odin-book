@@ -88,4 +88,30 @@ mainRouter.post(
   signToken
 );
 
+mainRouter.post(
+  "/api/v1/login",
+  async (req, res, next) => {
+    const { email, password } = req.body;
+    try {
+      const user = await queries.getUserFromEmail(email);
+
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+
+      if (!passwordMatches) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      req.newUser = user;
+      next();
+    } catch (err) {
+      console.error("Login error:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+  signToken
+);
+
 export default mainRouter;

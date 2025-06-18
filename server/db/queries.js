@@ -126,9 +126,15 @@ async function createUser(handle, name, surname, email, hashedPassword) {
 }
 
 async function getMe(user) {
-  console.log("user", user)
   const users = await prisma.user.findUnique({
     where: { id: user.userId },
+  });
+  return users;
+}
+
+async function getUserFromEmail(email) {
+  const users = await prisma.user.findUnique({
+    where: { email: email },
   });
   return users;
 }
@@ -147,4 +153,5 @@ export default {
   getUserByEmail,
   createUser,
   getMe,
+  getUserFromEmail,
 };
