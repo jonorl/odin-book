@@ -37,6 +37,12 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
     setUserPopupMenu(!userPopupMenu);
   };
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    window.location.reload();
+  };
+
+
   return (
     <div className={`w-16 sm:w-20 md:w-64 h-screen border-r p-4 relative ${darkMode // Main sidebar needs 'relative'
       ? 'bg-black border-gray-800'
@@ -108,7 +114,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
                       className={`block w-full text-left px-4 py-2 text-sm font-bold transition-colors
                         ${darkMode ? 'text-red-400 hover:bg-gray-800' : 'text-red-600 hover:bg-gray-100'}
                       `}
-                      onClick={(e) => { e.stopPropagation(); console.log("Logout clicked"); setUserPopupMenu(false); }} // Corrected: Close popup
+                      onClick={(e) => { e.stopPropagation(); logout(); setUserPopupMenu(false); }}
                     >
                       Log out @{user.handle}
                     </button>
