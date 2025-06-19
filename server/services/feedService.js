@@ -1,4 +1,10 @@
-function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount) {
+function formatPostsForFeed(
+  posts,
+  users,
+  favourites,
+  commentCount,
+  retweetCount
+) {
   // Create a map of users for quick lookup by ID
   const usersMap = new Map();
   users.forEach((user) => {
@@ -8,8 +14,12 @@ function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount
   // Create a map of post likes for quick lookup by postId
   const postLikesMap = new Map();
   favourites.forEach((fav) => {
-    postLikesMap.set(fav.postId, fav._count._all);
+    postLikesMap.set(fav.postId, {
+      count: fav._count._all,
+      userIds: fav.userIds,
+    });
   });
+  console.log("postLikesMap", postLikesMap);
 
   const commentCountMap = new Map();
   commentCount.forEach((com) => {
@@ -44,7 +54,6 @@ function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount
       const days = Math.floor(hours / 24);
       return `${days}d`;
     };
-
     return {
       id: post.id,
       user: {
@@ -54,14 +63,18 @@ function formatPostsForFeed(posts, users, favourites, commentCount, retweetCount
         avatar: user.profilePicUrl,
       },
       content: post.text,
+      image: post.imageUrl,
       timestamp: getTimeAgo(post.createdAt),
-      likes: likes,
+      likes: likes.count || 0,
+      likedBy: { userIds: likes.userIds },
       retweets: retweets,
       replies: replies,
       liked: liked,
       retweeted: retweeted,
     };
   });
+
+  console.log("formattedPosts", formattedPosts);
 
   return formattedPosts;
 }

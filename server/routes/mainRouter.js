@@ -9,7 +9,6 @@ const mainRouter = Router();
 
 // Import database queries
 import queries from "../db/queries.js";
-import { body } from "express-validator";
 
 // GET routes
 
@@ -32,6 +31,13 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
   res.json({ postFeed });
 });
 
+mainRouter.get("/api/v1/checkOwnLike", async (req, res) => {
+  let check = false;
+  const likeCheck = await queries.likeCheck(req.body.user.id);
+  if (likeCheck !== null) check = true;
+  res.json({ check });
+});
+
 mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
   try {
     const user = await queries.getMe(req.user);
@@ -44,20 +50,27 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
 
 // POST routes
 
-mainRouter.post("/api/v1/newPost/", parser.single("imageFile"), processCloudinaryUpload, async (req, res) => {
-  const user = req.body.user.id;
-  const text = req.body.postText;
-  const imageUrl = req.imageUrl;
-  console.log(imageUrl)
-  
-  const post = await queries.newPost(user, text, imageUrl);
-  res.json({ post });
-});
+mainRouter.post(
+  "/api/v1/newPost/",
+  parser.single("imageFile"),
+  processCloudinaryUpload,
+  async (req, res) => {
+    const user = req.body.user.id;
+    const text = req.body.postText;
+    const imageUrl = req.imageUrl;
+    console.log(imageUrl);
+
+    const post = await queries.newPost(user, text, imageUrl);
+    res.json({ post });
+  }
+);
 
 mainRouter.post("/api/v1/newLike", async (req, res) => {
-  const placeHolderUser = "cmbjef3kg0000jl1l8kj2wprc"; // add user data later on
+  const user = req.body.user.id;
+  console.log("user",user)
+  /* const placeHolderUser = "cmbjef3kg0000jl1l8kj2wprc"; */ // add user data later on
   const postId = req.body.id;
-  const postLiked = await queries.newLike(placeHolderUser, postId);
+  const postLiked = await queries.toggleLike(user, postId);
   res.json({ postLiked });
 });
 

@@ -19,7 +19,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user }) => {
       {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
         <div>
           {formattedPosts.map(post => (
-            <Post HOST={HOST} key={post.id} post={post} darkMode={darkMode} />
+            <Post user={user} HOST={HOST} key={post.id} post={post} darkMode={darkMode} />
           ))}
         </div>
       )}

@@ -8,7 +8,7 @@ const PostComposer = ({ darkMode, HOST, user }) => {
     const postMessage = async () => {
         const formData = new FormData();
         if (imageFile) {
-            formData.append('imageFile', imageFile); // 'imageFile' is your actual File object from state
+            formData.append('imageFile', imageFile);
         }
         formData.append('user[id]', user.id);
         formData.append('postText', JSON.stringify(postText));
@@ -46,14 +46,8 @@ const PostComposer = ({ darkMode, HOST, user }) => {
                         value={postText}
                         onChange={(e) => setPostText(e.target.value)}
                     />
-                    {/* <div className="flex justify-between items-center mt-3">
-                        <div className="flex space-x-4 text-blue-500">
-                            <button className={`p-2 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-blue-50'
-                                }`}>📷</button>
-                            </div> */}
-
                     <>
-                        <div className="relative flex items-center">
+                        <div className="relative flex items-center gap-4 justify-end">
                             <input
                                 type="file"
                                 accept="image/*"
@@ -70,19 +64,19 @@ const PostComposer = ({ darkMode, HOST, user }) => {
                                     </span>
                                 )}
                             </label>
+                            <button
+                                className={`px-6 py-2 rounded-full font-bold ${postText.trim()
+                                    ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                    : 'bg-blue-300 text-white cursor-not-allowed'
+                                    }`}
+                                disabled={!postText.trim()}
+                                onClick={postMessage}
+                            >
+                                Post
+                            </button>
                         </div>
                     </>
 
-                    <button
-                        className={`px-6 py-2 rounded-full font-bold ${postText.trim()
-                            ? 'bg-blue-500 text-white hover:bg-blue-600'
-                            : 'bg-blue-300 text-white cursor-not-allowed'
-                            }`}
-                        disabled={!postText.trim()}
-                        onClick={postMessage}
-                    >
-                        Post
-                    </button>
                 </div>
             </div>
         </div>

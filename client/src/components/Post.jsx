@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
 
-const Post = ({ post, darkMode, HOST }) => {
+const Post = ({ user, post, darkMode, HOST }) => {
+
+    // const [liked, setLiked] = useState(user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id) ? true : false);
     const [liked, setLiked] = useState(post.liked);
     const [retweeted, setRetweeted] = useState(post.retweeted);
     const [likes, setLikes] = useState(post.likes);
@@ -14,7 +16,7 @@ const Post = ({ post, darkMode, HOST }) => {
             const res = await fetch(`${HOST}/api/v1/newLike/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id }),
+                body: JSON.stringify({ id, user }),
             });
             const data = await res.json();
             return data
@@ -38,7 +40,7 @@ const Post = ({ post, darkMode, HOST }) => {
         <div className={`border-b p-4 cursor-pointer transition-colors ${darkMode
             ? 'border-gray-800 hover:bg-gray-950'
             : 'border-gray-200 hover:bg-gray-50'
-            }`}>
+            }`}>{console.log(post)}
             <div className="flex space-x-3">
                 <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
                 <div className="flex-1">
@@ -57,6 +59,9 @@ const Post = ({ post, darkMode, HOST }) => {
 
                     <div className="mb-3">
                         <p className={darkMode ? 'text-gray-200' : 'text-gray-900'}>{post.content}</p>
+                        {post.image !== null && 
+                        <img src={post.image} alt="posted image"></img>
+                        }
                     </div>
 
                     <div className="flex justify-between max-w-md">
@@ -85,8 +90,8 @@ const Post = ({ post, darkMode, HOST }) => {
                                 ? (darkMode ? 'text-red-400' : 'text-red-500')
                                 : (darkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-500 hover:text-red-500 hover:bg-red-50')
                                 }`}
-                        >
-                            <Heart size={18} fill={liked ? 'currentColor' : 'none'} />
+                        >{console.log("conditional", user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id))}
+                            <Heart size={18} fill={user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id) ? 'currentColor' : 'none'} />
                             <span className="text-sm">{likes}</span>
                         </button>
 
