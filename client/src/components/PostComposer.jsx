@@ -11,7 +11,7 @@ const PostComposer = ({ darkMode, HOST, user }) => {
             formData.append('imageFile', imageFile);
         }
         formData.append('user[id]', user.id);
-        formData.append('postText', JSON.stringify(postText));
+        formData.append('postText', postText);
         try {
             const res = await fetch(`${HOST}/api/v1/newPost/`, {
                 method: "POST",
@@ -60,7 +60,7 @@ const PostComposer = ({ darkMode, HOST, user }) => {
                                 <Paperclip className="text-gray-300 hover:text-white w-5 h-5" />
                                 {imageFile && (
                                     <span className="text-sm text-gray-400 ml-2 truncate max-w-[60px]">
-                                        {imageFile.name}{console.log("imageFile", imageFile)}
+                                        {imageFile.name}
                                     </span>
                                 )}
                             </label>

@@ -58,7 +58,6 @@ mainRouter.post(
     const user = req.body.user.id;
     const text = req.body.postText;
     const imageUrl = req.imageUrl;
-    console.log(imageUrl);
 
     const post = await queries.newPost(user, text, imageUrl);
     res.json({ post });
