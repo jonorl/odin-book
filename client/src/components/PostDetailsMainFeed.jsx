@@ -1,7 +1,8 @@
-const PostDetailsMainFeed = () => {
+const PostDetailsMainFeed = (darkMode, user, postDetails) => {
+
   return (
-    <div className="flex flex-col bg-black text-white min-h-screen">
-      {/* Header: Back Button and Reply Button */}
+    
+    <div className="flex flex-col bg-black text-white min-h-screen">{console.log(postDetails)}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <button className="text-white hover:bg-gray-800 rounded-full p-2">
           <svg
@@ -19,47 +20,72 @@ const PostDetailsMainFeed = () => {
             />
           </svg>
         </button>
-        <h2 className="text-xl font-bold">Post</h2>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600">
-          Reply
-        </button>
       </div>
 
       {/* Post Content */}
-      <div className="p-4 border-b border-gray-800">
-        {/* User Info */}
-        <div className="flex items-center mb-2">
-          <img
-            src="/path/to/nrm-avatar.png" // Replace with actual path to NRM avatar
-            alt="National Rejoin March"
-            className="w-10 h-10 rounded-full mr-3"
-          />
-          <div>
-            <p className="font-bold">National Rejoin March</p>
-            <p className="text-gray-500 text-sm">@MarchForRejoin</p>
-          </div>
-        </div>
+      <div className="flex space-x-3">
+                <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postDetails.user.avatar}></img>
+                <div  className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                        <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{postDetails.user.name}</a>
+                        <span className="text-gray-500">@{postDetails.user.username}</span>
+                        <span className="text-gray-500">·</span>
+                        <span className="text-gray-500">{postDetails.timestamp}</span>
+                        <div className="ml-auto">
+                            <button className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'
+                                }`}>
+                                <MoreHorizontal size={16} className={darkMode ? 'text-white' : 'text-black'} />
+                            </button>
+                        </div>
+                    </div>
 
-        {/* Tweet Text */}
-        <p className="mb-4">
-          The "don't knows" are starting to make up their mind in 2025.
-        </p>
-        <p className="text-blue-500 mb-4">They're choosing #ReJoinEU</p>
+                    <div className="mb-3">
+                        <p className={darkMode ? 'text-gray-200' : 'text-gray-900'}>{post.content}</p>
+                        {postDetails.image !== null && 
+                        <img src={postDetails.image} alt="posted image"></img>
+                        }
+                    </div>
 
-        {/* Image/Chart (replace with actual image source) */}
-        <div className="mb-4">
-          <img
-            src="/path/to/image_1d348c.png" // Replace with the actual path to your image
-            alt="Poll of Polls: UK Support for Rejoining the EU (2023-2025)"
-            className="rounded-lg w-full h-auto"
-          />
-        </div>
+                    <div className="flex justify-between max-w-md">
+                        <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+                            ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
+                            : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
+                            }`}>
+                            <MessageCircle size={18} />
+                            <span className="text-sm">{postDetails.replies}</span>
+                        </button>
 
-        {/* Timestamp */}
-        <p className="text-gray-500 text-sm">
-          9:54 AM · Jun 22, 2025
-        </p>
-      </div>
+                        <button
+                            onClick={handleRetweet}
+                            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
+                                ? (darkMode ? 'text-green-400' : 'text-green-500')
+                                : (darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-green-900/20' : 'text-gray-500 hover:text-green-500 hover:bg-green-50')
+                                }`}
+                        >
+                            <Repeat2 size={18} />
+                            <span className="text-sm">{retweets}</span>
+                        </button>
+
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
+                                ? (darkMode ? 'text-red-400' : 'text-red-500')
+                                : (darkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-500 hover:text-red-500 hover:bg-red-50')
+                                }`}
+                        >
+                            <Heart size={18} fill={user && postDetails && postDetails.likedBy && postDetails.likedBy.userIds && postDetails.likedBy.userIds.includes(user.id) ? 'currentColor' : 'none'} />
+                            <span className="text-sm">{likes}</span>
+                        </button>
+
+                        <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+                            ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
+                            : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
+                            }`}>
+                            <Share size={18} />
+                        </button>
+                    </div>
+                </div>
+            </div>
 
       {/* Action Buttons (Comment, Retweet, Like, Share) */}
       <div className="flex justify-around py-3 border-b border-gray-800">

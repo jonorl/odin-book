@@ -176,6 +176,12 @@ async function getUserFromEmail(email) {
   return users;
 }
 
+async function getPostDetails(postId) {
+  const post = await prisma.post.findUnique({
+    where: { id: postId }
+  })
+}
+
 export default {
   fetchAllUsers,
   fetchAllPosts,
@@ -191,4 +197,5 @@ export default {
   createUser,
   getMe,
   getUserFromEmail,
+  getPostDetails,
 };

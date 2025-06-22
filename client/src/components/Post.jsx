@@ -47,7 +47,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
         <div className={`border-b p-4 cursor-pointer transition-colors ${darkMode
             ? 'border-gray-800 hover:bg-gray-950'
             : 'border-gray-200 hover:bg-gray-50'
-            }`}>{console.log(post)}
+            }`}>
             <div className="flex space-x-3">
                 <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
                 <div onClick={() => postDetailsRedirect(post.user.id, post.id)} className="flex-1">

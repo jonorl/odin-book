@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams } from "react-router-dom";
 import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import PostDetailsMainFeed from './components/PostDetailsMainFeed';
@@ -11,12 +12,30 @@ export default function OdinBook() {
   const [isLoadingUser, setIsLoadingUser] = useState(true)
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [postDetails, setPostDetails] = useState(null)
+  const { postId } = useParams();
+  console.log("postId", postId)
 
   const token = localStorage.getItem("token");
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+
+  // Fetch post details
+  useEffect(() => {
+    async function fetchPostDetails() {
+        try {
+            const post = await fetch(`${HOST}/api/v1/postDetails/${postId}`)
+            console.log(post)
+            const data = await post.json()
+            console.log(data)
+            setPostDetails(data.post)
+        } catch(err) {
+            console.error("Error fetching post details", err)
+        }
+    } fetchPostDetails()
+  },[postId])
 
   // Fetch user data
   useEffect(() => {
@@ -61,7 +80,7 @@ export default function OdinBook() {
       <div className="flex max-w-7xl mr-auto ml-auto">
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
-          <PostDetailsMainFeed isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />
+          <PostDetailsMainFeed postDetails={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
       </div>

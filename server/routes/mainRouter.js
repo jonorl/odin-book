@@ -48,6 +48,17 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
   }
 });
 
+mainRouter.get("/api/v1/postDetails:postId", async (req, res) => {
+  console.log("aca")
+  try {
+    const post = await queries.getPostDetails(req.params);
+    res.json({ post })
+  } catch (err) {
+    console.error("failed to fetch post", err)
+    res.status(500).json({ message: "server error" })
+  }
+})
+
 // POST routes
 
 mainRouter.post(
