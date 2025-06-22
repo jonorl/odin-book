@@ -35,7 +35,7 @@ const RightSidebar = ({ darkMode, HOST, user }) => {
 
         <div className="flex items-center p-2">
 
-          <Search className="text-muted-foreground mr-2 mt-2" />
+          <Search className="text-muted-foreground mr-2 mb-2" />
           <Input
             ref={inputRef}
             placeholder="Search..."

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Post = ({ user, post, darkMode, HOST }) => {
 
@@ -8,6 +9,8 @@ const Post = ({ user, post, darkMode, HOST }) => {
     const [retweeted, setRetweeted] = useState(post.retweeted);
     const [likes, setLikes] = useState(post.likes);
     const [retweets, setRetweets] = useState(post.retweets);
+
+    const navigate = useNavigate()
 
     const postLike = async () => {
         console.log("post.id", post.id)
@@ -23,6 +26,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
         } catch (err) {
             console.error("Failed to post new message:", err);
         }
+    }
+
+    const postDetailsRedirect = (userId, postId) =>  {
+        navigate(`/${userId}/${postId}`)
     }
 
     const handleLike = () => {
@@ -43,9 +50,9 @@ const Post = ({ user, post, darkMode, HOST }) => {
             }`}>{console.log(post)}
             <div className="flex space-x-3">
                 <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
-                <div className="flex-1">
+                <div onClick={() => postDetailsRedirect(post.user.id, post.id)} className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                        <span className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>{post.user.name}</span>
+                        <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{post.user.name}</a>
                         <span className="text-gray-500">@{post.user.username}</span>
                         <span className="text-gray-500">·</span>
                         <span className="text-gray-500">{post.timestamp}</span>
