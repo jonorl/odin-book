@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
+import PostComposer from './PostComposer';
 
-
-const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
+const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
   console.log("user", user)
 
   const [liked, setLiked] = useState(post.liked);
@@ -39,7 +39,7 @@ const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
 
   return (
 
-    <div className="flex flex-col bg-black text-white min-h-screen">{console.log(post)}
+    <div className="flex flex-col bg-black text-white min-h-screen">
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <button className="text-white hover:bg-gray-800 rounded-full p-2">
           <svg
@@ -60,14 +60,15 @@ const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
       </div>
 
       {/* Post Content */}
-      <div className="flex space-x-3">
+      {/* <div className="flex space-x-3"> */}
+        <div className="flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950">
         <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postUser.profilePicUrl}></img>
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
             <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{postUser.name}</a>
-            <span className="text-gray-500">@{postUser.username}</span>
+            <span className="text-gray-500">@{postUser.handle}</span>
             <span className="text-gray-500">·</span>
-            <span className="text-gray-500">{post.timestamp}</span>
+            <span className="text-gray-500">{post.createdAt}</span>
             <div className="ml-auto">
               <button className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'
                 }`}>
@@ -124,26 +125,9 @@ const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
         </div>
       </div>
 
-      {/* Reply Section (simplified) */}
-      <div className="p-4 flex items-start border-b border-gray-800">
-        <img
-          src={user.profilePicUrl} // Replace with path to your default user avatar
-          alt="User Avatar"
-          className="w-10 h-10 rounded-full mr-3"
-        />
-        <div className="flex-1">
-          <textarea
-            className="w-full bg-black border border-gray-700 rounded-lg p-2 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-blue-500"
-            rows="2"
-            placeholder="Post your reply"
-          ></textarea>
-          <div className="text-right mt-2">
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600">
-              Reply
-            </button>
-          </div>
-        </div>
-      </div>
+      {user !== null &&
+        <PostComposer darkMode={darkMode} HOST={HOST} user={user} />
+      }
     </div>
   );
 };
