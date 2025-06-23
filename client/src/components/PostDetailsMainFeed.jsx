@@ -61,7 +61,7 @@ const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
 
       {/* Post Content */}
       <div className="flex space-x-3">
-        <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postUser.avatar}></img>
+        <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postUser.profilePicUrl}></img>
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
             <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{postUser.name}</a>
@@ -79,7 +79,7 @@ const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
           <div className="mb-3">
             <p className={darkMode ? 'text-gray-200' : 'text-gray-900'}>{post.content}</p>
             {post.image !== null &&
-              <img src={post.image} alt="posted image"></img>
+              <img src={post.imageUrl} alt="posted image"></img>
             }
           </div>
 
@@ -124,88 +124,10 @@ const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
         </div>
       </div>
 
-      {/* Action Buttons (Comment, Retweet, Like, Share) */}
-      <div className="flex justify-around py-3 border-b border-gray-800">
-        {/* Comment Button */}
-        <div className="flex items-center text-gray-500 hover:text-blue-500 cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
-          <span className="text-sm">2</span> {/* Example count */}
-        </div>
-
-        {/* Retweet Button */}
-        <div className="flex items-center text-gray-500 hover:text-green-500 cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-            />
-          </svg>
-          <span className="text-sm">4</span> {/* Example count */}
-        </div>
-
-        {/* Like Button */}
-        <div className="flex items-center text-gray-500 hover:text-red-500 cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-          <span className="text-sm">8</span> {/* Example count */}
-        </div>
-
-        {/* Share Button */}
-        <div className="flex items-center text-gray-500 hover:text-blue-500 cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8.684 13.342C8.882 13.118 9 12.807 9 12s-.118-.807-.316-1.006A3.001 3.001 0 006 10c-1.657 0-3 1.343-3 3s1.343 3 3 3c.807 0 1.5-.316 2.006-.816zm-.006-.006C7.5 13.842 7 14.5 7 15s.5 1.158 1.184 1.842a4.001 4.001 0 005.632 0C14.5 16.158 15 15.5 15 15s-.5-1.158-1.184-1.842a4.001 4.001 0 00-5.632 0zM15 12c0 .807-.118 1.5-.316 2.006A3.001 3.001 0 0018 15c1.657 0 3-1.343 3-3s-1.343-3-3-3c-.807 0-1.5.118-2.006.316z"
-            />
-          </svg>
-        </div>
-      </div>
-
       {/* Reply Section (simplified) */}
       <div className="p-4 flex items-start border-b border-gray-800">
         <img
-          src="/path/to/your-avatar.png" // Replace with path to your default user avatar
+          src={user.profilePicUrl} // Replace with path to your default user avatar
           alt="User Avatar"
           className="w-10 h-10 rounded-full mr-3"
         />
