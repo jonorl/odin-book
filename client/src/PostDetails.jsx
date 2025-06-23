@@ -13,8 +13,12 @@ export default function OdinBook() {
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [postDetails, setPostDetails] = useState(null)
+  const [postUser, setPostUserDetails] = useState(null)
   const { postId } = useParams();
+  const { userId } = useParams();
   console.log("postId", postId)
+  console.log("userId", userId)
+  console.log("host", HOST)
 
   const token = localStorage.getItem("token");
 
@@ -25,17 +29,30 @@ export default function OdinBook() {
   // Fetch post details
   useEffect(() => {
     async function fetchPostDetails() {
-        try {
-            const post = await fetch(`${HOST}/api/v1/postDetails/${postId}`)
-            console.log(post)
-            const data = await post.json()
-            console.log(data)
-            setPostDetails(data.post)
-        } catch(err) {
-            console.error("Error fetching post details", err)
-        }
+      try {
+        const post = await fetch(`${HOST}/api/v1/postDetails/${postId}`)
+        const data = await post.json()
+        console.log(data.post)
+        
+        setPostDetails(data.post)
+      } catch (err) {
+        console.error("Error fetching post details", err)
+      }
     } fetchPostDetails()
-  },[postId])
+  }, [postId])
+
+    // Fetch post user details
+  useEffect(() => {
+    async function fetchUserDetails() {
+      try {
+        const post = await fetch(`${HOST}/api/v1/userDetails/${userId}`)
+        const data = await post.json()
+        setPostUserDetails(data.user)
+      } catch (err) {
+        console.error("Error fetching post details", err)
+      }
+    } fetchUserDetails()
+  }, [userId])
 
   // Fetch user data
   useEffect(() => {
@@ -80,9 +97,9 @@ export default function OdinBook() {
       <div className="flex max-w-7xl mr-auto ml-auto">
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
-          <PostDetailsMainFeed postDetails={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />
+          {postDetails && <PostDetailsMainFeed postUser={postUser} post={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
-        </div>
+          </div>
       </div>
     </div>
   );

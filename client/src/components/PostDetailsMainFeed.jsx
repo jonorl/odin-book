@@ -1,8 +1,45 @@
-const PostDetailsMainFeed = (darkMode, user, postDetails) => {
+import { useState } from 'react'
+import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
+
+
+const PostMainFeed = ({HOST, darkMode, user, post, postUser}) => {
+  console.log("user", user)
+
+  const [liked, setLiked] = useState(post.liked);
+  const [retweeted, setRetweeted] = useState(post.retweeted);
+  const [likes, setLikes] = useState(post.likes);
+  const [retweets, setRetweets] = useState(post.retweets);
+
+  const postLike = async () => {
+    console.log("post.id", post.id)
+    const id = post.id
+    try {
+      const res = await fetch(`${HOST}/api/v1/newLike/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, user }),
+      });
+      const data = await res.json();
+      return data
+    } catch (err) {
+      console.error("Failed to post new message:", err);
+    }
+  }
+
+  const handleLike = () => {
+    setLiked(!liked);
+    setLikes(liked ? likes - 1 : likes + 1);
+    postLike()
+  };
+
+  const handleRetweet = () => {
+    setRetweeted(!retweeted);
+    setRetweets(retweeted ? retweets - 1 : retweets + 1);
+  };
 
   return (
-    
-    <div className="flex flex-col bg-black text-white min-h-screen">{console.log(postDetails)}
+
+    <div className="flex flex-col bg-black text-white min-h-screen">{console.log(post)}
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <button className="text-white hover:bg-gray-800 rounded-full p-2">
           <svg
@@ -24,68 +61,68 @@ const PostDetailsMainFeed = (darkMode, user, postDetails) => {
 
       {/* Post Content */}
       <div className="flex space-x-3">
-                <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postDetails.user.avatar}></img>
-                <div  className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
-                        <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{postDetails.user.name}</a>
-                        <span className="text-gray-500">@{postDetails.user.username}</span>
-                        <span className="text-gray-500">·</span>
-                        <span className="text-gray-500">{postDetails.timestamp}</span>
-                        <div className="ml-auto">
-                            <button className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'
-                                }`}>
-                                <MoreHorizontal size={16} className={darkMode ? 'text-white' : 'text-black'} />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="mb-3">
-                        <p className={darkMode ? 'text-gray-200' : 'text-gray-900'}>{post.content}</p>
-                        {postDetails.image !== null && 
-                        <img src={postDetails.image} alt="posted image"></img>
-                        }
-                    </div>
-
-                    <div className="flex justify-between max-w-md">
-                        <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                            ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
-                            : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
-                            }`}>
-                            <MessageCircle size={18} />
-                            <span className="text-sm">{postDetails.replies}</span>
-                        </button>
-
-                        <button
-                            onClick={handleRetweet}
-                            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
-                                ? (darkMode ? 'text-green-400' : 'text-green-500')
-                                : (darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-green-900/20' : 'text-gray-500 hover:text-green-500 hover:bg-green-50')
-                                }`}
-                        >
-                            <Repeat2 size={18} />
-                            <span className="text-sm">{retweets}</span>
-                        </button>
-
-                        <button
-                            onClick={handleLike}
-                            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
-                                ? (darkMode ? 'text-red-400' : 'text-red-500')
-                                : (darkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-500 hover:text-red-500 hover:bg-red-50')
-                                }`}
-                        >
-                            <Heart size={18} fill={user && postDetails && postDetails.likedBy && postDetails.likedBy.userIds && postDetails.likedBy.userIds.includes(user.id) ? 'currentColor' : 'none'} />
-                            <span className="text-sm">{likes}</span>
-                        </button>
-
-                        <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                            ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
-                            : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
-                            }`}>
-                            <Share size={18} />
-                        </button>
-                    </div>
-                </div>
+        <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postUser.avatar}></img>
+        <div className="flex-1">
+          <div className="flex items-center space-x-2 mb-1">
+            <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{postUser.name}</a>
+            <span className="text-gray-500">@{postUser.username}</span>
+            <span className="text-gray-500">·</span>
+            <span className="text-gray-500">{post.timestamp}</span>
+            <div className="ml-auto">
+              <button className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'
+                }`}>
+                <MoreHorizontal size={16} className={darkMode ? 'text-white' : 'text-black'} />
+              </button>
             </div>
+          </div>
+
+          <div className="mb-3">
+            <p className={darkMode ? 'text-gray-200' : 'text-gray-900'}>{post.content}</p>
+            {post.image !== null &&
+              <img src={post.image} alt="posted image"></img>
+            }
+          </div>
+
+          <div className="flex justify-between max-w-md">
+            <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+              ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
+              : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
+              }`}>
+              <MessageCircle size={18} />
+              <span className="text-sm">{post.replies}</span>
+            </button>
+
+            <button
+              onClick={handleRetweet}
+              className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
+                ? (darkMode ? 'text-green-400' : 'text-green-500')
+                : (darkMode ? 'text-gray-400 hover:text-green-400 hover:bg-green-900/20' : 'text-gray-500 hover:text-green-500 hover:bg-green-50')
+                }`}
+            >
+              <Repeat2 size={18} />
+              <span className="text-sm">{retweets}</span>
+            </button>
+
+            <button
+              onClick={handleLike}
+              className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
+                ? (darkMode ? 'text-red-400' : 'text-red-500')
+                : (darkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-500 hover:text-red-500 hover:bg-red-50')
+                }`}
+            >
+              <Heart size={18} fill={user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id) ? 'currentColor' : 'none'} />
+              <span className="text-sm">{likes}</span>
+            </button>
+
+            <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+              ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
+              : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
+              }`}>
+              <Share size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Action Buttons (Comment, Retweet, Like, Share) */}
       <div className="flex justify-around py-3 border-b border-gray-800">
@@ -185,51 +222,8 @@ const PostDetailsMainFeed = (darkMode, user, postDetails) => {
           </div>
         </div>
       </div>
-
-      {/* Example Comment (You'd likely map over an array of comments here) */}
-      <div className="p-4">
-        <div className="flex items-center mb-2">
-          <img
-            src="/path/to/nrm-avatar.png" // Assuming the NRM account is commenting on its own post
-            alt="National Rejoin March"
-            className="w-10 h-10 rounded-full mr-3"
-          />
-          <div>
-            <p className="font-bold">National Rejoin March</p>
-            <p className="text-gray-500 text-sm">@MarchForRejoin · 24m</p>
-          </div>
-        </div>
-        <p className="mb-2">
-          Join the campaign...
-          <br />
-          <a href="http://MarchForRejoin.co.uk" className="text-blue-500 hover:underline">
-            MarchForRejoin.co.uk
-          </a>
-          <br />
-          for all the info you need, join in, petitions, action and more!
-        </p>
-        {/* Placeholder for the two stars - you might use an SVG or an icon library here */}
-        <div className="flex space-x-1 mt-2">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-yellow-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-            >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.92 8.72c-.783-.57-.381-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" />
-            </svg>
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-yellow-400"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-            >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.92 8.72c-.783-.57-.381-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" />
-            </svg>
-        </div>
-      </div>
     </div>
   );
 };
 
-export default PostDetailsMainFeed;
+export default PostMainFeed;

@@ -180,7 +180,16 @@ async function getPostDetails(postId) {
   const post = await prisma.post.findUnique({
     where: { id: postId }
   })
+  return post
 }
+
+async function getUserDetails(userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId }
+  })
+  return user
+}
+
 
 export default {
   fetchAllUsers,
@@ -198,4 +207,5 @@ export default {
   getMe,
   getUserFromEmail,
   getPostDetails,
+  getUserDetails,
 };

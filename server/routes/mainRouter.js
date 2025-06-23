@@ -48,11 +48,21 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
   }
 });
 
-mainRouter.get("/api/v1/postDetails:postId", async (req, res) => {
-  console.log("aca")
+mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
   try {
-    const post = await queries.getPostDetails(req.params);
+    const post = await queries.getPostDetails(req.params.postId);
+    console.log(post, post)
     res.json({ post })
+  } catch (err) {
+    console.error("failed to fetch post", err)
+    res.status(500).json({ message: "server error" })
+  }
+})
+
+mainRouter.get("/api/v1/userDetails/:userId", async (req, res) => {
+  try {
+    const user = await queries.getUserDetails(req.params.userId);
+    res.json({ user })
   } catch (err) {
     console.error("failed to fetch post", err)
     res.status(500).json({ message: "server error" })
