@@ -195,6 +195,12 @@ async function newComment(userId, text, imageUrl, originalPostId) {
   return newPost;
 }
 
+async function fetchSpecificPost(id) {
+  const post = await prisma.post.findUnique({
+  });
+  return post;
+}
+
 export default {
   fetchAllUsers,
   fetchAllPosts,
@@ -212,4 +218,5 @@ export default {
   getPostDetails,
   getUserDetails,
   newComment,
+  fetchSpecificPost,
 };

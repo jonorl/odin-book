@@ -43,7 +43,6 @@ export default function OdinBook() {
     const fetchFormattedPosts = async () => {
       try {
         const res = await fetch(`${HOST}/api/v1/getPosts/`, {
-          // headers: { authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         setFormattedPosts(data.postFeed || []);

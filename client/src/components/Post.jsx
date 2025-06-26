@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 const Post = ({ user, post, darkMode, HOST }) => {
 
-    // const [liked, setLiked] = useState(user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id) ? true : false);
     const [liked, setLiked] = useState(post.liked);
     const [retweeted, setRetweeted] = useState(post.retweeted);
     const [likes, setLikes] = useState(post.likes);
