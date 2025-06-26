@@ -20,7 +20,6 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
   const postsUsers = await queries.getPostUsers(postsUserArray);
   const favourites = await queries.countAllLikes(postsIdArray);
   const commentCount = await queries.countAllComments(postsIdArray);
-  console.log("commentCount", commentCount)
   const retweetCount = await queries.countAllRetweets(postsIdArray);
   const postFeed = formatPostsForFeed(
     posts,
@@ -71,24 +70,37 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
 mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
-    post.createdAt = getTimeAgo(post.createdAt)
-    console.log("post", post)
-    res.json({ post })
+    // const postsIdArray = post.map((obj) => obj.id);
+    const postsComments = await queries.getPostsComments(post.id);
+    // const postsUserArray = post.map((obj) => obj.authorId);
+    const postsUsers = await queries.getPostUsers(post.authorId);
+    const favourites = await queries.countAllLikes(post.id);
+    const commentCount = await queries.countAllComments(post.id);
+    const retweetCount = await queries.countAllRetweets(post.id);
+    const postFeed = formatPostsForFeed(
+      post,
+      postsUsers,
+      favourites,
+      commentCount,
+      retweetCount
+    );
+    console.log("postFeed", postFeed)
+    res.json({ postFeed });
   } catch (err) {
-    console.error("failed to fetch post", err)
-    res.status(500).json({ message: "server error" })
+    console.error("failed to fetch post", err);
+    res.status(500).json({ message: "server error" });
   }
-})
+});
 
 mainRouter.get("/api/v1/userDetails/:userId", async (req, res) => {
   try {
     const user = await queries.getUserDetails(req.params.userId);
-    res.json({ user })
+    res.json({ user });
   } catch (err) {
-    console.error("failed to fetch post", err)
-    res.status(500).json({ message: "server error" })
+    console.error("failed to fetch post", err);
+    res.status(500).json({ message: "server error" });
   }
-})
+});
 
 // POST routes
 
@@ -114,7 +126,7 @@ mainRouter.post(
     const user = req.body.user.id;
     const text = req.body.postText;
     const imageUrl = req.imageUrl;
-    const originalPostId = req.body.originalPostId
+    const originalPostId = req.body.originalPostId;
 
     const post = await queries.newComment(user, text, imageUrl, originalPostId);
     res.json({ post });
@@ -123,7 +135,6 @@ mainRouter.post(
 
 mainRouter.post("/api/v1/newLike", async (req, res) => {
   const user = req.body.user.id;
-  console.log("user",user)
   const postId = req.body.id;
   const postLiked = await queries.toggleLike(user, postId);
   res.json({ postLiked });

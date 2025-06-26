@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const Post = ({ user, post, darkMode, HOST }) => {
+const Post = ({ user, post, darkMode, HOST, isComment }) => {
 
     const [liked, setLiked] = useState(post.liked);
     const [retweeted, setRetweeted] = useState(post.retweeted);
@@ -42,10 +42,11 @@ const Post = ({ user, post, darkMode, HOST }) => {
     };
 
     return (
+        
         <div className={`border-b p-4 cursor-pointer transition-colors ${darkMode
             ? 'border-gray-800 hover:bg-gray-950'
             : 'border-gray-200 hover:bg-gray-50'
-            }`}>
+            }`}>{console.log("post", post)}
             <div onClick={() => postDetailsRedirect(post.user.id, post.id)} className="flex space-x-3">
                 <img onClick={(e) => e.stopPropagation()} className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
                 <div className="flex-1">
@@ -75,7 +76,6 @@ const Post = ({ user, post, darkMode, HOST }) => {
                             : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
                             }`}>
                             <MessageCircle size={18} />
-                            {console.log("replies", post.replies)}
                             <span className="text-sm">{post.replies}</span>
                         </button>
 
@@ -96,7 +96,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
                                 ? (darkMode ? 'text-red-400' : 'text-red-500')
                                 : (darkMode ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-500 hover:text-red-500 hover:bg-red-50')
                                 }`}
-                        >{console.log("conditional", user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id))}
+                        >
                             <Heart size={18} fill={user && post && post.likedBy && post.likedBy.userIds && post.likedBy.userIds.includes(user.id) ? 'currentColor' : 'none'} />
                             <span className="text-sm">{likes}</span>
                         </button>

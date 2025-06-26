@@ -45,8 +45,11 @@ function formatPostsForFeed(
     commentCountMap.set(com.id, com._count.replies);
   });
 
+  const postsArray = Array.isArray(posts) ? posts : [posts];
+  const isinglePost = !Array.isArray(posts);
+
   // Map over the posts to transform them
-  const formattedPosts = posts.map((post) => {
+  const formattedPosts = postsArray.map((post) => {
     const user = usersMap.get(post.authorId); // Find the corresponding user
     const likes = postLikesMap.get(post.id) || 0;
     const retweets = retweetCountMap.get(post.id) || 0;

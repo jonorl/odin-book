@@ -8,12 +8,12 @@ async function fetchAllUsers() {
   return users;
 }
 
-async function getPostsComments(postIdArray) {
+async function getPostsComments(postIdOrArray) {
   const comments = await prisma.post.findMany({
     where: {
-      replyToId: {
-        in: postIdArray,
-      },
+      replyToId: Array.isArray(postIdOrArray)
+        ? { in: postIdOrArray } // If it's an array, use the 'in' filter
+        : postIdOrArray, // If it's not an array, use the direct value
     },
   });
   return comments;
@@ -22,9 +22,11 @@ async function getPostsComments(postIdArray) {
 async function getPostUsers(postUsersArray) {
   const users = await prisma.user.findMany({
     where: {
-      id: {
-        in: postUsersArray,
-      },
+      id: Array.isArray(postUsersArray)
+        ? {
+            in: postUsersArray,
+          }
+        : postUsersArray,
     },
   });
   return users;
@@ -46,12 +48,20 @@ async function fetchAllPosts() {
 async function countAllLikes(postsIdArray) {
   const [likes, favourites] = await Promise.all([
     prisma.favourite.groupBy({
-      where: { postId: { in: postsIdArray } },
+      where: {
+        postId: Array.isArray(postsIdArray)
+          ? { in: postsIdArray }
+          : postsIdArray,
+      },
       by: ["postId"],
       _count: { _all: true },
     }),
     prisma.favourite.findMany({
-      where: { postId: { in: postsIdArray } },
+      where: {
+        postId: Array.isArray(postsIdArray)
+          ? { in: postsIdArray }
+          : postsIdArray,
+      },
       select: { postId: true, userId: true },
     }),
   ]);
@@ -64,17 +74,18 @@ async function countAllLikes(postsIdArray) {
       .map((fav) => fav.userId),
   }));
 
-  console.log("likes", result);
   return result;
 }
 
 async function countAllComments(postsIdArray) {
   const commentCount = await prisma.post.findMany({
-    where: { id: { in: postsIdArray } },
+    where: {
+      id: Array.isArray(postsIdArray) ? { in: postsIdArray } : postsIdArray,
+    },
     include: {
       _count: {
         select: {
-          replies: true, 
+          replies: true,
         },
       },
     },
@@ -85,7 +96,9 @@ async function countAllComments(postsIdArray) {
 
 async function countAllRetweets(postsIdArray) {
   const retweetCount = await prisma.repost.groupBy({
-    where: { postId: { in: postsIdArray } },
+    where: {
+      postId: Array.isArray(postsIdArray) ? { in: postsIdArray } : postsIdArray,
+    },
     by: ["postId"],
     _count: {
       id: true,
@@ -196,8 +209,7 @@ async function newComment(userId, text, imageUrl, originalPostId) {
 }
 
 async function fetchSpecificPost(id) {
-  const post = await prisma.post.findUnique({
-  });
+  const post = await prisma.post.findUnique({});
   return post;
 }
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import PostComposer from "./PostComposer";
+import Post from "./Post"
 
 const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
   const [liked, setLiked] = useState(post.liked);
@@ -96,7 +97,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                   {post.content}
                 </p>
                 {post.image !== null && (
-                  <img src={post.imageUrl} alt="posted image"></img>
+                  <img src={post.image} alt="posted image"></img>
                 )}
               </div>
 
@@ -179,15 +180,13 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
           />
         )}
       </div>
-      {console.log("post.replies", post)}
       {post.replies > 0 && (
         <Post
           darkMode={darkMode}
           HOST={HOST}
           user={user}
           post={post}
-          originalPostId={post.id}
-          redirected="false"
+          isComment="True"
         />
       )}
     </div>

@@ -29,8 +29,8 @@ export default function OdinBook() {
       try {
         const post = await fetch(`${HOST}/api/v1/postDetails/${postId}`)
         const data = await post.json()
-        
-        setPostDetails(data.post)
+        console.log("data", data.postFeed[0])
+        setPostDetails(data.postFeed[0])
       } catch (err) {
         console.error("Error fetching post details", err)
       }
