@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Paperclip } from 'lucide-react'
 
-const PostComposer = ({ darkMode, HOST, user }) => {
+const PostComposer = ({ darkMode, HOST, user, redirected }) => {
     const [postText, setPostText] = useState('');
     const [imageFile, setImageFile] = useState(null);
 
@@ -39,7 +39,7 @@ const PostComposer = ({ darkMode, HOST, user }) => {
                             ? 'bg-black text-white placeholder-gray-500'
                             : 'bg-white text-black placeholder-gray-500'
                             }`}
-                        placeholder="What's happening?"
+                        placeholder={redirected ? "Post your reply" : "What's happening?"}
                         rows={3}
                         name="text"
                         value={postText}

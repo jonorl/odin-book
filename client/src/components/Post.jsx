@@ -48,9 +48,9 @@ const Post = ({ user, post, darkMode, HOST }) => {
             ? 'border-gray-800 hover:bg-gray-950'
             : 'border-gray-200 hover:bg-gray-50'
             }`}>
-            <div className="flex space-x-3">
+            <div onClick={() => postDetailsRedirect(post.user.id, post.id)} className="flex space-x-3">
                 <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
-                <div onClick={() => postDetailsRedirect(post.user.id, post.id)} className="flex-1">
+                <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
                         <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{post.user.name}</a>
                         <span className="text-gray-500">@{post.user.username}</span>

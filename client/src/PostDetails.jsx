@@ -16,9 +16,6 @@ export default function OdinBook() {
   const [postUser, setPostUserDetails] = useState(null)
   const { postId } = useParams();
   const { userId } = useParams();
-  console.log("postId", postId)
-  console.log("userId", userId)
-  console.log("host", HOST)
 
   const token = localStorage.getItem("token");
 
@@ -97,7 +94,8 @@ export default function OdinBook() {
       <div className="flex max-w-7xl mr-auto ml-auto">
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
-          {postDetails && postUser && <PostDetailsMainFeed postUser={postUser} post={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />}
+          {isLoading ? <div className='spinner spinner-container'></div> :
+          postDetails && postUser && <PostDetailsMainFeed postUser={postUser} post={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
           </div>
       </div>

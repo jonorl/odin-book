@@ -1,3 +1,18 @@
+// A simple function to calculate a "time ago" string
+const getTimeAgo = (timestamp) => {
+  const postDate = new Date(timestamp);
+  const now = new Date();
+  const seconds = Math.floor((now - postDate) / 1000);
+
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  const days = Math.floor(hours / 24);
+  return `${days}d`;
+};
+
 function formatPostsForFeed(
   posts,
   users,
@@ -40,20 +55,6 @@ function formatPostsForFeed(
     const liked = false;
     const retweeted = false;
 
-    // A simple function to calculate a "time ago" string
-    const getTimeAgo = (timestamp) => {
-      const postDate = new Date(timestamp);
-      const now = new Date();
-      const seconds = Math.floor((now - postDate) / 1000);
-
-      if (seconds < 60) return `${seconds}s`;
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `${hours}h`;
-      const days = Math.floor(hours / 24);
-      return `${days}d`;
-    };
     return {
       id: post.id,
       user: {
@@ -74,9 +75,7 @@ function formatPostsForFeed(
     };
   });
 
-  console.log("formattedPosts", formattedPosts);
-
   return formattedPosts;
 }
 
-export { formatPostsForFeed };
+export { formatPostsForFeed, getTimeAgo };

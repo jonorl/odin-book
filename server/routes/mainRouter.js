@@ -1,6 +1,6 @@
 // Express set-up
 import Router from "express";
-import { formatPostsForFeed } from "../services/feedService.js";
+import { formatPostsForFeed, getTimeAgo } from "../services/feedService.js";
 import validateUser from "../controllers/formValidation.js";
 import { authenticateToken, signToken } from "../controllers/authentication.js";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
@@ -51,7 +51,8 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
 mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
-    console.log(post, post)
+    post.createdAt = getTimeAgo(post.createdAt)
+    console.log("post", post)
     res.json({ post })
   } catch (err) {
     console.error("failed to fetch post", err)

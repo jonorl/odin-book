@@ -1,4 +1,3 @@
-// import { mockPosts } from "../utils/utils"
 import PostComposer from './PostComposer';
 import Post from './Post';
 

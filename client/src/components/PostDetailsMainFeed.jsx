@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { Heart, MessageCircle, Repeat2, Share, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, Share } from 'lucide-react';
 import PostComposer from './PostComposer';
 
-const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
-  console.log("user", user)
+const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
   const [liked, setLiked] = useState(post.liked);
   const [retweeted, setRetweeted] = useState(post.retweeted);
@@ -11,7 +10,6 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
   const [retweets, setRetweets] = useState(post.retweets);
 
   const postLike = async () => {
-    console.log("post.id", post.id)
     const id = post.id
     try {
       const res = await fetch(`${HOST}/api/v1/newLike/`, {
@@ -39,7 +37,10 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
 
   return (
 
-    <div className="flex flex-col bg-black text-white min-h-screen">
+    <div className={`flex-1 border  ${darkMode ? 'border-gray-800' : 'border-gray-200'
+      }`}>
+
+    <div id='backButton' onClick={() => history.back()} className="flex flex-col bg-black text-white min-h-screen">
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
         <button className="text-white hover:bg-gray-800 rounded-full p-2">
           <svg
@@ -60,7 +61,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
       </div>
 
       {/* Post Content */}
-      {/* <div className="flex space-x-3"> */}
+      {isLoading ? <div className='spinner spinner-container'></div> :
         <div className="flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950">
         <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={postUser.profilePicUrl}></img>
         <div className="flex-1">
@@ -70,10 +71,6 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
             <span className="text-gray-500">·</span>
             <span className="text-gray-500">{post.createdAt}</span>
             <div className="ml-auto">
-              <button className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'
-                }`}>
-                <MoreHorizontal size={16} className={darkMode ? 'text-white' : 'text-black'} />
-              </button>
             </div>
           </div>
 
@@ -123,11 +120,12 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser }) => {
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
       {user !== null &&
-        <PostComposer darkMode={darkMode} HOST={HOST} user={user} />
+        <PostComposer darkMode={darkMode} HOST={HOST} user={user} redirected='true' />
       }
+    </div>
     </div>
   );
 };

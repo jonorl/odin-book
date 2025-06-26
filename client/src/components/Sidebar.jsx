@@ -1,10 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { MoreHorizontal, Home, Mail, Bookmark, User, Settings, Moon, Sun } from 'lucide-react';
+import { MoreHorizontal, Home, User, Settings, Moon, Sun } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 
 const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
   const [userPopupMenu, setUserPopupMenu] = useState(false);
   const popupRef = useRef(null); // Ref for the popup container
   const moreHorizontalRef = useRef(null); // Ref for the MoreHorizontal icon
+  const navigate = useNavigate();
+
 
   const menuItems = [
     { icon: Home, label: 'Home', active: true },
@@ -49,7 +53,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
       : 'bg-white border-gray-200'
       }`}>
       <div className="mb-8 flex items-center justify-between">
-        <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
+        <h1 onClick={() => navigate(`/`)} className={`cursor-pointer text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
         <button
           onClick={toggleDarkMode}
           className={`p-2 rounded-full transition-colors ${darkMode
@@ -87,13 +91,8 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
               onClick={togglePopup}
             >
               {/* Profile Image (placeholder or actual) */}
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-xl">
-                {user.profilePicture ? (
-                  <img src={user.profilePicture} alt={user.name} className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  '👤'
-                )}
-              </div>
+              <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={user.profilePicUrl}></img>
+
               {/* User Name and Handle */}
               <div className="flex-1">
                 <div className={`font-bold ${darkMode ? 'text-white' : 'text-black'}`}>{user.name}</div>
