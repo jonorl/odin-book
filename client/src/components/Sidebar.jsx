@@ -56,7 +56,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
         <h1 onClick={() => navigate(`/`)} className={`cursor-pointer text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
         <button
           onClick={toggleDarkMode}
-          className={`p-2 rounded-full transition-colors ${darkMode
+          className={`cursor-pointer p-2 rounded-full transition-colors ${darkMode
             ? 'hover:bg-gray-800 text-white'
             : 'hover:bg-gray-100 text-gray-700'
             }`}

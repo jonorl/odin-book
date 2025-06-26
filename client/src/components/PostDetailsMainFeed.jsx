@@ -40,9 +40,9 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
     <div className={`flex-1 border  ${darkMode ? 'border-gray-800' : 'border-gray-200'
       }`}>
 
-    <div id='backButton' onClick={() => history.back()} className="flex flex-col bg-black text-white min-h-screen">
+    <div id='backButton'  className="flex flex-col bg-black text-white min-h-screen">
       <div className="flex items-center justify-between p-4 border-b border-gray-800">
-        <button className="text-white hover:bg-gray-800 rounded-full p-2">
+        <button onClick={() => history.back()} className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
