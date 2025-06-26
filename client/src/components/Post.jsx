@@ -76,6 +76,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
                             : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
                             }`}>
                             <MessageCircle size={18} />
+                            {console.log("replies", post.replies)}
                             <span className="text-sm">{post.replies}</span>
                         </button>
 
