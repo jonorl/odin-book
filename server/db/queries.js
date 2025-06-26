@@ -33,18 +33,7 @@ async function getPostUsers(postUsersArray) {
 async function fetchAllPosts() {
   const users = await prisma.post.findMany({
     take: 10,
-    orderBy: [
-      {
-        createdAt: "desc",
-      },
-    ],
-  });
-  return users;
-}
-
-async function fetchAllComments(postId) {
-  const users = await prisma.comment.findMany({
-    where: { postId },
+    where: { replyToId: null },
     orderBy: [
       {
         createdAt: "desc",
@@ -63,16 +52,16 @@ async function countAllLikes(postsIdArray) {
     }),
     prisma.favourite.findMany({
       where: { postId: { in: postsIdArray } },
-      select: { postId: true, userId: true }
-    })
+      select: { postId: true, userId: true },
+    }),
   ]);
 
   // Merge the results
-  const result = likes.map(like => ({
+  const result = likes.map((like) => ({
     ...like,
     userIds: favourites
-      .filter(fav => fav.postId === like.postId)
-      .map(fav => fav.userId)
+      .filter((fav) => fav.postId === like.postId)
+      .map((fav) => fav.userId),
   }));
 
   console.log("likes", result);
@@ -115,11 +104,11 @@ async function newPost(userId, text, imageUrl) {
 async function toggleLike(userId, postId) {
   const existingLike = await prisma.favourite.findUnique({
     where: {
-      userId_postId: { 
+      userId_postId: {
         userId: userId,
-        postId: postId
-      }
-    }
+        postId: postId,
+      },
+    },
   });
 
   if (existingLike) {
@@ -128,17 +117,17 @@ async function toggleLike(userId, postId) {
       where: {
         userId_postId: {
           userId: userId,
-          postId: postId
-        }
-      }
+          postId: postId,
+        },
+      },
     });
-    return { action: 'removed', liked: false };
+    return { action: "removed", liked: false };
   } else {
     // Create the like
     const postLike = await prisma.favourite.create({
-      data: { userId: userId, postId: postId }
+      data: { userId: userId, postId: postId },
     });
-    return { action: 'created', liked: true, data: postLike };
+    return { action: "created", liked: true, data: postLike };
   }
 }
 
@@ -178,23 +167,33 @@ async function getUserFromEmail(email) {
 
 async function getPostDetails(postId) {
   const post = await prisma.post.findUnique({
-    where: { id: postId }
-  })
-  return post
+    where: { id: postId },
+  });
+  return post;
 }
 
 async function getUserDetails(userId) {
   const user = await prisma.user.findUnique({
-    where: { id: userId }
-  })
-  return user
+    where: { id: userId },
+  });
+  return user;
 }
 
+async function newComment(userId, text, imageUrl, originalPostId) {
+  const newPost = await prisma.post.create({
+    data: {
+      authorId: userId,
+      text: text,
+      imageUrl: imageUrl || null,
+      replyToId: originalPostId,
+    },
+  });
+  return newPost;
+}
 
 export default {
   fetchAllUsers,
   fetchAllPosts,
-  fetchAllComments,
   countAllLikes,
   countAllComments,
   countAllRetweets,
@@ -208,4 +207,5 @@ export default {
   getUserFromEmail,
   getPostDetails,
   getUserDetails,
+  newComment,
 };

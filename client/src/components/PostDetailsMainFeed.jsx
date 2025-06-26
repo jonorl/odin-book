@@ -123,7 +123,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
       </div>}
 
       {user !== null &&
-        <PostComposer darkMode={darkMode} HOST={HOST} user={user} redirected='true' />
+        <PostComposer darkMode={darkMode} HOST={HOST} user={user} originalPostId={post.id} redirected='true' />
       }
     </div>
     </div>

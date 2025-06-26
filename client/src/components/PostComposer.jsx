@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Paperclip } from 'lucide-react'
 
-const PostComposer = ({ darkMode, HOST, user, redirected }) => {
+const PostComposer = ({ darkMode, HOST, user, redirected, originalPostId }) => {
     const [postText, setPostText] = useState('');
     const [imageFile, setImageFile] = useState(null);
 
@@ -14,6 +14,27 @@ const PostComposer = ({ darkMode, HOST, user, redirected }) => {
         formData.append('postText', postText);
         try {
             const res = await fetch(`${HOST}/api/v1/newPost/`, {
+                method: "POST",
+                body: formData,
+            });
+            const data = await res.json();
+            window.location.reload()
+            return data
+        } catch (err) {
+            console.error("Failed to post new message:", err);
+        }
+    }
+
+    const postComment = async () => {
+        const formData = new FormData();
+        if (imageFile) {
+            formData.append('imageFile', imageFile);
+        }
+        formData.append('user[id]', user.id);
+        formData.append('postText', postText);
+        formData.append('originalPostId', originalPostId)
+        try {
+            const res = await fetch(`${HOST}/api/v1/newComment/`, {
                 method: "POST",
                 body: formData,
             });
@@ -69,7 +90,7 @@ const PostComposer = ({ darkMode, HOST, user, redirected }) => {
                                     : 'bg-blue-300 text-white cursor-not-allowed'
                                     }`}
                                 disabled={!postText.trim()}
-                                onClick={postMessage}
+                                onClick={redirected ? postComment : postMessage}
                             >
                                 Post
                             </button>

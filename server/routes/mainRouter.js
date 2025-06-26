@@ -15,17 +15,16 @@ import queries from "../db/queries.js";
 mainRouter.get("/api/v1/getPosts/", async (req, res) => {
   const posts = await queries.fetchAllPosts();
   const postsIdArray = posts.map((obj) => obj.id);
-  const postsComments = await queries.getPostsComments(postsIdArray);
+  // const postsComments = await queries.getPostsComments(postsIdArray);
   const postsUserArray = posts.map((obj) => obj.authorId);
   const postsUsers = await queries.getPostUsers(postsUserArray);
   const favourites = await queries.countAllLikes(postsIdArray);
-  const commentCount = await queries.countAllComments(postsIdArray);
+  // const commentCount = await queries.countAllComments(postsIdArray);
   const retweetCount = await queries.countAllRetweets(postsIdArray);
   const postFeed = formatPostsForFeed(
     posts,
     postsUsers,
     favourites,
-    commentCount,
     retweetCount
   );
   res.json({ postFeed });
@@ -82,6 +81,21 @@ mainRouter.post(
     const imageUrl = req.imageUrl;
 
     const post = await queries.newPost(user, text, imageUrl);
+    res.json({ post });
+  }
+);
+
+mainRouter.post(
+  "/api/v1/newComment/",
+  parser.single("imageFile"),
+  processCloudinaryUpload,
+  async (req, res) => {
+    const user = req.body.user.id;
+    const text = req.body.postText;
+    const imageUrl = req.imageUrl;
+    const originalPostId = req.body.originalPostId
+
+    const post = await queries.newComment(user, text, imageUrl, originalPostId);
     res.json({ post });
   }
 );

@@ -17,7 +17,6 @@ function formatPostsForFeed(
   posts,
   users,
   favourites,
-  commentCount,
   retweetCount
 ) {
   // Create a map of users for quick lookup by ID
@@ -36,10 +35,10 @@ function formatPostsForFeed(
   });
   console.log("postLikesMap", postLikesMap);
 
-  const commentCountMap = new Map();
-  commentCount.forEach((com) => {
-    commentCountMap.set(com.postId, com._count.id);
-  });
+  // const commentCountMap = new Map();
+  // commentCount.forEach((com) => {
+  //   commentCountMap.set(com.postId, com._count.id);
+  // });
 
   const retweetCountMap = new Map();
   retweetCount.forEach((retweet) => {
@@ -51,7 +50,7 @@ function formatPostsForFeed(
     const user = usersMap.get(post.authorId); // Find the corresponding user
     const likes = postLikesMap.get(post.id) || 0;
     const retweets = retweetCountMap.get(post.id) || 0;
-    const replies = commentCountMap.get(post.id) || 0;
+    // const replies = commentCountMap.get(post.id) || 0;
     const liked = false;
     const retweeted = false;
 
@@ -69,7 +68,7 @@ function formatPostsForFeed(
       likes: likes.count || 0,
       likedBy: { userIds: likes.userIds },
       retweets: retweets,
-      replies: replies,
+      // replies: replies,
       liked: liked,
       retweeted: retweeted,
     };

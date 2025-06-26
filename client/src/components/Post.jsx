@@ -49,13 +49,13 @@ const Post = ({ user, post, darkMode, HOST }) => {
             }`}>
             <div onClick={() => postDetailsRedirect(post.user.id, post.id)} className="flex space-x-3">
                 <img onClick={(e) => e.stopPropagation()} className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={post.user.avatar}></img>
-                <div onClick={(e) => e.stopPropagation()}className="flex-1">
+                <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                        <a className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{post.user.name}</a>
-                        <span className="text-gray-500">@{post.user.username}</span>
-                        <span className="text-gray-500">·</span>
-                        <span className="text-gray-500">{post.timestamp}</span>
-                        <div className="ml-auto">
+                        <a onClick={(e) => e.stopPropagation()} className={`hover:underline font-bold ${darkMode ? 'text-white' : 'text-black'}`} href='#'>{post.user.name}</a>
+                        <span onClick={(e) => e.stopPropagation()} className="text-gray-500">@{post.user.username}</span>
+                        <span onClick={(e) => e.stopPropagation()} className="text-gray-500">·</span>
+                        <span onClick={(e) => e.stopPropagation()} className="text-gray-500">{post.timestamp}</span>
+                        <div onClick={(e) => e.stopPropagation()} className="ml-auto">
                             <button className={`p-1 rounded-full transition-colors ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-200'
                                 }`}>
                                 <MoreHorizontal size={16} className={darkMode ? 'text-white' : 'text-black'} />
@@ -66,11 +66,11 @@ const Post = ({ user, post, darkMode, HOST }) => {
                     <div className="mb-3">
                         <p className={darkMode ? 'text-gray-200' : 'text-gray-900'}>{post.content}</p>
                         {post.image !== null && 
-                        <img src={post.image} alt="posted image"></img>
+                        <img onClick={(e) => e.stopPropagation()} src={post.image} alt="posted image"></img>
                         }
                     </div>
 
-                    <div className="flex justify-between max-w-md">
+                    <div onClick={(e) => e.stopPropagation()} className="flex justify-between max-w-md">
                         <button className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
                             ? 'text-gray-400 hover:text-blue-400 hover:bg-blue-900/20'
                             : 'text-gray-500 hover:text-blue-500 hover:bg-blue-50'
