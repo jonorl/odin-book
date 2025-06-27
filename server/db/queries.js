@@ -200,7 +200,25 @@ async function getUserDetailsByHandle(handle) {
   const user = await prisma.user.findUnique({
     where: { handle: handle },
   });
-  return user;
+  const postCount = await prisma.post.count({
+    where: {
+      authorId: user.authorId,
+      replyTo: null,
+    },
+  });
+  const replyCount = await prisma.post.count({
+    where: {
+      authorId: user.authorId,
+      replyTo: { isNot: null },
+    },
+  });
+  const userWithPostCount = {
+    ...user,
+    postCount: postCount,
+    replyCount: replyCount,
+  };
+  console.log("userWithPostCount", userWithPostCount);
+  return userWithPostCount;
 }
 
 async function newComment(userId, text, imageUrl, originalPostId) {

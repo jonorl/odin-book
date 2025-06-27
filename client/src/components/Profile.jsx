@@ -11,7 +11,7 @@ const Profile = ({
   user,
 }) => {
   let date = new Date(user.createdAt);
-  date = date.toLocaleDateString("en-GB", { month: 'short', year: 'numeric' } );
+  date = date.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 
   return (
     <div
@@ -20,14 +20,27 @@ const Profile = ({
       }`}
     >
       {/* Header Navigation */}
-      <div className="flex justify-between p-4 border-b border-gray-800 flex-col bg-black text-white">
+      <div
+        className={`flex justify-between p-4 border-b  ${
+          darkMode
+            ? "bg-black/80 border-gray-800 text-white"
+            : "bg-white/80 border-gray-200 text-black"
+        }}`}
+      >
         <div className="flex items-center space-x-8">
-          <ArrowLeft className="w-5 h-5 cursor-pointer hover:bg-gray-900 rounded-full p-1" />
+          <ArrowLeft
+            size={32}
+            className=" cursor-pointer hover:bg-gray-900 rounded-full p-1"
+          />
           <div>
-            <h1 className="text-xl font-bold">{user.name}</h1>
-            <p className="text-sm text-gray-500">
-              {profileData.totalPosts} posts
-            </p>
+            <h1
+              className={`text-xl font-bold ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
+              {user.name}
+            </h1>
+            <p className="text-sm text-gray-500">{user.postCount} posts</p>
           </div>
         </div>
       </div>
@@ -35,25 +48,40 @@ const Profile = ({
       {/* Profile Section */}
       <div>
         {/* Profile Content */}
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-4 flex flex-col items-center">
           {/* Avatar */}
           <div className="mb-4 mt-4">
             <img
               src={user.profilePicUrl}
               alt={user.name}
-              className="w-32 h-32 rounded-full border-4 border-black bg-gray-600"
+              className={`w-32 h-32 rounded-full border-4 border-black bg-gray-600 ${
+                darkMode ? "text-white" : "text-black"
+              }
+              }`}
             />
           </div>
 
           {/* Profile Info */}
-          <div className="space-y-3">
+          <div className="space-y-3 flex flex-col items-center">
             {/* Name and Verification */}
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl text-white font-bold">{user.name}</h2>
+              <h2
+                className={`text-xl font-bold ${
+                  darkMode ? "text-white" : "text-black"
+                }`}
+              >
+                {user.name}
+              </h2>
             </div>
 
             {/* Username */}
-            <p className="text-gray-500">@{user.handle}</p>
+            <p
+              className={`text-gray-500 ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
+              @{user.handle}
+            </p>
 
             {/* Location and Join Date */}
             <div className="flex items-center space-x-4 text-gray-500 text-sm">

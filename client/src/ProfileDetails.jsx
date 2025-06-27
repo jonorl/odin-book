@@ -12,7 +12,6 @@ export default function OdinBook() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [postDetails, setPostDetails] = useState(null);
   const [SpecificUser, setSpecificUserDetails] = useState(null);
   const { handle } = useParams();
 
@@ -97,7 +96,6 @@ export default function OdinBook() {
               HOST={HOST}
               user={SpecificUser}
               darkMode={darkMode}
-            //   formattedPosts={formattedPosts}
             />
           )}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />

@@ -112,6 +112,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
             </p>
             {post && post.image !== null && (
               <img
+              className="rounded-xl"
                 onClick={(e) => e.stopPropagation()}
                 src={post.image}
                 alt="posted image"

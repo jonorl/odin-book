@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share, ArrowLeft } from "lucide-react";
 import PostComposer from "./PostComposer";
 import Post from "./Post";
 
@@ -62,8 +62,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
           <button
             onClick={() => history.back()}
             className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2"
-          >
-            <svg
+          ><ArrowLeft size={32} className="cursor-pointer hover:bg-gray-900 rounded-full p-1" />
+            {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6"
               fill="none"
@@ -76,7 +76,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                 strokeWidth={2}
                 d="M10 19l-7-7m0 0l7-7m-7 7h18"
               />
-            </svg>
+            </svg> */}
           </button>
         </div>
 
@@ -110,7 +110,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                   {post.content}
                 </p>
                 {post.image !== null && (
-                  <img src={post.image} alt="posted image"></img>
+                  <img className='rounded-xl' src={post.image} alt="posted image"></img>
                 )}
               </div>
 
