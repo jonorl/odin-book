@@ -72,6 +72,7 @@ function formatPostsForFeed(
       likedBy: { userIds: likes.userIds },
       retweets: retweets,
       replies: replies,
+      replyToId: post.replyToId,
       liked: liked,
       retweeted: retweeted,
     };

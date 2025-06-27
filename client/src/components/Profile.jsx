@@ -1,4 +1,5 @@
 import { ArrowLeft, Calendar } from "lucide-react";
+import Post from "./Post";
 
 const Profile = ({
   profileData = {
@@ -9,6 +10,8 @@ const Profile = ({
   },
   darkMode,
   user,
+  formattedPosts,
+  HOST,
 }) => {
   let date = new Date(user.createdAt);
   date = date.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
@@ -30,7 +33,10 @@ const Profile = ({
         <div className="flex items-center space-x-8">
           <ArrowLeft
             size={32}
-            className=" cursor-pointer hover:bg-gray-900 rounded-full p-1"
+            className={`cursor-pointer hover:bg-gray-900 rounded-full p-1 ${
+              darkMode ? "text-white" : "text-black"
+            }`}
+            onClick={() => history.back()}
           />
           <div>
             <h1
@@ -40,7 +46,13 @@ const Profile = ({
             >
               {user.name}
             </h1>
-            <p className="text-sm text-gray-500">{user.postCount} posts</p>
+            <p
+              className={`text-sm text-gray-500 ${
+                darkMode ? "text-white" : "text-black"
+              }`}
+            >
+              {user.postCount} posts
+            </p>
           </div>
         </div>
       </div>
@@ -54,7 +66,7 @@ const Profile = ({
             <img
               src={user.profilePicUrl}
               alt={user.name}
-              className={`w-32 h-32 rounded-full border-4 border-black bg-gray-600 ${
+              className={`w-32 h-32 rounded-full bg-gray-600 ${
                 darkMode ? "text-white" : "text-black"
               }
               }`}
@@ -112,13 +124,17 @@ const Profile = ({
         {/* Navigation Tabs */}
         <div className="border-b border-gray-800">
           <div className="flex">
-            <button className="flex-1 py-4 text-center border-b-2 border-blue-500 text-white font-medium">
+            <button className="flex-1 py-4 text-center border-b-2 border-blue-500 text-gray-500 font-medium">
               Posts
             </button>
             <button className="flex-1 py-4 text-center text-gray-500 hover:bg-gray-900 hover:text-white transition-colors">
               Replies
             </button>
           </div>
+          {formattedPosts &&
+            formattedPosts.filter((post) => post.replyToId === null).map((post) => (
+              <Post user={user} HOST={HOST} post={post} darkMode={darkMode} />
+            ))}
         </div>
       </div>
     </div>

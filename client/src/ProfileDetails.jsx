@@ -12,7 +12,7 @@ export default function OdinBook() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [SpecificUser, setSpecificUserDetails] = useState(null);
+  const [specificUser, setSpecificUserDetails] = useState(null);
   const { handle } = useParams();
 
   const token = localStorage.getItem("token");
@@ -59,9 +59,10 @@ export default function OdinBook() {
   // Create new mapped object fusing posts and users
   useEffect(() => {
     const fetchFormattedPosts = async () => {
+      console.log("specificUser", specificUser)
+      const userId = specificUser && specificUser.id
       try {
-        const res = await fetch(`${HOST}/api/v1/getPosts/`, {
-          // headers: { authorization: `Bearer ${token}` },
+        const res = await fetch(`${HOST}/api/v1/getPostsFromSpecificUser/${userId}`, {
         });
         const data = await res.json();
         setFormattedPosts(data.postFeed || []);
@@ -72,7 +73,7 @@ export default function OdinBook() {
       }
     };
     fetchFormattedPosts();
-  }, []);
+  }, [specificUser]);
 
   return (
     <div
@@ -94,8 +95,9 @@ export default function OdinBook() {
             <Profile
               isLoading={isLoading}
               HOST={HOST}
-              user={SpecificUser}
+              user={specificUser}
               darkMode={darkMode}
+              formattedPosts={formattedPosts}
             />
           )}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />

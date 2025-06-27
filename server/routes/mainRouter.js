@@ -50,6 +50,25 @@ mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
   res.json({ postFeed });
 });
 
+mainRouter.get("/api/v1/getPostsFromSpecificUser/:specificUserId", async (req, res) => {
+  const posts = await queries.fetchAllPostsFromSpecificUser(req.params.specificUserId);
+  const postsIdArray = posts.map((obj) => obj.id);
+  const postsComments = await queries.getPostsComments(postsIdArray);
+  const postsUserArray = posts.map((obj) => obj.authorId);
+  const postsUsers = await queries.getPostUsers(postsUserArray);
+  const favourites = await queries.countAllLikes(postsIdArray);
+  const commentCount = await queries.countAllComments(postsIdArray);
+  const retweetCount = await queries.countAllRetweets(postsIdArray);
+  const postFeed = formatPostsForFeed(
+    posts,
+    postsUsers,
+    favourites,
+    commentCount,
+    retweetCount
+  );
+  res.json({ postFeed });
+});
+
 mainRouter.get("/api/v1/checkOwnLike", async (req, res) => {
   let check = false;
   const likeCheck = await queries.likeCheck(req.body.user.id);
