@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import PostComposer from "./PostComposer";
-import Post from "./Post"
+import Post from "./Post";
 
 const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
   const [liked, setLiked] = useState(post.liked);
   const [retweeted, setRetweeted] = useState(post.retweeted);
   const [likes, setLikes] = useState(post.likes);
   const [retweets, setRetweets] = useState(post.retweets);
+  const [postReplies, setPostReplies] = useState(null);
 
   const postLike = async () => {
     const id = post.id;
@@ -23,6 +24,21 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
       console.error("Failed to post new message:", err);
     }
   };
+
+  useEffect(() => {
+    const fetchFormattedPosts = async () => {
+      try {
+        const res = await fetch(`${HOST}/api/v1/postReplies/${post.id}/`, {});
+        const data = await res.json();
+        console.log("data", data);
+        setPostReplies(data.postFeed || []);
+        return data;
+      } catch (err) {
+        console.error("Failed to fetch formatted posts:", err);
+      }
+    };
+    fetchFormattedPosts();
+  }, [HOST, post.id]);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -41,10 +57,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
         darkMode ? "border-gray-800" : "border-gray-200"
       }`}
     >
-      <div
-        id="backButton"
-        className="flex flex-col bg-black text-white min-h-screen"
-      >
+      <div id="backButton" className="flex flex-col bg-black text-white">
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
           <button
             onClick={() => history.back()}
@@ -180,15 +193,12 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
           />
         )}
       </div>
-      {post.replies > 0 && (
-        <Post
-          darkMode={darkMode}
-          HOST={HOST}
-          user={user}
-          post={post}
-          isComment="True"
-        />
-      )}
+
+      {post.replies > 0 &&
+        postReplies &&
+        postReplies.map((post) => (
+          <Post user={user} HOST={HOST} post={post} darkMode={darkMode} />
+        ))}
     </div>
   );
 };
