@@ -196,6 +196,13 @@ async function getUserDetails(userId) {
   return user;
 }
 
+async function getUserDetailsByHandle(handle) {
+  const user = await prisma.user.findUnique({
+    where: { handle: handle },
+  });
+  return user;
+}
+
 async function newComment(userId, text, imageUrl, originalPostId) {
   const newPost = await prisma.post.create({
     data: {
@@ -231,4 +238,5 @@ export default {
   getUserDetails,
   newComment,
   fetchSpecificPost,
+  getUserDetailsByHandle,
 };

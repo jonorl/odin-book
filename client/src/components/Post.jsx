@@ -67,11 +67,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
             <a
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {e.stopPropagation(), navigate(`/profile/${post.user.username}`)}}
               className={`hover:underline font-bold ${
                 darkMode ? "text-white" : "text-black"
               }`}
-              href="#"
             >
               {post && post.user && post.user.name}
             </a>

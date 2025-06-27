@@ -11,9 +11,9 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
 
 
   const menuItems = [
-    { icon: Home, label: 'Home', active: true },
-    { icon: User, label: 'Profile' },
-    { icon: Settings, label: 'Settings' }
+    { icon: Home, label: 'Home', nav: '/', active: true },
+    user && { icon: User, nav: `/profile/${user.handle}`, label: 'Profile' },
+    { icon: Settings, nav: '/settings', label: 'Settings' }
   ];
 
   // Function to close the popup when clicking outside
@@ -48,7 +48,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
 
 
   return (
-    <div className={`w-16 sm:w-20 md:w-64 h-screen border-r p-4 relative ${darkMode // Main sidebar needs 'relative'
+    <div className={`w-16 sm:w-20 md:w-64 h-screen p-4 relative ${darkMode // Main sidebar needs 'relative'
       ? 'bg-black border-gray-800'
       : 'bg-white border-gray-200'
       }`}>
@@ -72,6 +72,7 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
               return (
                 <button
                   key={index}
+                  onClick={() => navigate(`${item.nav}`)}
                   className={`flex items-center space-x-3 w-full p-3 rounded-full transition-colors ${darkMode
                     ? 'hover:bg-gray-800 text-white'
                     : 'hover:bg-gray-100 text-black'

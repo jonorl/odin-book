@@ -127,6 +127,16 @@ mainRouter.get("/api/v1/userDetails/:userId", async (req, res) => {
   }
 });
 
+mainRouter.get("/api/v1/userHandle/:handle", async (req, res) => {
+  try {
+    const user = await queries.getUserDetailsByHandle(req.params.handle);
+    res.json({ user });
+  } catch (err) {
+    console.error("failed to fetch post", err);
+    res.status(500).json({ message: "server error" });
+  }
+});
+
 // POST routes
 
 mainRouter.post(
