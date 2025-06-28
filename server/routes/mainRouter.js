@@ -52,6 +52,7 @@ mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
 
 mainRouter.get("/api/v1/getPostsFromSpecificUser/:specificUserId", async (req, res) => {
   const posts = await queries.fetchAllPostsFromSpecificUser(req.params.specificUserId);
+  const postReplies = await queries.fetchAllPostRepliesFromSpecificUser(posts)
   const postsIdArray = posts.map((obj) => obj.id);
   const postsComments = await queries.getPostsComments(postsIdArray);
   const postsUserArray = posts.map((obj) => obj.authorId);
@@ -64,7 +65,8 @@ mainRouter.get("/api/v1/getPostsFromSpecificUser/:specificUserId", async (req, r
     postsUsers,
     favourites,
     commentCount,
-    retweetCount
+    retweetCount,
+    postReplies,
   );
   res.json({ postFeed });
 });

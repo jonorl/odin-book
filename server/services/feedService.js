@@ -18,7 +18,8 @@ function formatPostsForFeed(
   users,
   favourites,
   commentCount,
-  retweetCount
+  retweetCount,
+  postReplies
 ) {
   // Create a map of users for quick lookup by ID
   const usersMap = new Map();
@@ -40,13 +41,27 @@ function formatPostsForFeed(
     retweetCountMap.set(retweet.postId, retweet._count.id);
   });
 
-   const commentCountMap = new Map();
-   commentCount.forEach((com) => {
+  const commentCountMap = new Map();
+  commentCount.forEach((com) => {
     commentCountMap.set(com.id, com._count.replies);
   });
 
   const postsArray = Array.isArray(posts) ? posts : [posts];
   const isinglePost = !Array.isArray(posts);
+
+  const allPostsMap = new Map();
+  postsArray.forEach((post) => {
+    allPostsMap.set(post.id, post);
+  });
+
+  let postRepliesMap = new Map();
+  console.log("postReplies", postReplies);
+  postReplies &&
+    postReplies.forEach((reply) => {
+      postRepliesMap.set(reply.id, reply);
+    });
+
+  console.log("postLikesMap", postLikesMap);
 
   // Map over the posts to transform them
   const formattedPosts = postsArray.map((post) => {
@@ -56,6 +71,7 @@ function formatPostsForFeed(
     const replies = commentCountMap.get(post.id) || 0;
     const liked = false;
     const retweeted = false;
+    const replyPost = allPostsMap.get(post.replyToId) || null;
 
     return {
       id: post.id,
@@ -75,9 +91,20 @@ function formatPostsForFeed(
       replyToId: post.replyToId,
       liked: liked,
       retweeted: retweeted,
+      originalPost: replyPost
+        ? {
+            id: replyPost.id,
+            authorId: replyPost.authorId,
+            text: replyPost.text,
+            imageUrl: replyPost.imageUrl,
+            createdAt: replyPost.createdAt,
+            replyToId: replyPost.replyToId,
+          }
+        : null,
     };
   });
 
+  console.log("formattedPosts", formattedPosts);
   return formattedPosts;
 }
 

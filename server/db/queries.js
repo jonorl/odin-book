@@ -51,7 +51,7 @@ async function fetchAllPosts() {
 }
 
 async function fetchAllPostsFromSpecificUser(id) {
-  const users = await prisma.post.findMany({
+  const posts = await prisma.post.findMany({
     take: 10,
     where: { authorId: id },
     orderBy: [
@@ -60,7 +60,19 @@ async function fetchAllPostsFromSpecificUser(id) {
       },
     ],
   });
-  return users;
+  return posts;
+}
+
+async function fetchAllPostRepliesFromSpecificUser(postsArray) {
+  const posts = await prisma.post.findMany({
+    where: { replyToId: { in: postsArray.id } },
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
+  });
+  return posts;
 }
 
 async function countAllLikes(postsIdArray) {
@@ -276,4 +288,5 @@ export default {
   fetchSpecificPost,
   getUserDetailsByHandle,
   fetchAllPostsFromSpecificUser,
+  fetchAllPostRepliesFromSpecificUser,
 };

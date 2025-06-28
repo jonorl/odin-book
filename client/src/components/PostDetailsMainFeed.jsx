@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, ArrowLeft } from "lucide-react";
 import PostComposer from "./PostComposer";
 import Post from "./Post";
@@ -9,6 +10,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
   const [likes, setLikes] = useState(post.likes);
   const [retweets, setRetweets] = useState(post.retweets);
   const [postReplies, setPostReplies] = useState(null);
+
+  const navigate = useNavigate();
 
   const postLike = async () => {
     const id = post.id;
@@ -62,7 +65,11 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
           <button
             onClick={() => history.back()}
             className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2"
-          ><ArrowLeft size={32} className="cursor-pointer hover:bg-gray-900 rounded-full p-1" />
+          >
+            <ArrowLeft
+              size={32}
+              className="cursor-pointer hover:bg-gray-900 rounded-full p-1"
+            />
           </button>
         </div>
 
@@ -70,7 +77,12 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
         {isLoading ? (
           <div className="spinner spinner-container"></div>
         ) : (
-          <div className="flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950">
+          <div
+            className="flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950"
+            onClick={() => {
+              navigate(`/profile/${post.user.username}`);
+            }}
+          >
             <img
               className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
               src={postUser.profilePicUrl}
@@ -81,9 +93,11 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                   className={`hover:underline font-bold ${
                     darkMode ? "text-white" : "text-black"
                   }`}
-                  href="#"
+                  onClick={() => {
+                    navigate(`/profile/${post.user.username}`);
+                  }}
                 >
-                  {postUser.name}
+                  {postUser.name} {postUser.surname}
                 </a>
                 <span className="text-gray-500">@{postUser.handle}</span>
                 <span className="text-gray-500">·</span>
@@ -96,7 +110,11 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                   {post.content}
                 </p>
                 {post.image !== null && (
-                  <img className='rounded-xl' src={post.image} alt="posted image"></img>
+                  <img
+                    className="rounded-xl"
+                    src={post.image}
+                    alt="posted image"
+                  ></img>
                 )}
               </div>
 
