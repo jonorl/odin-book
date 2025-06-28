@@ -1,5 +1,6 @@
 import { ArrowLeft, Calendar } from "lucide-react";
 import Post from "./Post";
+import { useState } from "react";
 
 const Profile = ({
   profileData = {
@@ -15,6 +16,7 @@ const Profile = ({
 }) => {
   let date = new Date(user.createdAt);
   date = date.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  const [activeTab, setActiveTab] = useState("posts");
 
   return (
     <div
@@ -120,21 +122,59 @@ const Profile = ({
             </div>
           </div>
         </div>
-
         {/* Navigation Tabs */}
+        // Navigation Tabs
         <div className="border-b border-gray-800">
           <div className="flex">
-            <button className="flex-1 py-4 text-center border-b-2 border-blue-500 text-gray-500 font-medium">
+            {/* Posts Button */}
+            <button
+              className={`flex-1 py-4 text-center ${
+                activeTab === "posts"
+                  ? "border-b-2 border-blue-500 text-gray-500 font-medium"
+                  : "text-gray-500 hover:bg-gray-900 hover:text-white"
+              } transition-colors`}
+              onClick={() => setActiveTab("posts")}
+            >
               Posts
             </button>
-            <button className="flex-1 py-4 text-center text-gray-500 hover:bg-gray-900 hover:text-white transition-colors">
+            {/* Replies Button */}
+            <button
+              className={`flex-1 py-4 text-center ${
+                activeTab === "replies"
+                  ? "border-b-2 border-blue-500 text-gray-500 font-medium"
+                  : "text-gray-500 hover:bg-gray-900 hover:text-white"
+              } transition-colors`}
+              onClick={() => setActiveTab("replies")}
+            >
               Replies
             </button>
           </div>
-          {formattedPosts &&
-            formattedPosts.filter((post) => post.replyToId === null).map((post) => (
-              <Post user={user} HOST={HOST} post={post} darkMode={darkMode} />
-            ))}
+          {/* 3. Conditionally render content based on the active tab */}
+          {activeTab === "posts"
+            ? formattedPosts &&
+              formattedPosts
+                .filter((post) => post.replyToId === null)
+                .map((post) => (
+                  <Post
+                    key={post.id}
+                    user={user}
+                    HOST={HOST}
+                    post={post}
+                    darkMode={darkMode}
+                  />
+                ))
+            : formattedPosts &&
+              formattedPosts
+                .filter((post) => post.replyToId !== null)
+                .map((post) => (
+                  <Post
+                    key={post.id}
+                    user={user}
+                    HOST={HOST}
+                    post={post}
+                    darkMode={darkMode}
+                  />
+                ))}
         </div>
       </div>
     </div>

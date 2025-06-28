@@ -15,6 +15,11 @@ async function getPostsComments(postIdOrArray) {
         ? { in: postIdOrArray } // If it's an array, use the 'in' filter
         : postIdOrArray, // If it's not an array, use the direct value
     },
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
   });
   return comments;
 }
