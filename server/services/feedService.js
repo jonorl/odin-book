@@ -1,9 +1,10 @@
+import queries from "../db/queries.js";
+
 // A simple function to calculate a "time ago" string
 const getTimeAgo = (timestamp) => {
   const postDate = new Date(timestamp);
   const now = new Date();
   const seconds = Math.floor((now - postDate) / 1000);
-
   if (seconds < 60) return `${seconds}s`;
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m`;
@@ -13,7 +14,12 @@ const getTimeAgo = (timestamp) => {
   return `${days}d`;
 };
 
-function formatPostsForFeed(
+async function getUsersHelperFunction(authorId) {
+  const users = await queries.getPostUsers(authorId);
+  return users;
+}
+
+async function formatPostsForFeed(
   posts,
   users,
   favourites,
@@ -73,6 +79,47 @@ function formatPostsForFeed(
     const retweeted = false;
     const replyPost = allPostsMap.get(post.replyToId) || null;
 
+    // Get the original post's author data if it's a reply
+    let originalPostWithUser = null;
+    if (replyPost) {
+      const originalUser = getUsersHelperFunction(replyPost.authorId);
+      const originalUserMap = new Map();
+      originalUser.forEach((OriginalUserData) => {
+        originalUserMap.set(replyPost.authorId, OriginalUserData);
+      });
+      const originalAuthor = originalUserMap.get(replyPost.authorId);
+      originalPostWithUser = {
+        id: replyPost.id,
+        user: {
+          id: user.id,
+          name: user.name + " " + user.surname,
+          username: user.handle,
+          avatar: user.profilePicUrl,
+        },
+        content: replyPost.text,
+        image: replyPost.imageUrl,
+        timestamp: getTimeAgo(replyPost.createdAt),
+        createdAt: replyPost.createdAt,
+        replyToId: replyPost.replyToId,
+        originalPost: replyPost
+          ? {
+              id: replyPost.id,
+              authorId: replyPost.authorId,
+              text: replyPost.text,
+              imageUrl: replyPost.imageUrl,
+              createdAt: replyPost.createdAt,
+              replyToId: replyPost.replyToId,
+              originalUser: {
+                id: originalAuthor.id,
+                name: originalAuthor.name + " " + originalAuthor.surname,
+                username: originalAuthor.handle,
+                avatar: originalAuthor.profilePicUrl,
+              },
+            }
+          : null,
+      };
+    }
+
     return {
       id: post.id,
       user: {
@@ -91,16 +138,7 @@ function formatPostsForFeed(
       replyToId: post.replyToId,
       liked: liked,
       retweeted: retweeted,
-      originalPost: replyPost
-        ? {
-            id: replyPost.id,
-            authorId: replyPost.authorId,
-            text: replyPost.text,
-            imageUrl: replyPost.imageUrl,
-            createdAt: replyPost.createdAt,
-            replyToId: replyPost.replyToId,
-          }
-        : null,
+      originalPost: originalPostWithUser, // Now includes full user data
     };
   });
 
