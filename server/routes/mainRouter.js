@@ -29,7 +29,7 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
     retweetCount
   );
   const resolvedPostFeed = await postFeed;
-  res.json({ postFeed: resolvedPostFeed });;
+  res.json({ postFeed: resolvedPostFeed });
 });
 
 mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
@@ -48,29 +48,37 @@ mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
     commentCount,
     retweetCount
   );
-  res.json({ postFeed });
+  const resolvedPostFeed = await postFeed;
+  res.json({ postFeed: resolvedPostFeed });
 });
 
-mainRouter.get("/api/v1/getPostsFromSpecificUser/:specificUserId", async (req, res) => {
-  const posts = await queries.fetchAllPostsFromSpecificUser(req.params.specificUserId);
-  const postReplies = await queries.fetchAllPostRepliesFromSpecificUser(posts)
-  const postsIdArray = posts.map((obj) => obj.id);
-  const postsComments = await queries.getPostsComments(postsIdArray);
-  const postsUserArray = posts.map((obj) => obj.authorId);
-  const postsUsers = await queries.getPostUsers(postsUserArray);
-  const favourites = await queries.countAllLikes(postsIdArray);
-  const commentCount = await queries.countAllComments(postsIdArray);
-  const retweetCount = await queries.countAllRetweets(postsIdArray);
-  const postFeed = formatPostsForFeed(
-    posts,
-    postsUsers,
-    favourites,
-    commentCount,
-    retweetCount,
-    postReplies,
-  );
-  res.json({ postFeed });
-});
+mainRouter.get(
+  "/api/v1/getPostsFromSpecificUser/:specificUserId",
+  async (req, res) => {
+    const posts = await queries.fetchAllPostsFromSpecificUser(
+      req.params.specificUserId
+    );
+    const postReplies =
+      await queries.fetchAllPostRepliesFromSpecificUser(posts);
+    const postsIdArray = posts.map((obj) => obj.id);
+    const postsComments = await queries.getPostsComments(postsIdArray);
+    const postsUserArray = posts.map((obj) => obj.authorId);
+    const postsUsers = await queries.getPostUsers(postsUserArray);
+    const favourites = await queries.countAllLikes(postsIdArray);
+    const commentCount = await queries.countAllComments(postsIdArray);
+    const retweetCount = await queries.countAllRetweets(postsIdArray);
+    const postFeed = formatPostsForFeed(
+      posts,
+      postsUsers,
+      favourites,
+      commentCount,
+      retweetCount,
+      postReplies
+    );
+    const resolvedPostFeed = await postFeed;
+    res.json({ postFeed: resolvedPostFeed });
+  }
+);
 
 mainRouter.get("/api/v1/checkOwnLike", async (req, res) => {
   let check = false;
@@ -106,7 +114,8 @@ mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
       commentCount,
       retweetCount
     );
-    res.json({ postFeed });
+    const resolvedPostFeed = await postFeed;
+    res.json({ postFeed: resolvedPostFeed });
   } catch (err) {
     console.error("failed to fetch post", err);
     res.status(500).json({ message: "server error" });

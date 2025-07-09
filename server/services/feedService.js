@@ -139,7 +139,6 @@ async function formatPostsForFeed(
       originalPost: originalPostWithUser, // Now includes full user data
     };
   });
-  console.log("formattedPosts", formattedPosts)
   return formattedPosts;
 }
 
