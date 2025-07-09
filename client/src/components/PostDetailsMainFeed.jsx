@@ -33,7 +33,6 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
       try {
         const res = await fetch(`${HOST}/api/v1/postReplies/${post.id}/`, {});
         const data = await res.json();
-        console.log("data", data);
         setPostReplies(data.postFeed || []);
         return data;
       } catch (err) {

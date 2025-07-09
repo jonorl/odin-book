@@ -27,7 +27,6 @@ export default function OdinBook() {
       try {
         const user = await fetch(`${HOST}/api/v1/userHandle/${handle}`);
         const data = await user.json();
-        console.log("data", data);
         setSpecificUserDetails(data.user);
       } catch (err) {
         console.error("Error fetching post details", err);
@@ -59,7 +58,6 @@ export default function OdinBook() {
   // Create new mapped object fusing posts and users
   useEffect(() => {
     const fetchFormattedPosts = async () => {
-      console.log("specificUser", specificUser)
       const userId = specificUser && specificUser.id
       try {
         const res = await fetch(`${HOST}/api/v1/getPostsFromSpecificUser/${userId}`, {

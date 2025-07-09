@@ -28,7 +28,8 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
     commentCount,
     retweetCount
   );
-  res.json({ postFeed });
+  const resolvedPostFeed = await postFeed;
+  res.json({ postFeed: resolvedPostFeed });;
 });
 
 mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
@@ -105,7 +106,6 @@ mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
       commentCount,
       retweetCount
     );
-    console.log("postFeed", postFeed)
     res.json({ postFeed });
   } catch (err) {
     console.error("failed to fetch post", err);
@@ -130,7 +130,6 @@ mainRouter.get("/api/v1/postReplies/:postId", async (req, res) => {
       commentCount,
       retweetCount
     );
-    console.log("postFeed", postFeed)
     res.json({ postFeed });
   } catch (err) {
     console.error("failed to fetch post", err);

@@ -61,13 +61,11 @@ async function formatPostsForFeed(
   });
 
   let postRepliesMap = new Map();
-  console.log("postReplies", postReplies);
   postReplies &&
     postReplies.forEach((reply) => {
       postRepliesMap.set(reply.id, reply);
     });
 
-  console.log("postLikesMap", postLikesMap);
 
   // Map over the posts to transform them
   const formattedPosts = postsArray.map((post) => {
@@ -141,8 +139,7 @@ async function formatPostsForFeed(
       originalPost: originalPostWithUser, // Now includes full user data
     };
   });
-
-  console.log("formattedPosts", formattedPosts);
+  console.log("formattedPosts", formattedPosts)
   return formattedPosts;
 }
 

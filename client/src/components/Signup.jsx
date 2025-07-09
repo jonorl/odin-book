@@ -6,7 +6,7 @@ const SignUpCard = ({ HOST, user }) => {
   const [showSingupModal, setShowSingupModal] = useState(false);
   const [showLoginModal, setLoginModal] = useState(false);
   return (
-    <>{console.log("user", user)}
+    <>
       {user === null &&
         <div className="bg-black text-white rounded-xl p-6 max-w-sm mx-auto border border-gray-700">
           <h2 className="text-xl font-bold mb-2">New to OdinBook?</h2>

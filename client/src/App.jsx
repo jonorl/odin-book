@@ -44,7 +44,10 @@ export default function OdinBook() {
       try {
         const res = await fetch(`${HOST}/api/v1/getPosts/`, {
         });
+        console.log("res: ", await res)
         const data = await res.json();
+        console.log("res: ", await data)
+
         setFormattedPosts(data.postFeed || []);
         setIsLoading(false)
         return data
