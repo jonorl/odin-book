@@ -25,15 +25,21 @@ async function getPostsComments(postIdOrArray) {
 }
 
 async function getPostUsers(postUsersArray) {
+  const whereClause = Array.isArray(postUsersArray) 
+    ? { id: { in: postUsersArray } }
+    : { id: postUsersArray };
+
   const users = await prisma.user.findMany({
-    where: {
-      id: Array.isArray(postUsersArray)
-        ? {
-            in: postUsersArray,
-          }
-        : postUsersArray,
-    },
+    where: whereClause,
+    select: {
+      id: true,
+      name: true,
+      surname: true,
+      handle: true,
+      profilePicUrl: true,
+    }
   });
+  
   return users;
 }
 
@@ -64,8 +70,9 @@ async function fetchAllPostsFromSpecificUser(id) {
 }
 
 async function fetchAllPostRepliesFromSpecificUser(postsArray) {
+  const postIds = postsArray.map(post => post.id);
   const posts = await prisma.post.findMany({
-    where: { replyToId: { in: postsArray.id } },
+    where: { replyToId: { in: postIds } },
     orderBy: [
       {
         createdAt: "desc",
@@ -230,24 +237,26 @@ async function getUserDetailsByHandle(handle) {
   const user = await prisma.user.findUnique({
     where: { handle: handle },
   });
+  
   const postCount = await prisma.post.count({
     where: {
-      authorId: user.authorId,
-      replyTo: null,
+      authorId: user.id, // Fixed: use user.id instead of user.authorId
+      replyToId: null,   // Fixed: use replyToId instead of replyTo
     },
   });
+  
   const replyCount = await prisma.post.count({
     where: {
-      authorId: user.authorId,
-      replyTo: { isNot: null },
+      authorId: user.id,           // Fixed: use user.id instead of user.authorId
+      replyToId: { not: null },    // Fixed: use replyToId instead of replyTo
     },
   });
+  
   const userWithPostCount = {
     ...user,
     postCount: postCount,
     replyCount: replyCount,
   };
-  console.log("userWithPostCount", userWithPostCount);
   return userWithPostCount;
 }
 
@@ -264,7 +273,9 @@ async function newComment(userId, text, imageUrl, originalPostId) {
 }
 
 async function fetchSpecificPost(id) {
-  const post = await prisma.post.findUnique({});
+  const post = await prisma.post.findUnique({
+    where: { id: id } // Fixed: add the where clause
+  });
   return post;
 }
 

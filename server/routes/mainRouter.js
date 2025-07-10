@@ -1,6 +1,6 @@
 // Express set-up
 import Router from "express";
-import { formatPostsForFeed, getTimeAgo } from "../services/feedService.js";
+import { formatPostsForFeed, formatPostsForFeedOptimized, getTimeAgo } from "../services/feedService.js";
 import validateUser from "../controllers/formValidation.js";
 import { authenticateToken, signToken } from "../controllers/authentication.js";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
@@ -55,28 +55,59 @@ mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
 mainRouter.get(
   "/api/v1/getPostsFromSpecificUser/:specificUserId",
   async (req, res) => {
-    const posts = await queries.fetchAllPostsFromSpecificUser(
-      req.params.specificUserId
-    );
-    const postReplies =
-      await queries.fetchAllPostRepliesFromSpecificUser(posts);
-    const postsIdArray = posts.map((obj) => obj.id);
-    const postsComments = await queries.getPostsComments(postsIdArray);
-    const postsUserArray = posts.map((obj) => obj.authorId);
-    const postsUsers = await queries.getPostUsers(postsUserArray);
-    const favourites = await queries.countAllLikes(postsIdArray);
-    const commentCount = await queries.countAllComments(postsIdArray);
-    const retweetCount = await queries.countAllRetweets(postsIdArray);
-    const postFeed = formatPostsForFeed(
-      posts,
-      postsUsers,
-      favourites,
-      commentCount,
-      retweetCount,
-      postReplies
-    );
-    const resolvedPostFeed = await postFeed;
-    res.json({ postFeed: resolvedPostFeed });
+    try {
+      // Get all posts from the user (both original posts and replies)
+      const posts = await queries.fetchAllPostsFromSpecificUser(
+        req.params.specificUserId
+      );
+      
+      // Get all the post IDs for fetching counts
+      const postsIdArray = posts.map((obj) => obj.id);
+      
+      // Get all unique author IDs (for both posts and their reply targets)
+      const postsUserArray = posts.map((obj) => obj.authorId);
+      
+      // Add author IDs of posts that are being replied to
+      const replyToIds = posts
+        .filter(post => post.replyToId)
+        .map(post => post.replyToId);
+      
+      // Fetch the original posts that are being replied to
+      const originalPosts = [];
+      if (replyToIds.length > 0) {
+        for (const replyToId of replyToIds) {
+          const originalPost = await queries.getPostDetails(replyToId);
+          if (originalPost) {
+            originalPosts.push(originalPost);
+            postsUserArray.push(originalPost.authorId);
+          }
+        }
+      }
+      
+      // Get all users (both post authors and original post authors)
+      const uniqueUserIds = [...new Set(postsUserArray)];
+      const postsUsers = await queries.getPostUsers(uniqueUserIds);
+      
+      // Get counts for all posts
+      const favourites = await queries.countAllLikes(postsIdArray);
+      const commentCount = await queries.countAllComments(postsIdArray);
+      const retweetCount = await queries.countAllRetweets(postsIdArray);
+      
+      // Use the optimized formatter that handles replies better
+      const postFeed = await formatPostsForFeedOptimized(
+        posts,
+        postsUsers,
+        favourites,
+        commentCount,
+        retweetCount,
+        originalPosts
+      );
+      
+      res.json({ postFeed });
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+      res.status(500).json({ message: "Server error" });
+    }
   }
 );
 
