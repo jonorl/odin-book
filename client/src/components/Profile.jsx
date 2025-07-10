@@ -123,7 +123,6 @@ const Profile = ({
           </div>
         </div>
         {/* Navigation Tabs */}
-        // Navigation Tabs
         <div className="border-b border-gray-800">
           <div className="flex">
             {/* Posts Button */}

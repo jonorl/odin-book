@@ -66,79 +66,80 @@ async function formatPostsForFeed(
       postRepliesMap.set(reply.id, reply);
     });
 
-
   // Map over the posts to transform them
-  const formattedPosts = postsArray.map((post) => {
-    const user = usersMap.get(post.authorId); // Find the corresponding user
-    const likes = postLikesMap.get(post.id) || 0;
-    const retweets = retweetCountMap.get(post.id) || 0;
-    const replies = commentCountMap.get(post.id) || 0;
-    const liked = false;
-    const retweeted = false;
-    const replyPost = allPostsMap.get(post.replyToId) || null;
+  const formattedPosts = await Promise.all(
+    postsArray.map(async (post) => {
+      const user = usersMap.get(post.authorId); // Find the corresponding user
+      const likes = postLikesMap.get(post.id) || 0;
+      const retweets = retweetCountMap.get(post.id) || 0;
+      const replies = commentCountMap.get(post.id) || 0;
+      const liked = false;
+      const retweeted = false;
+      const replyPost = allPostsMap.get(post.replyToId) || null;
 
-    // Get the original post's author data if it's a reply
-    let originalPostWithUser = null;
-    if (replyPost) {
-      const originalUser = getUsersHelperFunction(replyPost.authorId);
-      const originalUserMap = new Map();
-      originalUser.forEach((OriginalUserData) => {
-        originalUserMap.set(replyPost.authorId, OriginalUserData);
-      });
-      const originalAuthor = originalUserMap.get(replyPost.authorId);
-      originalPostWithUser = {
-        id: replyPost.id,
+      // Get the original post's author data if it's a reply
+      let originalPostWithUser = null;
+      if (replyPost) {
+        const originalUser = await getUsersHelperFunction(replyPost.authorId);
+        const originalUserMap = new Map();
+        originalUser.forEach((OriginalUserData) => {
+          originalUserMap.set(replyPost.authorId, OriginalUserData);
+        });
+        const originalAuthor = originalUserMap.get(replyPost.authorId);
+        originalPostWithUser = {
+          id: replyPost.id,
+          user: {
+            id: user.id,
+            name: user.name + " " + user.surname,
+            username: user.handle,
+            avatar: user.profilePicUrl,
+          },
+          content: replyPost.text,
+          image: replyPost.imageUrl,
+          timestamp: getTimeAgo(replyPost.createdAt),
+          createdAt: replyPost.createdAt,
+          replyToId: replyPost.replyToId,
+          originalPost: replyPost
+            ? {
+                id: replyPost.id,
+                authorId: replyPost.authorId,
+                text: replyPost.text,
+                imageUrl: replyPost.imageUrl,
+                createdAt: replyPost.createdAt,
+                replyToId: replyPost.replyToId,
+                originalUser: {
+                  id: originalAuthor.id,
+                  name: originalAuthor.name + " " + originalAuthor.surname,
+                  username: originalAuthor.handle,
+                  avatar: originalAuthor.profilePicUrl,
+                },
+              }
+            : null,
+        };
+      }
+
+      return {
+        id: post.id,
         user: {
           id: user.id,
           name: user.name + " " + user.surname,
           username: user.handle,
           avatar: user.profilePicUrl,
         },
-        content: replyPost.text,
-        image: replyPost.imageUrl,
-        timestamp: getTimeAgo(replyPost.createdAt),
-        createdAt: replyPost.createdAt,
-        replyToId: replyPost.replyToId,
-        originalPost: replyPost
-          ? {
-              id: replyPost.id,
-              authorId: replyPost.authorId,
-              text: replyPost.text,
-              imageUrl: replyPost.imageUrl,
-              createdAt: replyPost.createdAt,
-              replyToId: replyPost.replyToId,
-              originalUser: {
-                id: originalAuthor.id,
-                name: originalAuthor.name + " " + originalAuthor.surname,
-                username: originalAuthor.handle,
-                avatar: originalAuthor.profilePicUrl,
-              },
-            }
-          : null,
+        content: post.text,
+        image: post.imageUrl,
+        timestamp: getTimeAgo(post.createdAt),
+        likes: likes.count || 0,
+        likedBy: { userIds: likes.userIds },
+        retweets: retweets,
+        replies: replies,
+        replyToId: post.replyToId,
+        liked: liked,
+        retweeted: retweeted,
+        originalPost: originalPostWithUser, // Now includes full user data
       };
-    }
-
-    return {
-      id: post.id,
-      user: {
-        id: user.id,
-        name: user.name + " " + user.surname,
-        username: user.handle,
-        avatar: user.profilePicUrl,
-      },
-      content: post.text,
-      image: post.imageUrl,
-      timestamp: getTimeAgo(post.createdAt),
-      likes: likes.count || 0,
-      likedBy: { userIds: likes.userIds },
-      retweets: retweets,
-      replies: replies,
-      replyToId: post.replyToId,
-      liked: liked,
-      retweeted: retweeted,
-      originalPost: originalPostWithUser, // Now includes full user data
-    };
-  });
+    })
+  );
   return formattedPosts;
 }
 
