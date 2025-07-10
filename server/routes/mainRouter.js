@@ -139,7 +139,8 @@ mainRouter.get("/api/v1/postReplies/:postId", async (req, res) => {
       commentCount,
       retweetCount
     );
-    res.json({ postFeed });
+    const resolvedPostFeed = await postFeed;
+    res.json({ postFeed: resolvedPostFeed });
   } catch (err) {
     console.error("failed to fetch post", err);
     res.status(500).json({ message: "server error" });

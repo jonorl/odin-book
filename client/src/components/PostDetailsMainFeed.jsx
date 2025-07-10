@@ -200,7 +200,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
       {post.replies > 0 &&
         postReplies &&
         postReplies.map((post) => (
-          <Post user={user} HOST={HOST} post={post} darkMode={darkMode} />
+          <Post key={post.id} user={user} HOST={HOST} post={post} darkMode={darkMode} />
         ))}
     </div>
   );
