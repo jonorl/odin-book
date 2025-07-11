@@ -42,7 +42,11 @@ const Post = ({ user, post, darkMode, HOST }) => {
 
   // Helper function to render a single post content (for reply posts only)
   const renderPostContent = (postData) => (
-    <div className="flex space-x-3">
+    <div onClick={() => postDetailsRedirect(post.user.id, post.id)}
+      id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
+        ? "border-gray-800 hover:bg-gray-950"
+        : "border-gray-200 hover:bg-gray-50"
+        } relative mb-4 mt-4 pl-4 flex space-x-3`}>
       <img
         onClick={(e) => {
           e.stopPropagation();
@@ -59,9 +63,8 @@ const Post = ({ user, post, darkMode, HOST }) => {
               e.stopPropagation();
               navigate(`/profile/${postData.user.username}`);
             }}
-            className={`hover:underline font-bold cursor-pointer ${
-              darkMode ? "text-white" : "text-black"
-            }`}
+            className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
+              }`}
           >
             {postData && postData.user && postData.user.name}
           </a>
@@ -95,11 +98,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
           className="flex justify-between max-w-md"
         >
           <button
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-              darkMode
-                ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-            }`}
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+              ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+              : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+              }`}
           >
             <MessageCircle size={18} />
             <span className="text-sm">{postData && postData.replies}</span>
@@ -107,15 +109,14 @@ const Post = ({ user, post, darkMode, HOST }) => {
 
           <button
             onClick={handleRetweet}
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-              retweeted
-                ? darkMode
-                  ? "text-green-400"
-                  : "text-green-500"
-                : darkMode
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
+              ? darkMode
+                ? "text-green-400"
+                : "text-green-500"
+              : darkMode
                 ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
                 : "text-gray-500 hover:text-green-500 hover:bg-green-50"
-            }`}
+              }`}
           >
             <Repeat2 size={18} />
             <span className="text-sm">{retweets}</span>
@@ -123,24 +124,23 @@ const Post = ({ user, post, darkMode, HOST }) => {
 
           <button
             onClick={handleLike}
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-              liked
-                ? darkMode
-                  ? "text-red-400"
-                  : "text-red-500"
-                : darkMode
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
+              ? darkMode
+                ? "text-red-400"
+                : "text-red-500"
+              : darkMode
                 ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
                 : "text-gray-500 hover:text-red-500 hover:bg-red-50"
-            }`}
+              }`}
           >
             <Heart
               size={18}
               fill={
                 user &&
-                post &&
-                post.likedBy &&
-                post.likedBy.userIds &&
-                post.likedBy.userIds.includes(user.id)
+                  post &&
+                  post.likedBy &&
+                  post.likedBy.userIds &&
+                  post.likedBy.userIds.includes(user.id)
                   ? "currentColor"
                   : "none"
               }
@@ -149,11 +149,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
           </button>
 
           <button
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-              darkMode
-                ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-            }`}
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+              ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+              : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+              }`}
           >
             <Share size={18} />
           </button>
@@ -165,17 +164,14 @@ const Post = ({ user, post, darkMode, HOST }) => {
   // If this is a reply with an original post, show the threaded view
   if (post && post.originalPost) {
     return (
-      <div
-        className={`border-b p-4 cursor-pointer transition-colors ${
-          darkMode
+      <div className="">{console.log("post.originalPost", post.originalPost)}
+        <div onClick={() => postDetailsRedirect(post.originalPost.user.id, post.originalPost.id)}>
+          {/* Original Post Container */}
+          <div id="originalPost" className={`p-4 cursor-pointer transition-colors ${darkMode
             ? "border-gray-800 hover:bg-gray-950"
             : "border-gray-200 hover:bg-gray-50"
-        }`}
-      >
-        <div onClick={() => postDetailsRedirect(post.user.id, post.id)}>
-          {/* Original Post */}
-          <div className="relative">
-            <div className="flex space-x-3">
+            } relative mb-4`}>
+            <div className="flex space-x-3 border-l-0">
               <img
                 onClick={(e) => {
                   e.stopPropagation();
@@ -196,9 +192,8 @@ const Post = ({ user, post, darkMode, HOST }) => {
                         navigate(`/profile/${post.originalPost.user.username}`);
                       }
                     }}
-                    className={`hover:underline font-bold cursor-pointer ${
-                      darkMode ? "text-white" : "text-black"
-                    }`}
+                    className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
+                      }`}
                   >
                     {post.originalPost.user?.name || "Unknown User"}
                   </a>
@@ -210,12 +205,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
                     {post.originalPost.timestamp}
                   </span>
                 </div>
-
                 <div className="mb-3">
                   <p
-                    className={`mb-3 ${
-                      darkMode ? "text-gray-200" : "text-gray-900"
-                    }`}
+                    className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"
+                      }`}
                   >
                     {post.originalPost.content}
                   </p>
@@ -228,20 +221,21 @@ const Post = ({ user, post, darkMode, HOST }) => {
                     />
                   )}
                 </div>
-                {/* No interaction buttons for original post */}
               </div>
             </div>
 
-            {/* Connecting Line */}
             <div
-              className={`absolute left-6 top-16 w-0.5 h-8 ${
-                darkMode ? "bg-gray-700" : "bg-gray-300"
-              }`}
+              className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
+                }`}
+              style={{ height: 'calc(100% - 4rem + 1rem)' }}
             />
           </div>
 
-          {/* Reply Post */}
-          <div className="mt-2">{renderPostContent(post)}</div>
+          <div className={`ml-0 pl-0  relative`}>
+            <div className="ml-0 pl-0">
+              {renderPostContent(post)}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -250,11 +244,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
   // Regular single post view
   return (
     <div
-      className={`border-b p-4 cursor-pointer transition-colors ${
-        darkMode
-          ? "border-gray-800 hover:bg-gray-950"
-          : "border-gray-200 hover:bg-gray-50"
-      }`}
+      className={`border-b p-4 cursor-pointer transition-colors ${darkMode
+        ? "border-gray-800 hover:bg-gray-950"
+        : "border-gray-200 hover:bg-gray-50"
+        }`}
     >
       <div onClick={() => postDetailsRedirect(post.user.id, post.id)}>
         {renderPostContent(post)}
