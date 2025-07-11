@@ -110,7 +110,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                 </p>
                 {post.image !== null && (
                   <img
-                    className="rounded-xl"
+                    className="rounded-xl max-h-80"
                     src={post.image}
                     alt="posted image"
                   ></img>

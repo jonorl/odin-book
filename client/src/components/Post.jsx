@@ -82,7 +82,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
           </p>
           {postData && (postData.image || postData.imageUrl) && (
             <img
-              className="rounded-xl max-w-full"
+              className="rounded-xl max-w-full max-h-80"
               onClick={(e) => e.stopPropagation()}
               src={postData.image || postData.imageUrl}
               alt="posted image"
@@ -221,7 +221,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
                   </p>
                   {post.originalPost.image && (
                     <img
-                      className="rounded-xl max-w-full"
+                      className="rounded-xl max-w-full max-h-80"
                       onClick={(e) => e.stopPropagation()}
                       src={post.originalPost.image}
                       alt="posted image"
