@@ -100,7 +100,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                 </a>
                 <span className="text-gray-500">@{postUser.handle}</span>
                 <span className="text-gray-500">·</span>
-                <span className="text-gray-500">{post.createdAt}</span>
+                <span className="text-gray-500">{post.timestamp}</span>
                 <div className="ml-auto"></div>
               </div>
 
