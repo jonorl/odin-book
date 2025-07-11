@@ -55,9 +55,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
   return (
     <div
-      className={`flex-1 border  ${
-        darkMode ? "border-gray-800" : "border-gray-200"
-      }`}
+      className={`flex-1 border  ${darkMode ? "border-gray-800" : "border-gray-200"
+        }`}
     >
       <div id="backButton" className="flex flex-col bg-black text-white">
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
@@ -72,14 +71,16 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
           </button>
         </div>
 
-        {/* Post Content */}
+        {/* Post Content */}{/* {console.log("posteo", post)}{console.log("dale loco", post.id, post.user.id)} */}
         {isLoading ? (
           <div className="spinner spinner-container"></div>
         ) : (
           <div
             className="flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950"
             onClick={() => {
-              navigate(`/profile/${post.user.username}`);
+              console.log("jodeme que era aca")
+              /* navigate(`/profile/${post.user.username}`) */
+              navigate(`/${post.user.id}/${post.id}`);
             }}
           >
             <img
@@ -89,9 +90,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
             <div className="flex-1">
               <div className="flex items-center space-x-2 mb-1">
                 <a
-                  className={`hover:underline font-bold ${
-                    darkMode ? "text-white" : "text-black"
-                  }`}
+                  className={`hover:underline font-bold ${darkMode ? "text-white" : "text-black"
+                    }`}
                   onClick={() => {
                     navigate(`/profile/${post.user.username}`);
                   }}
@@ -119,11 +119,10 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
               <div className="flex justify-between max-w-md">
                 <button
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-                    darkMode
+                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
                       ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
                       : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-                  }`}
+                    }`}
                 >
                   <MessageCircle size={18} />
                   <span className="text-sm">{post.replies}</span>
@@ -131,15 +130,14 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
                 <button
                   onClick={handleRetweet}
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-                    retweeted
+                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
                       ? darkMode
                         ? "text-green-400"
                         : "text-green-500"
                       : darkMode
-                      ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
-                      : "text-gray-500 hover:text-green-500 hover:bg-green-50"
-                  }`}
+                        ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
+                        : "text-gray-500 hover:text-green-500 hover:bg-green-50"
+                    }`}
                 >
                   <Repeat2 size={18} />
                   <span className="text-sm">{retweets}</span>
@@ -147,24 +145,23 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
                 <button
                   onClick={handleLike}
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-                    liked
+                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
                       ? darkMode
                         ? "text-red-400"
                         : "text-red-500"
                       : darkMode
-                      ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
-                      : "text-gray-500 hover:text-red-500 hover:bg-red-50"
-                  }`}
+                        ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                        : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+                    }`}
                 >
                   <Heart
                     size={18}
                     fill={
                       user &&
-                      post &&
-                      post.likedBy &&
-                      post.likedBy.userIds &&
-                      post.likedBy.userIds.includes(user.id)
+                        post &&
+                        post.likedBy &&
+                        post.likedBy.userIds &&
+                        post.likedBy.userIds.includes(user.id)
                         ? "currentColor"
                         : "none"
                     }
@@ -173,11 +170,10 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                 </button>
 
                 <button
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-                    darkMode
+                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
                       ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
                       : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-                  }`}
+                    }`}
                 >
                   <Share size={18} />
                 </button>

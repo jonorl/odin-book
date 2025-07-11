@@ -42,11 +42,11 @@ const Post = ({ user, post, darkMode, HOST }) => {
 
   // Helper function to render a single post content (for reply posts only)
   const renderPostContent = (postData) => (
-    <div onClick={() => postDetailsRedirect(post.user.id, post.id)}
+    <div onClick={() => {console.log("acaa"); postDetailsRedirect(post.user.id, post.id)}}
       id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
         ? "border-gray-800 hover:bg-gray-950"
         : "border-gray-200 hover:bg-gray-50"
-        } relative mb-4 mt-4 pl-4 flex space-x-3`}>
+        } relative p-4 flex space-x-3`}>
       <img
         onClick={(e) => {
           e.stopPropagation();
@@ -59,7 +59,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
       <div className="flex-1">
         <div className="flex items-center space-x-2 mb-1">
           <a
-            onClick={(e) => {
+            onClick={(e) => {console.log(e, "acaaaaa")
               e.stopPropagation();
               navigate(`/profile/${postData.user.username}`);
             }}
@@ -164,14 +164,14 @@ const Post = ({ user, post, darkMode, HOST }) => {
   // If this is a reply with an original post, show the threaded view
   if (post && post.originalPost) {
     return (
-      <div className="">{console.log("post.originalPost", post.originalPost)}
-        <div onClick={() => postDetailsRedirect(post.originalPost.user.id, post.originalPost.id)}>
+      <div className="">
+        <div >
           {/* Original Post Container */}
-          <div id="originalPost" className={`p-4 cursor-pointer transition-colors ${darkMode
+          <div id="originalPost" onClick={(e) => {console.log("aca"); e.stopPropagation(); postDetailsRedirect(post.originalPost.user.id, post.originalPost.id) }} className={`p-4 cursor-pointer transition-colors ${darkMode
             ? "border-gray-800 hover:bg-gray-950"
             : "border-gray-200 hover:bg-gray-50"
             } relative mb-4`}>
-            <div className="flex space-x-3 border-l-0">
+            <div onClick={() => {console.log("acaaaa")}} className="flex space-x-3 border-l-0">
               <img
                 onClick={(e) => {
                   e.stopPropagation();
@@ -186,12 +186,12 @@ const Post = ({ user, post, darkMode, HOST }) => {
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
                   <a
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (post.originalPost.user) {
-                        navigate(`/profile/${post.originalPost.user.username}`);
-                      }
-                    }}
+                    /*                     onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (post.originalPost.user) {
+                                            navigate(`/profile/${post.originalPost.user.username}`);
+                                          }
+                                        }} */
                     className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
                       }`}
                   >
@@ -244,12 +244,9 @@ const Post = ({ user, post, darkMode, HOST }) => {
   // Regular single post view
   return (
     <div
-      className={`border-b p-4 cursor-pointer transition-colors ${darkMode
-        ? "border-gray-800 hover:bg-gray-950"
-        : "border-gray-200 hover:bg-gray-50"
-        }`}
+      className={`cursor-pointer transition-colors `}
     >
-      <div onClick={() => postDetailsRedirect(post.user.id, post.id)}>
+      <div>
         {renderPostContent(post)}
       </div>
     </div>
