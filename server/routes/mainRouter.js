@@ -32,24 +32,29 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
   res.json({ postFeed: resolvedPostFeed });
 });
 
-mainRouter.get("/api/v1/getSpecificPost/", async (req, res) => {
-  const posts = await queries.fetchSpecificPost(req.body.id);
-  const postsIdArray = posts.map((obj) => obj.id);
-  const postsComments = await queries.getPostsComments(postsIdArray);
-  const postsUserArray = posts.map((obj) => obj.authorId);
-  const postsUsers = await queries.getPostUsers(postsUserArray);
-  const favourites = await queries.countAllLikes(postsIdArray);
-  const commentCount = await queries.countAllComments(postsIdArray);
-  const retweetCount = await queries.countAllRetweets(postsIdArray);
-  const postFeed = formatPostsForFeed(
-    posts,
-    postsUsers,
-    favourites,
-    commentCount,
-    retweetCount
-  );
-  const resolvedPostFeed = await postFeed;
-  res.json({ postFeed: resolvedPostFeed });
+mainRouter.get("/api/v1/getSpecificPost/:id", async (req, res) => {
+  console.log("req.params.id", req.params.id)
+  const post = await queries.fetchSpecificPost(req.params.id);
+  // const postsIdArray = posts.map((obj) => obj.id);
+  // const postsComments = await queries.getPostsComments(postsIdArray);
+  // const postsUserArray = posts.map((obj) => obj.authorId);
+  const postUser = await queries.getPostUser(post);
+  // const favourites = await queries.countAllLikes(postsIdArray);
+  // const commentCount = await queries.countAllComments(postsIdArray);
+  // const retweetCount = await queries.countAllRetweets(postsIdArray);
+  // const postFeed = formatPostsForFeedOptimized(
+  //   posts,
+    // postsUsers,
+    // favourites,
+    // commentCount,
+    // retweetCount
+  // );
+  // const resolvedPostFeed = await postFeed;
+  post.user = postUser;
+  post.timestamp = getTimeAgo(post.createdAt)
+  console.log("postUser", postUser)
+  console.log("post", post)
+  res.json({ postFeed: post });
 });
 
 mainRouter.get(

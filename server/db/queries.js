@@ -43,6 +43,13 @@ async function getPostUsers(postUsersArray) {
   return users;
 }
 
+async function getPostUser(post) {
+  const user = await prisma.user.findUnique({
+    where: {id: post.authorId},
+  });
+  return user;
+}
+
 async function fetchAllPosts() {
   const users = await prisma.post.findMany({
     take: 10,
@@ -274,7 +281,7 @@ async function newComment(userId, text, imageUrl, originalPostId) {
 
 async function fetchSpecificPost(id) {
   const post = await prisma.post.findUnique({
-    where: { id: id } // Fixed: add the where clause
+    where: { id: id } 
   });
   return post;
 }
@@ -300,4 +307,5 @@ export default {
   getUserDetailsByHandle,
   fetchAllPostsFromSpecificUser,
   fetchAllPostRepliesFromSpecificUser,
+  getPostUser,
 };
