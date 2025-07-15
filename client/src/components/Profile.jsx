@@ -14,7 +14,7 @@ const Profile = ({
   formattedPosts,
   HOST,
 }) => {
-  let date = new Date(user.createdAt);
+  let date = user && new Date(user.createdAt);
   date = date.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
   const [activeTab, setActiveTab] = useState("posts");
 

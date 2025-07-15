@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, ArrowLeft } from "lucide-react";
 import PostComposer from "./PostComposer";
-import Post from "./Post";
+import Thread from "./Thread";
 
 const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
   const [liked, setLiked] = useState(post.liked);
@@ -57,7 +57,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
     <div
       className={`flex-1 border  ${darkMode ? "border-gray-800" : "border-gray-200"
         }`}
-    >
+    >{console.log("why is originalPost not appearing?", post.replyToId)}
       <div id="backButton" className="flex flex-col bg-black text-white">
         <div className="flex items-center justify-between p-4 border-b border-gray-800">
           <button
@@ -195,8 +195,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
       {post.replies > 0 &&
         postReplies &&
-        postReplies.map((post) => (
-          <Post key={post.id} user={user} HOST={HOST} post={post} darkMode={darkMode} />
+        postReplies.map((postReply) => (
+          <Thread key={postReply.id} user={user} HOST={HOST} replyPost={postReply} darkMode={darkMode} />
         ))}
     </div>
   );

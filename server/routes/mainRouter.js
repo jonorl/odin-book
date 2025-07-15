@@ -138,7 +138,7 @@ mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
     const favourites = await queries.countAllLikes(post.id);
     const commentCount = await queries.countAllComments(post.id);
     const retweetCount = await queries.countAllRetweets(post.id);
-    const postFeed = formatPostsForFeed(
+    const postFeed = formatPostsForFeedOptimized(
       post,
       postsUsers,
       favourites,
@@ -163,7 +163,7 @@ mainRouter.get("/api/v1/postReplies/:postId", async (req, res) => {
     const favourites = await queries.countAllLikes(postsComments.id);
     const commentCount = await queries.countAllComments(postsComments.id);
     const retweetCount = await queries.countAllRetweets(postsComments.id);
-    const postFeed = formatPostsForFeed(
+    const postFeed = formatPostsForFeedOptimized(
       postsComments,
       postsUsers,
       favourites,

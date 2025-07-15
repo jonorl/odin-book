@@ -41,7 +41,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
   };
 
   // Helper function to render a single post content (for reply posts only)
-  const renderPostContent = (postData) => (
+  return (
     <div onClick={() => {console.log("acaa"); postDetailsRedirect(post.user.id, post.id)}}
       id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
         ? "border-gray-800 hover:bg-gray-950"
@@ -50,10 +50,10 @@ const Post = ({ user, post, darkMode, HOST }) => {
       <img
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/profile/${postData.user.username}`);
+          navigate(`/profile/${post.user.username}`);
         }}
         className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl cursor-pointer"
-        src={(postData && postData.user && postData.user.avatar) || null}
+        src={(post && post.user && post.user.avatar) || null}
         alt="avatar"
       />
       <div className="flex-1">
@@ -61,33 +61,33 @@ const Post = ({ user, post, darkMode, HOST }) => {
           <a
             onClick={(e) => {console.log(e, "acaaaaa")
               e.stopPropagation();
-              navigate(`/profile/${postData.user.username}`);
+              navigate(`/profile/${post.user.username}`);
             }}
             className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
               }`}
           >
-            {postData && postData.user && postData.user.name}
+            {post && post.user && post.user.name}
           </a>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
-            @{postData && postData.user && postData.user.username}
+            @{post && post.user && post.user.username}
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             ·
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
-            {postData && postData.timestamp}
+            {post && post.timestamp}
           </span>
         </div>
 
         <div className="mb-3">
           <p className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"}`}>
-            {postData && (postData.content || postData.text)}
+            {post && (post.content || post.text)}
           </p>
-          {postData && (postData.image || postData.imageUrl) && (
+          {post && (post.image || post.imageUrl) && (
             <img
               className="rounded-xl max-w-full max-h-80"
               onClick={(e) => e.stopPropagation()}
-              src={postData.image || postData.imageUrl}
+              src={post.image || post.imageUrl}
               alt="posted image"
             />
           )}
@@ -104,7 +104,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
               }`}
           >
             <MessageCircle size={18} />
-            <span className="text-sm">{postData && postData.replies}</span>
+            <span className="text-sm">{post && post.replies}</span>
           </button>
 
           <button
@@ -157,97 +157,6 @@ const Post = ({ user, post, darkMode, HOST }) => {
             <Share size={18} />
           </button>
         </div>
-      </div>
-    </div>
-  );
-
-  // If this is a reply with an original post, show the threaded view
-  if (post && post.originalPost) {
-    return (
-      <div className="">
-        <div >
-          {/* Original Post Container */}
-          <div id="originalPost" onClick={(e) => {console.log("aca"); e.stopPropagation(); postDetailsRedirect(post.originalPost.user.id, post.originalPost.id) }} className={`p-4 cursor-pointer transition-colors ${darkMode
-            ? "border-gray-800 hover:bg-gray-950"
-            : "border-gray-200 hover:bg-gray-50"
-            } relative mb-4`}>
-            <div onClick={() => {console.log("acaaaa")}} className="flex space-x-3 border-l-0">
-              <img
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (post.originalPost.user) {
-                    navigate(`/profile/${post.originalPost.user.username}`);
-                  }
-                }}
-                className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl cursor-pointer"
-                src={post.originalPost.user?.avatar || null}
-                alt="avatar"
-              />
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-1">
-                  <a
-                    /*                     onClick={(e) => {
-                                          e.stopPropagation();
-                                          if (post.originalPost.user) {
-                                            navigate(`/profile/${post.originalPost.user.username}`);
-                                          }
-                                        }} */
-                    className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
-                      }`}
-                  >
-                    {post.originalPost.user?.name || "Unknown User"}
-                  </a>
-                  <span className="text-gray-500">
-                    @{post.originalPost.user?.username || "unknown"}
-                  </span>
-                  <span className="text-gray-500">·</span>
-                  <span className="text-gray-500">
-                    {post.originalPost.timestamp}
-                  </span>
-                </div>
-                <div className="mb-3">
-                  <p
-                    className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"
-                      }`}
-                  >
-                    {post.originalPost.content}
-                  </p>
-                  {post.originalPost.image && (
-                    <img
-                      className="rounded-xl max-w-full max-h-80"
-                      onClick={(e) => e.stopPropagation()}
-                      src={post.originalPost.image}
-                      alt="posted image"
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div
-              className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
-                }`}
-              style={{ height: 'calc(100% - 4rem + 1rem)' }}
-            />
-          </div>
-
-          <div className={`ml-0 pl-0  relative`}>
-            <div className="ml-0 pl-0">
-              {renderPostContent(post)}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Regular single post view
-  return (
-    <div
-      className={`cursor-pointer transition-colors `}
-    >
-      <div>
-        {renderPostContent(post)}
       </div>
     </div>
   );
