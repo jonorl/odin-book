@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Eye, EyeOff } from "lucide-react";
 const Settings = ({ HOST, darkMode, user }) => {
   const [formData, setFormData] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -31,6 +32,8 @@ const Settings = ({ HOST, darkMode, user }) => {
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
+      // Create preview URL
       const reader = new FileReader();
       reader.onload = (e) => {
         setFormData(prev => ({
@@ -41,26 +44,37 @@ const Settings = ({ HOST, darkMode, user }) => {
       reader.readAsDataURL(file);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
 
     try {
+      const submitFormData = new FormData();
+
+      // Add image file if selected
+      if (imageFile) {
+        submitFormData.append('imageFile', imageFile);
+      }
+
+      // Add user data
+      submitFormData.append('user[id]', user.id);
+      submitFormData.append('name', formData.name);
+      submitFormData.append('surname', formData.surname);
+      submitFormData.append('handle', formData.handle);
+      submitFormData.append('email', formData.email);
+
+      // Only add password if it's not empty
+      if (formData.password.trim() !== '') {
+        submitFormData.append('password', formData.password);
+      }
+
       const response = await fetch(`${HOST}/api/v1/updateUser/`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: user.id,
-          ...formData
-        }),
+        body: submitFormData
       });
-
       const data = await response.json();
-      
+
       if (response.ok) {
         setMessage("Settings updated successfully!");
         // Clear password field after successful update
@@ -78,9 +92,8 @@ const Settings = ({ HOST, darkMode, user }) => {
 
   return (
     <div
-      className={`flex-1 border ${
-        darkMode ? "border-gray-800" : "border-gray-200"
-      }`}
+      className={`flex-1 border ${darkMode ? "border-gray-800" : "border-gray-200"
+        }`}
     >
       {/* Header */}
       <div className="flex flex-col bg-black text-white">
@@ -227,11 +240,10 @@ const Settings = ({ HOST, darkMode, user }) => {
             {/* Message */}
             {message && (
               <div
-                className={`p-3 rounded-md ${
-                  message.includes("successfully")
+                className={`p-3 rounded-md ${message.includes("successfully")
                     ? "bg-green-900 text-green-200"
                     : "bg-red-900 text-red-200"
-                }`}
+                  }`}
               >
                 {message}
               </div>
@@ -241,9 +253,8 @@ const Settings = ({ HOST, darkMode, user }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-medium py-2 px-4 rounded-md transition-colors ${
-                isLoading ? "cursor-not-allowed" : "cursor-pointer"
-              }`}
+              className={`w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-medium py-2 px-4 rounded-md transition-colors ${isLoading ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
             >
               {isLoading ? "Updating..." : "Save Changes"}
             </button>

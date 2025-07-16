@@ -287,10 +287,12 @@ mainRouter.post(
 );
 
 // PUT routes
-mainRouter.put("/api/v1/updateUser", async (req, res) => {
+mainRouter.put("/api/v1/updateUser", parser.single("imageFile"), processCloudinaryUpload, async (req, res) => {
   try {
-    const { id, name, surname, handle, email, password, profilePicUrl } =
+    const { user, name, surname, handle, email, password } =
       req.body;
+      const id = user.id
+      const imageUrl = req.imageUrl;
 
     // Validate required fields
     if (!id) {
@@ -346,7 +348,7 @@ mainRouter.put("/api/v1/updateUser", async (req, res) => {
       surname: surname.trim(),
       handle: handle.trim(),
       email: email.trim().toLowerCase(),
-      profilePicUrl: profilePicUrl || existingUser.profilePicUrl,
+      profilePicUrl: imageUrl  || existingUser.profilePicUrl,
     };
 
     // Only hash and update password if provided
