@@ -25,7 +25,7 @@ async function getPostsComments(postIdOrArray) {
 }
 
 async function getPostUsers(postUsersArray) {
-  const whereClause = Array.isArray(postUsersArray) 
+  const whereClause = Array.isArray(postUsersArray)
     ? { id: { in: postUsersArray } }
     : { id: postUsersArray };
 
@@ -37,15 +37,15 @@ async function getPostUsers(postUsersArray) {
       surname: true,
       handle: true,
       profilePicUrl: true,
-    }
+    },
   });
-  
+
   return users;
 }
 
 async function getPostUser(post) {
   const user = await prisma.user.findUnique({
-    where: {id: post.authorId},
+    where: { id: post.authorId },
   });
   return user;
 }
@@ -77,7 +77,7 @@ async function fetchAllPostsFromSpecificUser(id) {
 }
 
 async function fetchAllPostRepliesFromSpecificUser(postsArray) {
-  const postIds = postsArray.map(post => post.id);
+  const postIds = postsArray.map((post) => post.id);
   const posts = await prisma.post.findMany({
     where: { replyToId: { in: postIds } },
     orderBy: [
@@ -240,25 +240,31 @@ async function getUserDetails(userId) {
   return user;
 }
 
+async function getUniqueUserDetailsByHandle(handle) {
+  const user = await prisma.user.findUnique({
+    where: { handle: handle },
+  });
+}
+
 async function getUserDetailsByHandle(handle) {
   const user = await prisma.user.findUnique({
     where: { handle: handle },
   });
-  
+
   const postCount = await prisma.post.count({
     where: {
       authorId: user.id, // Fixed: use user.id instead of user.authorId
-      replyToId: null,   // Fixed: use replyToId instead of replyTo
+      replyToId: null, // Fixed: use replyToId instead of replyTo
     },
   });
-  
+
   const replyCount = await prisma.post.count({
     where: {
-      authorId: user.id,           // Fixed: use user.id instead of user.authorId
-      replyToId: { not: null },    // Fixed: use replyToId instead of replyTo
+      authorId: user.id, // Fixed: use user.id instead of user.authorId
+      replyToId: { not: null }, // Fixed: use replyToId instead of replyTo
     },
   });
-  
+
   const userWithPostCount = {
     ...user,
     postCount: postCount,
@@ -281,9 +287,27 @@ async function newComment(userId, text, imageUrl, originalPostId) {
 
 async function fetchSpecificPost(id) {
   const post = await prisma.post.findUnique({
-    where: { id: id } 
+    where: { id: id },
   });
   return post;
+}
+
+async function updateUser(id, updateData) {
+  const updatedUser = await prisma.user.update({
+    where: { id },
+    data: updateData,
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      surname: true,
+      handle: true,
+      profilePicUrl: true,
+      createdAt: true,
+      // Exclude passwordHash from response
+    },
+  });
+  return updatedUser;
 }
 
 export default {
@@ -308,4 +332,6 @@ export default {
   fetchAllPostsFromSpecificUser,
   fetchAllPostRepliesFromSpecificUser,
   getPostUser,
+  updateUser,
+  getUniqueUserDetailsByHandle,
 };

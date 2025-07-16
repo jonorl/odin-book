@@ -1,6 +1,10 @@
 // Express set-up
 import Router from "express";
-import { formatPostsForFeed, formatPostsForFeedOptimized, getTimeAgo } from "../services/feedService.js";
+import {
+  formatPostsForFeed,
+  formatPostsForFeedOptimized,
+  getTimeAgo,
+} from "../services/feedService.js";
 import validateUser from "../controllers/formValidation.js";
 import { authenticateToken, signToken } from "../controllers/authentication.js";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
@@ -33,27 +37,13 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
 });
 
 mainRouter.get("/api/v1/getSpecificPost/:id", async (req, res) => {
-  console.log("req.params.id", req.params.id)
+  console.log("req.params.id", req.params.id);
   const post = await queries.fetchSpecificPost(req.params.id);
-  // const postsIdArray = posts.map((obj) => obj.id);
-  // const postsComments = await queries.getPostsComments(postsIdArray);
-  // const postsUserArray = posts.map((obj) => obj.authorId);
   const postUser = await queries.getPostUser(post);
-  // const favourites = await queries.countAllLikes(postsIdArray);
-  // const commentCount = await queries.countAllComments(postsIdArray);
-  // const retweetCount = await queries.countAllRetweets(postsIdArray);
-  // const postFeed = formatPostsForFeedOptimized(
-  //   posts,
-    // postsUsers,
-    // favourites,
-    // commentCount,
-    // retweetCount
-  // );
-  // const resolvedPostFeed = await postFeed;
   post.user = postUser;
-  post.timestamp = getTimeAgo(post.createdAt)
-  console.log("postUser", postUser)
-  console.log("post", post)
+  post.timestamp = getTimeAgo(post.createdAt);
+  console.log("postUser", postUser);
+  console.log("post", post);
   res.json({ postFeed: post });
 });
 
@@ -65,18 +55,18 @@ mainRouter.get(
       const posts = await queries.fetchAllPostsFromSpecificUser(
         req.params.specificUserId
       );
-      
+
       // Get all the post IDs for fetching counts
       const postsIdArray = posts.map((obj) => obj.id);
-      
+
       // Get all unique author IDs (for both posts and their reply targets)
       const postsUserArray = posts.map((obj) => obj.authorId);
-      
+
       // Add author IDs of posts that are being replied to
       const replyToIds = posts
-        .filter(post => post.replyToId)
-        .map(post => post.replyToId);
-      
+        .filter((post) => post.replyToId)
+        .map((post) => post.replyToId);
+
       // Fetch the original posts that are being replied to
       const originalPosts = [];
       if (replyToIds.length > 0) {
@@ -88,16 +78,16 @@ mainRouter.get(
           }
         }
       }
-      
+
       // Get all users (both post authors and original post authors)
       const uniqueUserIds = [...new Set(postsUserArray)];
       const postsUsers = await queries.getPostUsers(uniqueUserIds);
-      
+
       // Get counts for all posts
       const favourites = await queries.countAllLikes(postsIdArray);
       const commentCount = await queries.countAllComments(postsIdArray);
       const retweetCount = await queries.countAllRetweets(postsIdArray);
-      
+
       // Use the optimized formatter that handles replies better
       const postFeed = await formatPostsForFeedOptimized(
         posts,
@@ -107,7 +97,7 @@ mainRouter.get(
         retweetCount,
         originalPosts
       );
-      
+
       res.json({ postFeed });
     } catch (error) {
       console.error("Error fetching user posts:", error);
@@ -252,7 +242,7 @@ mainRouter.post(
       if (existingUser) {
         return res.status(409).json({ message: "Email already in use" });
       }
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password.trim(), 10);
       const newUser = await queries.createUser(
         handle,
         name,
@@ -295,5 +285,107 @@ mainRouter.post(
   },
   signToken
 );
+
+// PUT routes
+mainRouter.put("/api/v1/updateUser", async (req, res) => {
+  try {
+    const { id, name, surname, handle, email, password, profilePicUrl } =
+      req.body;
+
+    // Validate required fields
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    if (!name || !surname || !handle || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, surname, handle, and email are required",
+      });
+    }
+
+    // Check if user exists
+    const existingUser = await queries.getUserDetails(id);
+
+    if (!existingUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if email is already taken by another user
+    if (email !== existingUser.email) {
+      const emailExists = await queries.getUserByEmail(email);
+      if (emailExists && emailExists.id !== id) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is already taken",
+        });
+      }
+    }
+
+    // Check if handle is already taken by another user
+    if (handle !== existingUser.handle) {
+      const handleExists = await queries.getUniqueUserDetailsByHandle(handle);
+
+      if (handleExists  && handleExists.id !== id) {
+        return res.status(400).json({
+          success: false,
+          message: "Handle is already taken",
+        });
+      }
+    }
+
+    // Prepare update data
+    const updateData = {
+      name: name.trim(),
+      surname: surname.trim(),
+      handle: handle.trim(),
+      email: email.trim().toLowerCase(),
+      profilePicUrl: profilePicUrl || existingUser.profilePicUrl,
+    };
+
+    // Only hash and update password if provided
+    if (password && password.trim() !== "") {
+      updateData.passwordHash = await bcrypt.hash(password.trim(), 10);
+    }
+
+    // Update user in database
+    const updatedUser = await queries.updateUser(id, updateData);
+    res.json({
+      success: true,
+      message: "User settings updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+
+    // Handle Prisma unique constraint errors
+    if (error.code === "P2002") {
+      const target = error.meta?.target;
+      if (target?.includes("email")) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is already taken",
+        });
+      }
+      if (target?.includes("handle")) {
+        return res.status(400).json({
+          success: false,
+          message: "Handle is already taken",
+        });
+      }
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+});
 
 export default mainRouter;

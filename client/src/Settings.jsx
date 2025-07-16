@@ -12,42 +12,12 @@ export default function OdinBook() {
   const [isLoadingUser, setIsLoadingUser] = useState(true)
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [postDetails, setPostDetails] = useState(null)
-  const [postUser, setPostUserDetails] = useState(null)
-  const { postId } = useParams();
-  const { userId } = useParams();
 
   const token = localStorage.getItem("token");
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
-
-  // Fetch post details
-  useEffect(() => {
-    async function fetchPostDetails() {
-      try {
-        const post = await fetch(`${HOST}/api/v1/postDetails/${postId}`)
-        const data = await post.json()
-        setPostDetails(data.postFeed[0])
-      } catch (err) {
-        console.error("Error fetching post details", err)
-      }
-    } fetchPostDetails()
-  }, [postId])
-
-    // Fetch post user details
-  useEffect(() => {
-    async function fetchUserDetails() {
-      try {
-        const post = await fetch(`${HOST}/api/v1/userDetails/${userId}`)
-        const data = await post.json()
-        setPostUserDetails(data.user)
-      } catch (err) {
-        console.error("Error fetching post details", err)
-      }
-    } fetchUserDetails()
-  }, [userId])
 
   // Fetch user data
   useEffect(() => {

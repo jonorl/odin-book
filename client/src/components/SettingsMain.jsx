@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Camera, Eye, EyeOff } from "lucide-react";
 
-const Settings = ({ HOST, darkMode, user, onBack }) => {
+const Settings = ({ HOST, darkMode, user }) => {
   const [formData, setFormData] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -86,7 +86,7 @@ const Settings = ({ HOST, darkMode, user, onBack }) => {
       <div className="flex flex-col bg-black text-white">
         <div className="flex items-center p-4 border-b border-gray-800">
           <button
-            onClick={onBack}
+            onClick={() => history.back()}
             className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2"
           >
             <ArrowLeft
