@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Post = ({ user, postId, darkMode, HOST }) => {
+const Post = ({ user, postId, darkMode, HOST, reply }) => {
   const [liked, setLiked] = useState(null);
   const [retweeted, setRetweeted] = useState(null);
   const [likes, setLikes] = useState(null);
@@ -13,20 +13,20 @@ const Post = ({ user, postId, darkMode, HOST }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-      const fetchFormattedPosts = async () => {
-        try {
-          const res = await fetch(`${HOST}/api/v1/getSpecificPost/${postId}`, {
-          });
-          const data = await res.json();
-          setFormattedPost(data.postFeed || []);
-          setIsLoading(false);
-          return data;
-        } catch (err) {
-          console.error("Failed to fetch formatted posts:", err);
-        }
-      };
-      fetchFormattedPosts();
-    }, [postId, HOST]);
+    const fetchFormattedPosts = async () => {
+      try {
+        const res = await fetch(`${HOST}/api/v1/getSpecificPost/${postId}`, {
+        });
+        const data = await res.json();
+        setFormattedPost(data.postFeed || []);
+        setIsLoading(false);
+        return data;
+      } catch (err) {
+        console.error("Failed to fetch formatted posts:", err);
+      }
+    };
+    fetchFormattedPosts();
+  }, [postId, HOST]);
 
   const postLike = async () => {
     const id = postId;
@@ -60,11 +60,16 @@ const Post = ({ user, postId, darkMode, HOST }) => {
 
   // Helper function to render a single post content (for reply posts only)
   return (
-    <div onClick={() => {console.log("acaa"); console.log("queonda>?",formattedPost); postDetailsRedirect(formattedPost.user.id, formattedPost.id)}}
+    <div onClick={() => { console.log("acaa"); console.log("queonda>?", formattedPost); postDetailsRedirect(formattedPost.user.id, formattedPost.id) }}
       id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
         ? "border-gray-800 hover:bg-gray-950"
         : "border-gray-200 hover:bg-gray-50"
         } relative p-4 flex space-x-3`}>
+      {reply && <div
+        className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
+          }`}
+        style={{ height: 'calc(100% - 4rem + 1rem)' }}
+      />}
       <img
         onClick={(e) => {
           e.stopPropagation();
@@ -77,7 +82,8 @@ const Post = ({ user, postId, darkMode, HOST }) => {
       <div className="flex-1">
         <div className="flex items-center space-x-2 mb-1">
           <a
-            onClick={(e) => {console.log(e, "acaaaaa")
+            onClick={(e) => {
+              console.log(e, "acaaaaa")
               e.stopPropagation();
               navigate(`/profile/${formattedPost.user.handle}`);
             }}

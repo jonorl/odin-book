@@ -5,7 +5,7 @@ import PostComposer from "./PostComposer";
 import Post from "./Post"
 import OriginalPost from "./OriginalPost"
 
-const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
+const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
   const [liked, setLiked] = useState(post.liked);
   const [retweeted, setRetweeted] = useState(post.retweeted);
   const [likes, setLikes] = useState(post.likes);
@@ -75,7 +75,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
 
         {/* If original post exists, render it */}
         {(post.replyToId) && <>
-          <OriginalPost key={post.replyToId} user={user} HOST={HOST} postId={post.replyToId} darkMode={darkMode} />
+          <OriginalPost key={post.replyToId} user={user} HOST={HOST} postId={post.replyToId} darkMode={darkMode} reply={true}/>
         </>}
 
         {/* Post Content */}
@@ -83,13 +83,18 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
           <div className="spinner spinner-container"></div>
         ) : (
           <div
-            className="flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950"
+            id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950  `}
             onClick={() => {
               console.log("jodeme que era aca")
-              /* navigate(`/profile/${post.user.username}`) */
               navigate(`/${post.user.id}/${post.id}`);
             }}
           >
+            {/* {post && post.replyToId && <div
+              className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
+                }`}
+              style={{ height: 'calc(100% - 4rem + 1rem)' }}
+            />} */}
+
             <img
               className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
               src={postUser.profilePicUrl}
@@ -204,10 +209,10 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
       {post.replies > 0 &&
         postReplies &&
         postReplies.map((postReply) => (
-          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode} />
+          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode}/>
         ))}
     </div>
   );
 };
 
-export default PostMainFeed;
+export default PostDetailsMainFeed;

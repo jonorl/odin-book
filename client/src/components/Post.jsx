@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Post = ({ user, post, darkMode, HOST }) => {
+const Post = ({ user, post, darkMode, HOST, reply }) => {
   const [liked, setLiked] = useState((post && post.liked) || false);
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
   const [retweets, setRetweets] = useState(post && post.retweets);
 
   const navigate = useNavigate();
+  console.log("reply", reply)
 
   const postLike = async () => {
     const id = post.id;
@@ -42,7 +43,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
 
   // Helper function to render a single post content (for reply posts only)
   const renderPostContent = (postData) => (
-    <div onClick={() => {console.log("acaa"); postDetailsRedirect(post.user.id, post.id)}}
+    <div onClick={() => {console.log("reply", reply); postDetailsRedirect(post.user.id, post.id)}}
       id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
         ? "border-gray-800 hover:bg-gray-950"
         : "border-gray-200 hover:bg-gray-50"
@@ -164,7 +165,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
   // If this is a reply with an original post, show the threaded view
   if (post && post.originalPost) {
     return (
-      <div className="">
+      <div className="">{console.log("reply", reply)}
         <div >
           {/* Original Post Container */}
           <div id="originalPost" onClick={(e) => {console.log("aca"); e.stopPropagation(); postDetailsRedirect(post.originalPost.user.id, post.originalPost.id) }} className={`p-4 cursor-pointer transition-colors ${darkMode
@@ -186,12 +187,6 @@ const Post = ({ user, post, darkMode, HOST }) => {
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
                   <a
-                    /*                     onClick={(e) => {
-                                          e.stopPropagation();
-                                          if (post.originalPost.user) {
-                                            navigate(`/profile/${post.originalPost.user.username}`);
-                                          }
-                                        }} */
                     className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
                       }`}
                   >
@@ -246,7 +241,7 @@ const Post = ({ user, post, darkMode, HOST }) => {
     <div
       className={`cursor-pointer transition-colors `}
     >
-      <div>
+      <div>{console.log("reply", reply)}
         {renderPostContent(post)}
       </div>
     </div>
