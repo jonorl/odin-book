@@ -6,7 +6,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user }) => {
   return (
     <div className={`flex-1 border  ${darkMode ? 'border-gray-800' : 'border-gray-200'
       }`}>{console.log("formattedPosts: ", formattedPosts)}
-      <div className={` sticky top-0 backdrop-blur p-4 ${darkMode
+      <div className={`top-0 backdrop-blur p-4 ${darkMode
         ? 'bg-black/80 border-gray-800'
         : 'bg-white/80 border-gray-200'
         }`}>

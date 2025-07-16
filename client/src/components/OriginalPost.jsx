@@ -86,7 +86,7 @@ const Post = ({ user, postId, darkMode, HOST }) => {
           >
             {formattedPost && formattedPost.user && formattedPost.user.name} {formattedPost && formattedPost.user && formattedPost.user.surname}
           </a>
-          <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
+          <span /* onClick={(e) => e.stopPropagation()} */ className="text-gray-500">
             @{formattedPost && formattedPost.user && formattedPost.user.handle}
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">

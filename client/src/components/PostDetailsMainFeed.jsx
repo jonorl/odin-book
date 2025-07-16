@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, ArrowLeft } from "lucide-react";
 import PostComposer from "./PostComposer";
-import Thread from "./Thread";
 import Post from "./Post"
 import OriginalPost from "./OriginalPost"
 
@@ -61,7 +60,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
         }`}
     >
       <div id="backButton" className="flex flex-col bg-black text-white">
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <div className="flex items-center p-4 border-b border-gray-800">
           <button
             onClick={() => history.back()}
             className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2"
@@ -70,7 +69,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
               size={32}
               className="cursor-pointer hover:bg-gray-900 rounded-full p-1"
             />
-          </button>
+          </button><div className="justify-start text-xl font-bold text-white">Thread</div>
+
         </div>
 
         {/* If original post exists, render it */}
@@ -99,7 +99,8 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
                 <a
                   className={`hover:underline font-bold ${darkMode ? "text-white" : "text-black"
                     }`}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     navigate(`/profile/${post.user.username}`);
                   }}
                 >
@@ -203,7 +204,7 @@ const PostMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
       {post.replies > 0 &&
         postReplies &&
         postReplies.map((postReply) => (
-          <Thread key={postReply.id} user={user} HOST={HOST} replyPost={postReply} darkMode={darkMode} />
+          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode} />
         ))}
     </div>
   );
