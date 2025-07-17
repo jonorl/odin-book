@@ -310,6 +310,16 @@ async function updateUser(id, updateData) {
   return updatedUser;
 }
 
+async function newFollow(userId, targetUserId) {
+  const newFollow = await prisma.follow.create({
+    data: {
+      followerId: userId,
+      followingId: targetUserId,
+    },
+  });
+  return newFollow;
+}
+
 export default {
   fetchAllUsers,
   fetchAllPosts,
@@ -334,4 +344,5 @@ export default {
   getPostUser,
   updateUser,
   getUniqueUserDetailsByHandle,
+  newFollow,
 };

@@ -10,6 +10,7 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
   const [retweeted, setRetweeted] = useState(post.retweeted);
   const [likes, setLikes] = useState(post.likes);
   const [retweets, setRetweets] = useState(post.retweets);
+  const [follow, setFollow] = useState("Follow")
   const [postReplies, setPostReplies] = useState(null);
 
   const navigate = useNavigate();
@@ -28,6 +29,20 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
       console.error("Failed to post new message:", err);
     }
   };
+
+  const followUser = async (userId, targetUserId) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, targetUserId }),
+      })
+      const data = await res.json()
+      return data
+    } catch (err) {
+      console.error("Failer to Follow user", err)
+    }
+  }
 
   useEffect(() => {
     const fetchFormattedPosts = async () => {
@@ -54,6 +69,11 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
   };
 
+  const handleFollow = (userId, targetId) => {
+    setFollow(follow === "Follow" ? "Unfollow" : "Follow");
+    followUser(userId, targetId)
+  };
+
   return (
     <div
       className={`flex-1 border  ${darkMode ? "border-gray-800" : "border-gray-200"
@@ -75,7 +95,7 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
 
         {/* If original post exists, render it */}
         {(post.replyToId) && <>
-          <OriginalPost key={post.replyToId} user={user} HOST={HOST} postId={post.replyToId} darkMode={darkMode} reply={true}/>
+          <OriginalPost key={post.replyToId} user={user} HOST={HOST} postId={post.replyToId} darkMode={darkMode} reply={true} />
         </>}
 
         {/* Post Content */}
@@ -109,15 +129,17 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
                 <span className="text-gray-500">·</span>
                 <span className="text-gray-500">{post.timestamp}</span>
                 {(post && post.user && user && post.user.id !== user.id && <button
-            className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
-              ? 'bg-[rgb(239,243,244)] text-black'
-              : 'bg-black text-white'
-              }`}
-
-            onClick={(e) => e.stopPropagation()}
-          >
-            Follow
-          </button>)}
+                  className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
+                    ? 'bg-[rgb(239,243,244)] text-black'
+                    : 'bg-black text-white'
+                    }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    { handleFollow(user.id, post.user.id) }
+                  }}
+                >
+                  {follow}
+                </button>)}
               </div>
 
               <div className="mb-3">
@@ -212,7 +234,7 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
       {post.replies > 0 &&
         postReplies &&
         postReplies.map((postReply) => (
-          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode}/>
+          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode} />
         ))}
     </div>
   );

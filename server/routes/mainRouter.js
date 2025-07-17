@@ -286,108 +286,118 @@ mainRouter.post(
   signToken
 );
 
+mainRouter.post("/api/v1/newFollow/", async (req, res) => {
+  const { userId, targetUserId } = req.body;
+  const follow = await queries.newFollow(userId, targetUserId);
+  res.json({ follow });
+});
+
 // PUT routes
-mainRouter.put("/api/v1/updateUser", parser.single("imageFile"), processCloudinaryUpload, async (req, res) => {
-  try {
-    const { user, name, surname, handle, email, password } =
-      req.body;
-      const id = user.id
+mainRouter.put(
+  "/api/v1/updateUser",
+  parser.single("imageFile"),
+  processCloudinaryUpload,
+  async (req, res) => {
+    try {
+      const { user, name, surname, handle, email, password } = req.body;
+      const id = user.id;
       const imageUrl = req.imageUrl;
 
-    // Validate required fields
-    if (!id) {
-      return res.status(400).json({
+      // Validate required fields
+      if (!id) {
+        return res.status(400).json({
+          success: false,
+          message: "User ID is required",
+        });
+      }
+
+      if (!name || !surname || !handle || !email) {
+        return res.status(400).json({
+          success: false,
+          message: "Name, surname, handle, and email are required",
+        });
+      }
+
+      // Check if user exists
+      const existingUser = await queries.getUserDetails(id);
+
+      if (!existingUser) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      // Check if email is already taken by another user
+      if (email !== existingUser.email) {
+        const emailExists = await queries.getUserByEmail(email);
+        if (emailExists && emailExists.id !== id) {
+          return res.status(400).json({
+            success: false,
+            message: "Email is already taken",
+          });
+        }
+      }
+
+      // Check if handle is already taken by another user
+      if (handle !== existingUser.handle) {
+        const handleExists = await queries.getUniqueUserDetailsByHandle(handle);
+
+        if (handleExists && handleExists.id !== id) {
+          return res.status(400).json({
+            success: false,
+            message: "Handle is already taken",
+          });
+        }
+      }
+
+      // Prepare update data
+      const updateData = {
+        name: name.trim(),
+        surname: surname.trim(),
+        handle: handle.trim(),
+        email: email.trim().toLowerCase(),
+        profilePicUrl: imageUrl || existingUser.profilePicUrl,
+      };
+
+      // Only hash and update password if provided
+      if (password && password.trim() !== "") {
+        updateData.passwordHash = await bcrypt.hash(password.trim(), 10);
+      }
+
+      // Update user in database
+      const updatedUser = await queries.updateUser(id, updateData);
+      res.json({
+        success: true,
+        message: "User settings updated successfully",
+        user: updatedUser,
+      });
+    } catch (error) {
+      console.error("Error updating user:", error);
+
+      // Handle Prisma unique constraint errors
+      if (error.code === "P2002") {
+        const target = error.meta?.target;
+        if (target?.includes("email")) {
+          return res.status(400).json({
+            success: false,
+            message: "Email is already taken",
+          });
+        }
+        if (target?.includes("handle")) {
+          return res.status(400).json({
+            success: false,
+            message: "Handle is already taken",
+          });
+        }
+      }
+
+      res.status(500).json({
         success: false,
-        message: "User ID is required",
+        message: "Internal server error",
       });
     }
-
-    if (!name || !surname || !handle || !email) {
-      return res.status(400).json({
-        success: false,
-        message: "Name, surname, handle, and email are required",
-      });
-    }
-
-    // Check if user exists
-    const existingUser = await queries.getUserDetails(id);
-
-    if (!existingUser) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    // Check if email is already taken by another user
-    if (email !== existingUser.email) {
-      const emailExists = await queries.getUserByEmail(email);
-      if (emailExists && emailExists.id !== id) {
-        return res.status(400).json({
-          success: false,
-          message: "Email is already taken",
-        });
-      }
-    }
-
-    // Check if handle is already taken by another user
-    if (handle !== existingUser.handle) {
-      const handleExists = await queries.getUniqueUserDetailsByHandle(handle);
-
-      if (handleExists  && handleExists.id !== id) {
-        return res.status(400).json({
-          success: false,
-          message: "Handle is already taken",
-        });
-      }
-    }
-
-    // Prepare update data
-    const updateData = {
-      name: name.trim(),
-      surname: surname.trim(),
-      handle: handle.trim(),
-      email: email.trim().toLowerCase(),
-      profilePicUrl: imageUrl  || existingUser.profilePicUrl,
-    };
-
-    // Only hash and update password if provided
-    if (password && password.trim() !== "") {
-      updateData.passwordHash = await bcrypt.hash(password.trim(), 10);
-    }
-
-    // Update user in database
-    const updatedUser = await queries.updateUser(id, updateData);
-    res.json({
-      success: true,
-      message: "User settings updated successfully",
-      user: updatedUser,
-    });
-  } catch (error) {
-    console.error("Error updating user:", error);
-
-    // Handle Prisma unique constraint errors
-    if (error.code === "P2002") {
-      const target = error.meta?.target;
-      if (target?.includes("email")) {
-        return res.status(400).json({
-          success: false,
-          message: "Email is already taken",
-        });
-      }
-      if (target?.includes("handle")) {
-        return res.status(400).json({
-          success: false,
-          message: "Handle is already taken",
-        });
-      }
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
   }
-});
+);
 
 export default mainRouter;
