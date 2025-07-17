@@ -89,12 +89,6 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
               navigate(`/${post.user.id}/${post.id}`);
             }}
           >
-            {/* {post && post.replyToId && <div
-              className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
-                }`}
-              style={{ height: 'calc(100% - 4rem + 1rem)' }}
-            />} */}
-
             <img
               className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
               src={postUser.profilePicUrl}
@@ -114,7 +108,16 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
                 <span className="text-gray-500">@{postUser.handle}</span>
                 <span className="text-gray-500">·</span>
                 <span className="text-gray-500">{post.timestamp}</span>
-                <div className="ml-auto"></div>
+                {(post && post.user && user && post.user.id !== user.id && <button
+            className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
+              ? 'bg-[rgb(239,243,244)] text-black'
+              : 'bg-black text-white'
+              }`}
+
+            onClick={(e) => e.stopPropagation()}
+          >
+            Follow
+          </button>)}
               </div>
 
               <div className="mb-3">

@@ -100,7 +100,17 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {formattedPost && formattedPost.timestamp}
-          </span>
+          </span>{user && console.log("user", user)}
+          {(formattedPost && formattedPost.user && user && formattedPost.user.id !== user.id && <button
+            className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
+              ? 'bg-[rgb(239,243,244)] text-black'
+              : 'bg-black text-white'
+              }`}
+
+            onClick={(e) => e.stopPropagation()}
+          >
+            Follow
+          </button>)}
         </div>
 
         <div className="mb-3">

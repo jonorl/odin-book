@@ -8,31 +8,28 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String      @id @default(cuid())
+  email         String      @unique
   name          String
   surname       String
-  handle        String   @unique
+  handle        String      @unique
   passwordHash  String
   profilePicUrl String?
-  createdAt     DateTime @default(now())
-
-  // Relations
-  posts      Post[]
-  // comments   Comment[]
-  favourites Favourite[]
-  reposts    Repost[]
+  createdAt     DateTime    @default(now())
+  posts         Post[]
+  favourites    Favourite[]
+  reposts       Repost[]
+  followers     Follow[]    @relation("UserFollowers")
+  following     Follow[]    @relation("UserFollowing")
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  authorId  String
-  text      String
-  imageUrl  String?
-  replyToId String? 
-  createdAt DateTime @default(now())
-
-  // Relations
+  id         String      @id @default(cuid())
+  authorId   String
+  text       String
+  imageUrl   String?
+  replyToId  String?
+  createdAt  DateTime    @default(now())
   author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   replyTo    Post?       @relation("PostReplies", fields: [replyToId], references: [id], onDelete: Cascade)
   replies    Post[]      @relation("PostReplies")
@@ -46,21 +43,30 @@ model Repost {
   postId    String
   comment   String?
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, postId]) // Prevent duplicate reposts
+  @@unique([userId, postId])
 }
 
 model Favourite {
   userId String
   postId String
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@id([userId, postId])
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  follower    User     @relation("UserFollowers", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId  String
+  following   User     @relation("UserFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }

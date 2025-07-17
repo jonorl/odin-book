@@ -43,7 +43,7 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
 
   // Helper function to render a single post content (for reply posts only)
   const renderPostContent = (postData) => (
-    <div onClick={() => {console.log("reply", reply); postDetailsRedirect(post.user.id, post.id)}}
+    <div onClick={() => { console.log("reply", reply); postDetailsRedirect(post.user.id, post.id) }}
       id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
         ? "border-gray-800 hover:bg-gray-950"
         : "border-gray-200 hover:bg-gray-50"
@@ -60,7 +60,8 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
       <div className="flex-1">
         <div className="flex items-center space-x-2 mb-1">
           <a
-            onClick={(e) => {console.log(e, "acaaaaa")
+            onClick={(e) => {
+              console.log(e, "acaaaaa")
               e.stopPropagation();
               navigate(`/profile/${postData.user.username}`);
             }}
@@ -78,6 +79,16 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
           </span>
+          {(user && postData.user.id !== user.id && <button
+            className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
+              ? 'bg-[rgb(239,243,244)] text-black'
+              : 'bg-black text-white'
+              }`}
+
+            onClick={(e) => e.stopPropagation()}
+          >
+            Follow
+          </button>)}
         </div>
 
         <div className="mb-3">
@@ -168,11 +179,11 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
       <div className="">{console.log("reply", reply)}
         <div >
           {/* Original Post Container */}
-          <div id="originalPost" onClick={(e) => {console.log("aca"); e.stopPropagation(); postDetailsRedirect(post.originalPost.user.id, post.originalPost.id) }} className={`p-4 cursor-pointer transition-colors ${darkMode
+          <div id="originalPost" onClick={(e) => { console.log("aca"); e.stopPropagation(); postDetailsRedirect(post.originalPost.user.id, post.originalPost.id) }} className={`p-4 cursor-pointer transition-colors ${darkMode
             ? "border-gray-800 hover:bg-gray-950"
             : "border-gray-200 hover:bg-gray-50"
             } relative mb-4`}>
-            <div onClick={() => {console.log("acaaaa")}} className="flex space-x-3 border-l-0">
+            <div onClick={() => { console.log("acaaaa") }} className="flex space-x-3 border-l-0">
               <img
                 onClick={(e) => {
                   e.stopPropagation();

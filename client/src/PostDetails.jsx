@@ -36,7 +36,7 @@ export default function OdinBook() {
     } fetchPostDetails()
   }, [postId])
 
-    // Fetch post user details
+  // Fetch post user details
   useEffect(() => {
     async function fetchUserDetails() {
       try {
@@ -93,9 +93,9 @@ export default function OdinBook() {
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
           {isLoading ? <div className='spinner spinner-container'></div> :
-          postDetails && postUser && <PostDetailsMainFeed postUser={postUser} post={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />}
+            postDetails && postUser && <PostDetailsMainFeed postUser={postUser} post={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
-          </div>
+        </div>
       </div>
     </div>
   );
