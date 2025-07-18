@@ -5,7 +5,6 @@ import MainFeed from "./components/MainFeed"
 
 const HOST = import.meta.env.VITE_LOCALHOST
 
-// OdinBook.jsx
 export default function OdinBook() {
   const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState(null);
