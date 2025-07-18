@@ -310,14 +310,40 @@ async function updateUser(id, updateData) {
   return updatedUser;
 }
 
-async function newFollow(userId, targetUserId) {
-  const newFollow = await prisma.follow.create({
-    data: {
-      followerId: userId,
-      followingId: targetUserId,
+async function toggleFollow(userId, targetUserId) {
+  // 1. Try to find an existing follow entry
+  const existingFollow = await prisma.follow.findUnique({
+    where: {
+      followerId_followingId: { // Assuming you have a composite unique constraint on these fields
+        followerId: userId,
+        followingId: targetUserId,
+      },
     },
   });
-  return newFollow;
+
+  if (existingFollow) {
+    // 2. If it exists, delete it
+    await prisma.follow.delete({
+      where: {
+        followerId_followingId: { // Use the same unique constraint for deletion
+          followerId: userId,
+          followingId: targetUserId,
+        },
+      },
+    });
+    console.log(`Unfollowed: User ${userId} unfollowed User ${targetUserId}`);
+    return { action: 'deleted', follow: existingFollow };
+  } else {
+    // 3. If it doesn't exist, create it
+    const newFollowEntry = await prisma.follow.create({
+      data: {
+        followerId: userId,
+        followingId: targetUserId,
+      },
+    });
+    console.log(`Followed: User ${userId} followed User ${targetUserId}`);
+    return { action: 'created', follow: newFollowEntry };
+  }
 }
 
 export default {
@@ -344,5 +370,5 @@ export default {
   getPostUser,
   updateUser,
   getUniqueUserDetailsByHandle,
-  newFollow,
+  toggleFollow,
 };

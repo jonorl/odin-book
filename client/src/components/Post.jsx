@@ -6,6 +6,7 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
   const [liked, setLiked] = useState((post && post.liked) || false);
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
+  const [follow, setFollow] = useState("Follow")
   const [retweets, setRetweets] = useState(post && post.retweets);
 
   const navigate = useNavigate();
@@ -26,6 +27,20 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
     }
   };
 
+  const followUser = async (userId, targetUserId) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, targetUserId }),
+      })
+      const data = await res.json()
+      return data
+    } catch (err) {
+      console.error("Failer to Follow user", err)
+    }
+  }
+
   const postDetailsRedirect = (userId, postId) => {
     navigate(`/${userId}/${postId}`);
   };
@@ -39,6 +54,11 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
   const handleRetweet = () => {
     setRetweeted(!retweeted);
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
+  };
+
+  const handleFollow = (userId, targetId) => {
+    setFollow(follow === "Follow" ? "Unfollow" : "Follow");
+    followUser(userId, targetId)
   };
 
   // Helper function to render a single post content (for reply posts only)
@@ -79,15 +99,17 @@ const Post = ({ user, post, darkMode, HOST, reply }) => {
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
           </span>
-          {(user && postData.user.id !== user.id && <button
+          {(post && post.user && user && post.user.id !== user.id && <button
             className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
               ? 'bg-[rgb(239,243,244)] text-black'
               : 'bg-black text-white'
               }`}
-
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              { handleFollow(user.id, post.user.id) }
+            }}
           >
-            Follow
+            {follow}
           </button>)}
         </div>
 

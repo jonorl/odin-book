@@ -8,6 +8,7 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
   const [likes, setLikes] = useState(null);
   const [retweets, setRetweets] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [follow, setFollow] = useState("Follow")
   const [formattedPost, setFormattedPost] = useState([]);
 
   const navigate = useNavigate();
@@ -43,6 +44,20 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
     }
   };
 
+  const followUser = async (userId, targetUserId) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, targetUserId }),
+      })
+      const data = await res.json()
+      return data
+    } catch (err) {
+      console.error("Failer to Follow user", err)
+    }
+  }
+
   const postDetailsRedirect = (userId, postId) => {
     navigate(`/${userId}/${postId}`);
   };
@@ -56,6 +71,11 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
   const handleRetweet = () => {
     setRetweeted(!retweeted);
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
+  };
+
+  const handleFollow = (userId, targetId) => {
+    setFollow(follow === "Follow" ? "Unfollow" : "Follow");
+    followUser(userId, targetId)
   };
 
   // Helper function to render a single post content (for reply posts only)
@@ -106,10 +126,12 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
               ? 'bg-[rgb(239,243,244)] text-black'
               : 'bg-black text-white'
               }`}
-
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              { handleFollow(user.id, formattedPost.user.id) }
+            }}
           >
-            Follow
+            {follow}
           </button>)}
         </div>
 

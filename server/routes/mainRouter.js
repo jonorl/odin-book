@@ -288,7 +288,7 @@ mainRouter.post(
 
 mainRouter.post("/api/v1/newFollow/", async (req, res) => {
   const { userId, targetUserId } = req.body;
-  const follow = await queries.newFollow(userId, targetUserId);
+  const follow = await queries.toggleFollow(userId, targetUserId);
   res.json({ follow });
 });
 
