@@ -314,7 +314,8 @@ async function toggleFollow(userId, targetUserId) {
   // 1. Try to find an existing follow entry
   const existingFollow = await prisma.follow.findUnique({
     where: {
-      followerId_followingId: { // Assuming you have a composite unique constraint on these fields
+      followerId_followingId: {
+        // Assuming you have a composite unique constraint on these fields
         followerId: userId,
         followingId: targetUserId,
       },
@@ -325,14 +326,15 @@ async function toggleFollow(userId, targetUserId) {
     // 2. If it exists, delete it
     await prisma.follow.delete({
       where: {
-        followerId_followingId: { // Use the same unique constraint for deletion
+        followerId_followingId: {
+          // Use the same unique constraint for deletion
           followerId: userId,
           followingId: targetUserId,
         },
       },
     });
     console.log(`Unfollowed: User ${userId} unfollowed User ${targetUserId}`);
-    return { action: 'deleted', follow: existingFollow };
+    return { action: "deleted", follow: existingFollow };
   } else {
     // 3. If it doesn't exist, create it
     const newFollowEntry = await prisma.follow.create({
@@ -342,8 +344,33 @@ async function toggleFollow(userId, targetUserId) {
       },
     });
     console.log(`Followed: User ${userId} followed User ${targetUserId}`);
-    return { action: 'created', follow: newFollowEntry };
+    return { action: "created", follow: newFollowEntry };
   }
+}
+
+async function getUserFollowersData(userid) {
+  // Get all the data in parallel
+  const [followingUsers, followerCount, followingCount] = await Promise.all([
+    // People the user is following
+    prisma.follow.findMany({
+      where: { followerId: userid },
+      select: { followingId: true },
+    }),
+    // Count of people who follow this user
+    prisma.follow.count({
+      where: { followingId: userid },
+    }),
+    // Count of people this user follows
+    prisma.follow.count({
+      where: { followerId: userid },
+    }),
+  ]);
+
+  return {
+    followingUsers,
+    followerCount,
+    followingCount,
+  };
 }
 
 export default {
@@ -371,4 +398,5 @@ export default {
   updateUser,
   getUniqueUserDetailsByHandle,
   toggleFollow,
+  getUserFollowersData,
 };

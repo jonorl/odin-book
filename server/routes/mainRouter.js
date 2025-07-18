@@ -1,7 +1,6 @@
 // Express set-up
 import Router from "express";
 import {
-  formatPostsForFeed,
   formatPostsForFeedOptimized,
   getTimeAgo,
 } from "../services/feedService.js";
@@ -25,7 +24,7 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
   const favourites = await queries.countAllLikes(postsIdArray);
   const commentCount = await queries.countAllComments(postsIdArray);
   const retweetCount = await queries.countAllRetweets(postsIdArray);
-  const postFeed = formatPostsForFeed(
+  const postFeed = formatPostsForFeedOptimized(
     posts,
     postsUsers,
     favourites,
@@ -187,6 +186,17 @@ mainRouter.get("/api/v1/userHandle/:handle", async (req, res) => {
   try {
     const user = await queries.getUserDetailsByHandle(req.params.handle);
     res.json({ user });
+  } catch (err) {
+    console.error("failed to fetch post", err);
+    res.status(500).json({ message: "server error" });
+  }
+});
+
+mainRouter.get("/api/v1/followers/:userid", async (req, res) => {
+  try {
+    const { followingUsers, followerCount, followingCount } =
+      await queries.getUserFollowersData(req.params.userid);
+    res.json({ followingUsers, followerCount, followingCount });
   } catch (err) {
     console.error("failed to fetch post", err);
     res.status(500).json({ message: "server error" });

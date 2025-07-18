@@ -9,34 +9,50 @@ export default function OdinBook() {
   const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState(null)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
+  const [followers, setFollowers] = useState({
+    followingUsers: [],
+    followerCount: 0,
+    followingCount: 0
+  })
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const token = localStorage.getItem("token");
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  // Fetch user data
   useEffect(() => {
-    async function fetchUser() {
+    const token = localStorage.getItem("token");
+    console.log("token", token)
+    async function fetchUserAndFollowers() {
       if (!token) return;
       setIsLoadingUser(true);
       try {
-        const res = await fetch(`${HOST}/api/v1/me`, {
+        // Fetch user first
+        const userRes = await fetch(`${HOST}/api/v1/me`, {
           headers: { authorization: `Bearer ${token}` },
         });
-        const data = await res.json();
-        setUser(data.user);
+        const userData = await userRes.json();
+        console.log("userData", userData.user.id)
+        setUser(userData.user);
+
+        // Then fetch followers
+        const followersRes = await fetch(`${HOST}/api/v1/followers/${userData.user.id}`);
+        const followersData = await followersRes.json();
+        console.log("followersData", followersData);
+        setFollowers(followersData);
       } catch (err) {
-        console.error("Error fetching user:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setIsLoadingUser(false);
       }
     }
-    fetchUser();
-  }, [token]);
+    fetchUserAndFollowers();
+  }, []);
+
+  useEffect(() => {
+    console.log("followers state updated:", followers);
+  }, [followers]);
 
   // Create new mapped object fusing posts and users
   useEffect(() => {
@@ -44,10 +60,7 @@ export default function OdinBook() {
       try {
         const res = await fetch(`${HOST}/api/v1/getPosts/`, {
         });
-        console.log("res: ", await res)
         const data = await res.json();
-        console.log("res: ", await data)
-
         setFormattedPosts(data.postFeed || []);
         setIsLoading(false)
         return data
@@ -60,10 +73,10 @@ export default function OdinBook() {
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
-      <div className="flex max-w-7xl mr-auto ml-auto">
+      <div className="flex max-w-7xl mr-auto ml-auto">{console.log(followers && "averga", followers)}
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
-          <MainFeed isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} />
+          <MainFeed isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} followersData={followers} />
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
       </div>

@@ -2,8 +2,8 @@ import { useState } from 'react'
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user }) => {
-
+const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user, followersData }) => {
+  console.log(followersData && "followersData", followersData)
   const [activeTab, setActiveTab] = useState("Following");
 
   return (
@@ -48,7 +48,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user }) => {
       {isLoading ? <div className='spinner spinner-container'></div> : (formattedPosts.length > 0 &&
         <div>
           {formattedPosts.map(post => (
-            <Post user={user} HOST={HOST} key={post.id} post={post} darkMode={darkMode} />
+            <Post user={user} HOST={HOST} key={post.id} post={post} darkMode={darkMode} followersData={followersData} />
           ))}
         </div>
       )}

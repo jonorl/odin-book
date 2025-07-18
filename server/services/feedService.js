@@ -54,109 +54,6 @@ const createCountMaps = (favourites, retweetCount, commentCount) => {
   return { postLikesMap, retweetCountMap, commentCountMap };
 };
 
-// Helper function to get original post with user data
-const getOriginalPostWithUser = async (replyPost, allPostsMap) => {
-  if (!replyPost) return null;
-
-  try {
-    // Get the original post's author data
-    const originalUsers = await queries.getPostUsers(replyPost.authorId);
-    if (!originalUsers || originalUsers.length === 0) return null;
-
-    const originalAuthor = originalUsers[0]; // Assuming first user is the author
-
-    return {
-      id: replyPost.id,
-      user: formatUserData(originalAuthor),
-      content: replyPost.text,
-      image: replyPost.imageUrl,
-      timestamp: getTimeAgo(replyPost.createdAt),
-      createdAt: replyPost.createdAt,
-      replyToId: replyPost.replyToId,
-      originalPost: {
-        id: replyPost.id,
-        authorId: replyPost.authorId,
-        text: replyPost.text,
-        imageUrl: replyPost.imageUrl,
-        createdAt: replyPost.createdAt,
-        replyToId: replyPost.replyToId,
-        originalUser: formatUserData(originalAuthor),
-      },
-    };
-  } catch (error) {
-    console.error('Error fetching original post user data:', error);
-    return null;
-  }
-};
-
-// Main function to format posts for feed
-async function formatPostsForFeed(
-  posts,
-  users,
-  favourites,
-  commentCount,
-  retweetCount,
-  postReplies
-) {
-  // Create lookup maps
-  const usersMap = createUserMap(users);
-  const { postLikesMap, retweetCountMap, commentCountMap } = createCountMaps(
-    favourites,
-    retweetCount,
-    commentCount
-  );
-
-  // Handle both single post and array of posts
-  const postsArray = Array.isArray(posts) ? posts : [posts];
-  
-  // Create a map of all posts for quick lookup
-  const allPostsMap = new Map();
-  postsArray.forEach((post) => {
-    allPostsMap.set(post.id, post);
-  });
-
-  // Map over the posts to transform them
-  const formattedPosts = await Promise.all(
-    postsArray.map(async (post) => {
-      const user = usersMap.get(post.authorId);
-      if (!user) {
-        console.warn(`User not found for post ${post.id}, authorId: ${post.authorId}`);
-        return null;
-      }
-
-      const likes = postLikesMap.get(post.id) || { count: 0, userIds: [] };
-      const retweets = retweetCountMap.get(post.id) || 0;
-      const replies = commentCountMap.get(post.id) || 0;
-      
-      // Get the original post if this is a reply
-      const replyPost = allPostsMap.get(post.replyToId) || null;
-      const originalPostWithUser = await getOriginalPostWithUser(replyPost, allPostsMap);
-
-      return {
-        id: post.id,
-        user: formatUserData(user),
-        content: post.text,
-        image: post.imageUrl,
-        timestamp: getTimeAgo(post.createdAt),
-        likes: likes.count || 0,
-        likedBy: { userIds: likes.userIds || [] },
-        retweets: retweets,
-        replies: replies,
-        replyToId: post.replyToId,
-        liked: false, // You might want to pass user context to determine this
-        retweeted: false, // You might want to pass user context to determine this
-        originalPost: originalPostWithUser,
-      };
-    })
-  );
-
-  // Filter out null posts (where user wasn't found)
-  const validPosts = formattedPosts.filter(post => post !== null);
-  
-  console.log("formatPosts", validPosts);
-  return validPosts;
-}
-
 // Optimized approach: Batch fetch all required users upfront
 async function formatPostsForFeedOptimized(
   posts,
@@ -250,4 +147,4 @@ async function formatPostsForFeedOptimized(
   return formattedPosts;
 }
 
-export { formatPostsForFeed, formatPostsForFeedOptimized, getTimeAgo };
+export { formatPostsForFeedOptimized, getTimeAgo };
