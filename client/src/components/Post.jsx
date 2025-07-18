@@ -1,36 +1,21 @@
-import { useState, useEffect } from "react"; // Import useEffect
+// Post.jsx
+import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// IMPORTANT: You need to pass 'token' as a prop to this component from its parent.
-// Example: <Post ... token={yourAuthToken} />
-const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
+const Post = ({ user, post, darkMode, HOST, reply, followingUsers, updateFollowingStatus, refetchFollowers }) => {
   const [liked, setLiked] = useState((post && post.liked) || false);
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
   const [retweets, setRetweets] = useState(post && post.retweets);
 
-  // Initialize followersArray correctly: it should be the array itself
-  // Ensure followersData and followersData.followingUsers are actual arrays,
-  // or default to an empty array if not present.
-  const [followersArray, setFollowersArray] = useState(followersData?.followingUsers || []);
-
-  // New state for optimistic follow/unfollow button display
-  const [isFollowing, setIsFollowing] = useState(false);
-
   const navigate = useNavigate();
 
-  // Effect to set the initial 'isFollowing' state and update it if dependencies change
-  // This runs when the component mounts and whenever followersArray, user, or post changes.
-  useEffect(() => {
-    // Only proceed if all necessary data is available
-    if (user && post && post.user && followersArray) {
-      const isCurrentlyFollowingThisPostUser = followersArray.some(
-        (followerObject) => followerObject.followingId === post.user.id
-      );
-      setIsFollowing(isCurrentlyFollowingThisPostUser);
-    }
-  }, [followersArray, user, post]); // Dependencies for this effect
+  const isFollowing = (targetUserId) => {
+    return followingUsers.some(follower =>
+      follower.followingId === targetUserId || follower.id === targetUserId
+    );
+  };
 
   const postLike = async () => {
     const id = post.id;
@@ -47,35 +32,27 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
     }
   };
 
-  // The actual API call function for follow/unfollow
-  const callFollowAPI = async (currentUserId, targetUserId, actionType) => {
+  const followUser = async (userId, targetUserId) => {
     try {
-      const method = actionType === 'follow' ? 'POST' : 'DELETE';
-      const endpoint = actionType === 'follow' ? `${HOST}/api/v1/newFollow/` : `${HOST}/api/v1/newFollow/${targetUserId}/${currentUserId}`;
-
-      const res = await fetch(endpoint, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` // Use the token for authentication
-        },
-        body: method === 'POST' ? JSON.stringify({ userId: currentUserId, targetUserId }) : undefined,
+      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, targetUserId }),
       });
 
       if (!res.ok) {
-        // Throw an error if response is not ok, to be caught by the calling handleFollow
         const errorData = await res.json();
-        throw new Error(errorData.message || res.statusText || "Failed to update follow status.");
+        console.error("Failed to update follow status:", errorData.message || res.statusText);
+        throw new Error(errorData.message || "Failed to update follow status");
       }
 
       const data = await res.json();
       return data;
     } catch (err) {
-      console.error("API call failed for follow/unfollow:", err);
-      throw err; // Re-throw to be caught by handleFollow
+      console.error("Failed to follow user", err);
+      throw err;
     }
   };
-
 
   const postDetailsRedirect = (userId, postId) => {
     navigate(`/${userId}/${postId}`);
@@ -92,51 +69,27 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
   };
 
-  // Main handler for follow/unfollow logic with optimistic UI
-  const handleFollow = async (currentUserId, targetId) => {
-    const wasFollowingBeforeClick = isFollowing; // Store the current state for rollback
-    const originalFollowersArray = [...followersArray]; // Store original array for rollback
-
-    // 1. Optimistically update UI
-    setIsFollowing(!wasFollowingBeforeClick); // Toggle button text immediately
-
-    // Optimistically update the followersArray state
-    if (wasFollowingBeforeClick) {
-      // If was following, remove the targetId from the array
-      setFollowersArray(
-        followersArray.filter(
-          (follower) => follower.followingId !== targetId
-        )
-      );
-    } else {
-      // If was not following, add the targetId to the array
-      setFollowersArray([
-        ...followersArray,
-        { followingId: targetId }, // Add the new follower object
-      ]);
-    }
+  const handleFollow = async (userId, targetUserId) => {
+    const wasFollowing = isFollowing(targetUserId);
+    updateFollowingStatus(targetUserId, !wasFollowing);
 
     try {
-      // 2. Make the API call
-      await callFollowAPI(currentUserId, targetId, wasFollowingBeforeClick ? 'unfollow' : 'follow');
-      // If successful, UI is already correctly updated by the optimistic step
+      await followUser(userId, targetUserId);
+      await refetchFollowers(); // Refetch followers to sync with server
     } catch (error) {
-      // 3. If API call fails, revert the UI state
-      setIsFollowing(wasFollowingBeforeClick); // Revert button text
-      setFollowersArray(originalFollowersArray); // Revert followersArray
-      console.error("Error during follow/unfollow, reverting UI:", error.message);
-      // You might want to show a toast/notification here
+      updateFollowingStatus(targetUserId, wasFollowing); // Revert on error
+      console.error("Failed to update follow status, reverting changes");
     }
   };
 
-  // Helper function to render a single post content (for reply posts and regular posts)
-  // Renamed post to postData for clarity as per previous discussion
   const renderPostContent = (postData) => (
-    <div onClick={() => { postDetailsRedirect(postData.user.id, postData.id) }}
-      id="replies" className={`border-b cursor-pointer transition-colors ${darkMode
-        ? "border-gray-800 hover:bg-gray-950"
-        : "border-gray-200 hover:bg-gray-50"
-        } relative p-4 flex space-x-3`}>
+    <div
+      onClick={() => postDetailsRedirect(postData.user.id, postData.id)}
+      id="replies"
+      className={`border-b cursor-pointer transition-colors ${
+        darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
+      } relative p-4 flex space-x-3`}
+    >
       <img
         onClick={(e) => {
           e.stopPropagation();
@@ -153,38 +106,33 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
               e.stopPropagation();
               navigate(`/profile/${postData.user.username}`);
             }}
-            className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
-              }`}
+            className={`hover:underline font-bold cursor-pointer ${
+              darkMode ? "text-white" : "text-black"
+            }`}
           >
             {postData && postData.user && postData.user.name}
           </a>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             @{postData && postData.user && postData.user.username}
           </span>
-          <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
-            ·
-          </span>
+          <span onClick={(e) => e.stopPropagation()} className="text-gray-500">·</span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
           </span>
-          {/* Follow/Unfollow Button */}
-          {(postData && postData.user && user && postData.user.id !== user.id && (
+          {user && postData.user && postData.user.id !== user.id && (
             <button
-              className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
-                  ? 'bg-[rgb(239,243,244)] text-black'
-                  : 'bg-black text-white'
-                }`}
+              className={`text-s px-2 py-0.5 rounded-full ml-auto ${
+                darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleFollow(user.id, postData.user.id); // Pass postData.user.id as targetId
+                handleFollow(user.id, postData.user.id);
               }}
             >
-              {/* Use isFollowing state for button text */}
-              {isFollowing ? "Following" : "Follow"}
+              {isFollowing(postData.user.id) ? "Following" : "Follow"}
             </button>
-          ))}
+          )}
         </div>
-
         <div className="mb-3">
           <p className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"}`}>
             {postData && (postData.content || postData.text)}
@@ -198,67 +146,64 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
             />
           )}
         </div>
-
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="flex justify-between max-w-md"
-        >
+        <div onClick={(e) => e.stopPropagation()} className="flex justify-between max-w-md">
           <button
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
+              darkMode
                 ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
                 : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-              }`}
+            }`}
           >
             <MessageCircle size={18} />
             <span className="text-sm">{postData && postData.replies}</span>
           </button>
-
           <button
             onClick={handleRetweet}
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
+              retweeted
                 ? darkMode
                   ? "text-green-400"
                   : "text-green-500"
                 : darkMode
                   ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
-                  : "text-gray-500 hover:text-green-500 hover:bg-green-50"
-              }`}
+                  : "text-gray-500 hover:text-green-500 hover:bg-green-(playground)50"
+            }`}
           >
             <Repeat2 size={18} />
             <span className="text-sm">{retweets}</span>
           </button>
-
           <button
             onClick={handleLike}
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
+              liked
                 ? darkMode
                   ? "text-red-400"
                   : "text-red-500"
                 : darkMode
                   ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
                   : "text-gray-500 hover:text-red-500 hover:bg-red-50"
-              }`}
+            }`}
           >
             <Heart
               size={18}
               fill={
                 user &&
-                  postData && // Changed post to postData
-                  postData.likedBy && // Changed post to postData
-                  postData.likedBy.userIds && // Changed post to postData
-                  postData.likedBy.userIds.includes(user.id)
+                post &&
+                post.likedBy &&
+                post.likedBy.userIds &&
+                post.likedBy.userIds.includes(user.id)
                   ? "currentColor"
                   : "none"
               }
             />
             <span className="text-sm">{likes}</span>
           </button>
-
           <button
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
+              darkMode
                 ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
                 : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-              }`}
+            }`}
           >
             <Share size={18} />
           </button>
@@ -267,17 +212,21 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
     </div>
   );
 
-  // If this is a reply with an original post, show the threaded view
   if (post && post.originalPost) {
     return (
       <div className="">
         <div>
-          {/* Original Post Container */}
-          <div id="originalPost" onClick={(e) => { e.stopPropagation(); postDetailsRedirect(post.originalPost.user.id, post.originalPost.id) }} className={`p-4 cursor-pointer transition-colors ${darkMode
-            ? "border-gray-800 hover:bg-gray-950"
-            : "border-gray-200 hover:bg-gray-50"
-            } relative mb-4`}>
-            <div onClick={() => {}} className="flex space-x-3 border-l-0">
+          <div
+            id="originalPost"
+            onClick={(e) => {
+              e.stopPropagation();
+              postDetailsRedirect(post.originalPost.user.id, post.originalPost.id);
+            }}
+            className={`p-4 cursor-pointer transition-colors ${
+              darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
+            } relative mb-4`}
+          >
+            <div className="flex space-x-3 border-l-0">
               <img
                 onClick={(e) => {
                   e.stopPropagation();
@@ -292,8 +241,9 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-1">
                   <a
-                    className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
-                      }`}
+                    className={`hover:underline font-bold cursor-pointer ${
+                      darkMode ? "text-white" : "text-black"
+                    }`}
                   >
                     {post.originalPost.user?.name || "Unknown User"}
                   </a>
@@ -301,15 +251,23 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
                     @{post.originalPost.user?.username || "unknown"}
                   </span>
                   <span className="text-gray-500">·</span>
-                  <span className="text-gray-500">
-                    {post.originalPost.timestamp}
-                  </span>
+                  <span className="text-gray-500">{post.originalPost.timestamp}</span>
+                  {user && post.originalPost.user && post.originalPost.user.id !== user.id && (
+                    <button
+                      className={`text-s px-2 py-0.5 rounded-full ml-auto ${
+                        darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFollow(user.id, post.originalPost.user.id);
+                      }}
+                    >
+                      {isFollowing(post.originalPost.user.id) ? "Following" : "Follow"}
+                    </button>
+                  )}
                 </div>
                 <div className="mb-3">
-                  <p
-                    className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"
-                      }`}
-                  >
+                  <p className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"}`}>
                     {post.originalPost.content}
                   </p>
                   {post.originalPost.image && (
@@ -323,32 +281,22 @@ const Post = ({ user, post, darkMode, HOST, reply, followersData, token }) => {
                 </div>
               </div>
             </div>
-
             <div
-              className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
-                }`}
+              className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"}`}
               style={{ height: 'calc(100% - 4rem + 1rem)' }}
             />
           </div>
-
-          <div className={`ml-0 pl-0  relative`}>
-            <div className="ml-0 pl-0">
-              {renderPostContent(post)}
-            </div>
+          <div className={`ml-0 pl-0 relative`}>
+            <div className="ml-0 pl-0">{renderPostContent(post)}</div>
           </div>
         </div>
       </div>
     );
   }
 
-  // Regular single post view
   return (
-    <div
-      className={`cursor-pointer transition-colors `}
-    >
-      <div>
-        {renderPostContent(post)}
-      </div>
+    <div className={`cursor-pointer transition-colors`}>
+      <div>{renderPostContent(post)}</div>
     </div>
   );
 };
