@@ -36,13 +36,10 @@ mainRouter.get("/api/v1/getPosts/", async (req, res) => {
 });
 
 mainRouter.get("/api/v1/getSpecificPost/:id", async (req, res) => {
-  console.log("req.params.id", req.params.id);
   const post = await queries.fetchSpecificPost(req.params.id);
   const postUser = await queries.getPostUser(post);
   post.user = postUser;
   post.timestamp = getTimeAgo(post.createdAt);
-  console.log("postUser", postUser);
-  console.log("post", post);
   res.json({ postFeed: post });
 });
 

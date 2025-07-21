@@ -14,8 +14,8 @@ const Profile = ({
   formattedPosts,
   HOST,
 }) => {
-  let date = user && user.createdAt && new Date(user.createdAt);
-  date = date.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  let date = user?.createdAt && new Date(user?.createdAt);
+  date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
   const [activeTab, setActiveTab] = useState("posts");
 
   return (
@@ -46,14 +46,14 @@ const Profile = ({
                 darkMode ? "text-white" : "text-black"
               }`}
             >
-              {user.name}
+              {user?.name}
             </h1>
             <p
               className={`text-sm text-gray-500 ${
                 darkMode ? "text-white" : "text-black"
               }`}
             >
-              {user.postCount} posts
+              {user?.postCount} posts
             </p>
           </div>
         </div>
@@ -66,8 +66,8 @@ const Profile = ({
           {/* Avatar */}
           <div className="mb-4 mt-4">
             <img
-              src={user.profilePicUrl}
-              alt={user.name}
+              src={user?.profilePicUrl}
+              alt={user?.name}
               className={`w-32 h-32 rounded-full bg-gray-600 ${
                 darkMode ? "text-white" : "text-black"
               }
@@ -84,7 +84,7 @@ const Profile = ({
                   darkMode ? "text-white" : "text-black"
                 }`}
               >
-                {user.name}
+                {user?.name}
               </h2>
             </div>
 
@@ -94,7 +94,7 @@ const Profile = ({
                 darkMode ? "text-white" : "text-black"
               }`}
             >
-              @{user.handle}
+              @{user?.handle}
             </p>
 
             {/* Location and Join Date */}

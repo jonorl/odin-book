@@ -27,6 +27,7 @@ export default function OdinBook() {
       try {
         const user = await fetch(`${HOST}/api/v1/userHandle/${handle}`);
         const data = await user.json();
+        console.log("SpecificUserDetails", data.user)
         setSpecificUserDetails(data.user);
       } catch (err) {
         console.error("Error fetching post details", err);
@@ -78,7 +79,7 @@ export default function OdinBook() {
       className={`min-h-screen mx-auto ${darkMode ? "bg-black" : "bg-white"}`}
     >
       <div className="flex max-w-7xl mr-auto ml-auto">
-        {user && (
+        {user && specificUser?.user && (
           <Sidebar
             className="flex ml-64"
             darkMode={darkMode}
@@ -90,7 +91,7 @@ export default function OdinBook() {
           {isLoading ? (
             <div className="spinner spinner-container"></div>
           ) : (
-            <Profile
+            <Profile 
               isLoading={isLoading}
               HOST={HOST}
               user={specificUser}

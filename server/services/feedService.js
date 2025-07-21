@@ -143,7 +143,6 @@ async function formatPostsForFeedOptimized(
     };
   }).filter(post => post !== null);
 
-  console.log("formatPosts optimized", formattedPosts);
   return formattedPosts;
 }
 

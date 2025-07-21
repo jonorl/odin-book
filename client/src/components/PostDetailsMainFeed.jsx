@@ -5,13 +5,30 @@ import PostComposer from "./PostComposer";
 import Post from "./Post"
 import OriginalPost from "./OriginalPost"
 
-const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }) => {
+const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, followersData, refetchFollowers }) => {
   const [liked, setLiked] = useState(post.liked);
   const [retweeted, setRetweeted] = useState(post.retweeted);
   const [likes, setLikes] = useState(post.likes);
   const [retweets, setRetweets] = useState(post.retweets);
   const [follow, setFollow] = useState("Follow")
   const [postReplies, setPostReplies] = useState(null);
+  const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
+
+  useEffect(() => {
+    setFollowingUsers(followersData?.followingUsers || []);
+  }, [followersData]);
+
+  const updateFollowingStatus = (targetUserId, isFollowing) => {
+    if (isFollowing) {
+      setFollowingUsers(prev => [...prev, { followingId: targetUserId }]);
+    } else {
+      setFollowingUsers(prev =>
+        prev.filter(follower =>
+          follower.followingId !== targetUserId && follower.id !== targetUserId
+        )
+      );
+    }
+  };
 
   const navigate = useNavigate();
 
@@ -234,7 +251,8 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading }
       {post.replies > 0 &&
         postReplies &&
         postReplies.map((postReply) => (
-          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode} />
+          <Post key={postReply.id} user={user} HOST={HOST} post={postReply} darkMode={darkMode} followingUsers={followingUsers}
+            updateFollowingStatus={updateFollowingStatus} refetchFollowers={refetchFollowers} />
         ))}
     </div>
   );
