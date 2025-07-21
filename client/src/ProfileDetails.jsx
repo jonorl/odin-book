@@ -13,6 +13,11 @@ export default function OdinBook() {
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [specificUser, setSpecificUserDetails] = useState(null);
+  const [followers, setFollowers] = useState({
+    followingUsers: [],
+    followerCount: 0,
+    followingCount: 0,
+  });
   const { handle } = useParams();
 
   const token = localStorage.getItem("token");
@@ -20,6 +25,31 @@ export default function OdinBook() {
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
+
+  const fetchUserAndFollowers = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    setIsLoadingUser(true);
+    try {
+      const userRes = await fetch(`${HOST}/api/v1/me`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      const userData = await userRes.json();
+      setUser(userData.user);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setIsLoadingUser(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserAndFollowers();
+  }, []);
+
+  useEffect(() => {
+    console.log("followers state updated:", followers);
+  }, [followers]);
 
   // Fetch post user details
   useEffect(() => {
@@ -29,6 +59,9 @@ export default function OdinBook() {
         const data = await user.json();
         console.log("SpecificUserDetails", data.user)
         setSpecificUserDetails(data.user);
+        const followersRes = await fetch(`${HOST}/api/v1/followers/${data.user.id}`);
+        const followersData = await followersRes.json();
+        setFollowers(followersData);
       } catch (err) {
         console.error("Error fetching post details", err);
       }
@@ -79,7 +112,7 @@ export default function OdinBook() {
       className={`min-h-screen mx-auto ${darkMode ? "bg-black" : "bg-white"}`}
     >
       <div className="flex max-w-7xl mr-auto ml-auto">
-        {user && specificUser?.user && (
+        {user && (
           <Sidebar
             className="flex ml-64"
             darkMode={darkMode}
@@ -91,12 +124,13 @@ export default function OdinBook() {
           {isLoading ? (
             <div className="spinner spinner-container"></div>
           ) : (
-            <Profile 
+            <Profile
               isLoading={isLoading}
               HOST={HOST}
               user={specificUser}
               darkMode={darkMode}
               formattedPosts={formattedPosts}
+              followersData={followers}
             />
           )}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />

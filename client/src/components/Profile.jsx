@@ -3,17 +3,13 @@ import Post from "./Post";
 import { useState } from "react";
 
 const Profile = ({
-  profileData = {
-    // hardcoded stuff
-    following: 67,
-    followers: 50,
-    totalPosts: 221,
-  },
   darkMode,
   user,
   formattedPosts,
   HOST,
+  followersData,
 }) => {
+  console.log("followersData", followersData)
   let date = user?.createdAt && new Date(user?.createdAt);
   date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
   const [activeTab, setActiveTab] = useState("posts");
@@ -109,13 +105,13 @@ const Profile = ({
             <div className="flex space-x-6 text-sm">
               <div className="flex items-center space-x-1">
                 <span className="font-bold text-white">
-                  {profileData.following}
+                  {followersData.followingCount}
                 </span>
                 <span className="text-gray-500">Following</span>
               </div>
               <div className="flex items-center space-x-1">
                 <span className="font-bold text-white">
-                  {profileData.followers}
+                  {followersData.followerCount}
                 </span>
                 <span className="text-gray-500">Followers</span>
               </div>
