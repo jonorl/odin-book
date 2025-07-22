@@ -63,6 +63,7 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user, followersDa
             {formattedPosts.map(post => (
               <Post
                 user={user}
+                specificUser={user}
                 HOST={HOST}
                 key={post.id}
                 post={post}

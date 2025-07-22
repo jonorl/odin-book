@@ -127,10 +127,13 @@ export default function OdinBook() {
             <Profile
               isLoading={isLoading}
               HOST={HOST}
-              user={specificUser}
+              user={user}
+              specificUser={specificUser}
               darkMode={darkMode}
               formattedPosts={formattedPosts}
               followersData={followers}
+              refetchFollowers={fetchUserAndFollowers} // Pass refetch function
+
             />
           )}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />

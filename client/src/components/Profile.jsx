@@ -1,55 +1,70 @@
 import { ArrowLeft, Calendar } from "lucide-react";
 import Post from "./Post";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Profile = ({
   darkMode,
   user,
+  specificUser,
   formattedPosts,
   HOST,
   followersData,
+  refetchFollowers,
 }) => {
   console.log("followersData", followersData)
-  let date = user?.createdAt && new Date(user?.createdAt);
+  let date = specificUser?.createdAt && new Date(specificUser?.createdAt);
   date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
   const [activeTab, setActiveTab] = useState("posts");
+  const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
+
+  // Sync followingUsers with followersData when it changes
+  useEffect(() => {
+    setFollowingUsers(followersData?.followingUsers || []);
+  }, [followersData]);
+
+  const updateFollowingStatus = (targetUserId, isFollowing) => {
+    if (isFollowing) {
+      setFollowingUsers(prev => [...prev, { followingId: targetUserId }]);
+    } else {
+      setFollowingUsers(prev =>
+        prev.filter(follower =>
+          follower.followingId !== targetUserId && follower.id !== targetUserId
+        )
+      );
+    }
+  };
 
   return (
     <div
-      className={`flex-1 border ${
-        darkMode ? "border-gray-800" : "border-gray-200"
-      }`}
+      className={`flex-1 border ${darkMode ? "border-gray-800" : "border-gray-200"
+        }`}
     >
       {/* Header Navigation */}
       <div
-        className={`flex justify-between p-4 border-b  ${
-          darkMode
-            ? "bg-black/80 border-gray-800 text-white"
-            : "bg-white/80 border-gray-200 text-black"
-        }}`}
+        className={`flex justify-between p-4 border-b  ${darkMode
+          ? "bg-black/80 border-gray-800 text-white"
+          : "bg-white/80 border-gray-200 text-black"
+          }}`}
       >
         <div className="flex items-center space-x-8">
           <ArrowLeft
             size={32}
-            className={`cursor-pointer hover:bg-gray-900 rounded-full p-1 ${
-              darkMode ? "text-white" : "text-black"
-            }`}
+            className={`cursor-pointer hover:bg-gray-900 rounded-full p-1 ${darkMode ? "text-white" : "text-black"
+              }`}
             onClick={() => history.back()}
           />
           <div>
             <h1
-              className={`text-xl font-bold ${
-                darkMode ? "text-white" : "text-black"
-              }`}
+              className={`text-xl font-bold ${darkMode ? "text-white" : "text-black"
+                }`}
             >
-              {user?.name}
+              {specificUser?.name}
             </h1>
             <p
-              className={`text-sm text-gray-500 ${
-                darkMode ? "text-white" : "text-black"
-              }`}
+              className={`text-sm text-gray-500 ${darkMode ? "text-white" : "text-black"
+                }`}
             >
-              {user?.postCount} posts
+              {specificUser?.postCount} posts
             </p>
           </div>
         </div>
@@ -62,11 +77,10 @@ const Profile = ({
           {/* Avatar */}
           <div className="mb-4 mt-4">
             <img
-              src={user?.profilePicUrl}
-              alt={user?.name}
-              className={`w-32 h-32 rounded-full bg-gray-600 ${
-                darkMode ? "text-white" : "text-black"
-              }
+              src={specificUser?.profilePicUrl}
+              alt={specificUser?.name}
+              className={`w-32 h-32 rounded-full bg-gray-600 ${darkMode ? "text-white" : "text-black"
+                }
               }`}
             />
           </div>
@@ -76,21 +90,19 @@ const Profile = ({
             {/* Name and Verification */}
             <div className="flex items-center space-x-2">
               <h2
-                className={`text-xl font-bold ${
-                  darkMode ? "text-white" : "text-black"
-                }`}
+                className={`text-xl font-bold ${darkMode ? "text-white" : "text-black"
+                  }`}
               >
-                {user?.name}
+                {specificUser?.name}
               </h2>
             </div>
 
             {/* Username */}
             <p
-              className={`text-gray-500 ${
-                darkMode ? "text-white" : "text-black"
-              }`}
+              className={`text-gray-500 ${darkMode ? "text-white" : "text-black"
+                }`}
             >
-              @{user?.handle}
+              @{specificUser?.handle}
             </p>
 
             {/* Location and Join Date */}
@@ -123,22 +135,20 @@ const Profile = ({
           <div className="flex">
             {/* Posts Button */}
             <button
-              className={`flex-1 py-4 text-center ${
-                activeTab === "posts"
-                  ? "border-b-2 border-blue-500 text-gray-500 font-medium"
-                  : "text-gray-500 hover:bg-gray-900 hover:text-white"
-              } transition-colors`}
+              className={`flex-1 py-4 text-center ${activeTab === "posts"
+                ? "border-b-2 border-blue-500 text-gray-500 font-medium"
+                : "text-gray-500 hover:bg-gray-900 hover:text-white"
+                } transition-colors`}
               onClick={() => setActiveTab("posts")}
             >
               Posts
             </button>
             {/* Replies Button */}
             <button
-              className={`flex-1 py-4 text-center ${
-                activeTab === "replies"
-                  ? "border-b-2 border-blue-500 text-gray-500 font-medium"
-                  : "text-gray-500 hover:bg-gray-900 hover:text-white"
-              } transition-colors`}
+              className={`flex-1 py-4 text-center ${activeTab === "replies"
+                ? "border-b-2 border-blue-500 text-gray-500 font-medium"
+                : "text-gray-500 hover:bg-gray-900 hover:text-white"
+                } transition-colors`}
               onClick={() => setActiveTab("replies")}
             >
               Replies
@@ -147,29 +157,37 @@ const Profile = ({
           {/* 3. Conditionally render content based on the active tab */}
           {activeTab === "posts"
             ? formattedPosts &&
-              formattedPosts
-                .filter((post) => post.replyToId === null)
-                .map((post) => (
-                  <Post
-                    key={post.id}
-                    user={user}
-                    HOST={HOST}
-                    post={post}
-                    darkMode={darkMode}
-                  />
-                ))
+            formattedPosts
+              .filter((post) => post.replyToId === null)
+              .map((post) => (
+                <Post
+                  key={post.id}
+                  user={user}
+                  specificUser={specificUser}
+                  HOST={HOST}
+                  post={post}
+                  darkMode={darkMode}
+                  followingUsers={followingUsers}
+                  updateFollowingStatus={updateFollowingStatus}
+                  refetchFollowers={refetchFollowers} // Pass refetch function
+                />
+              ))
             : formattedPosts &&
-              formattedPosts
-                .filter((post) => post.replyToId !== null)
-                .map((post) => (
-                  <Post
-                    key={post.id}
-                    user={user}
-                    HOST={HOST}
-                    post={post}
-                    darkMode={darkMode}
-                  />
-                ))}
+            formattedPosts
+              .filter((post) => post.replyToId !== null)
+              .map((post) => (
+                <Post
+                  key={post.id}
+                  user={user}
+                  specificUser={specificUser}
+                  HOST={HOST}
+                  post={post}
+                  darkMode={darkMode}
+                  followingUsers={followingUsers}
+                  updateFollowingStatus={updateFollowingStatus}
+                  refetchFollowers={refetchFollowers} // Pass refetch function
+                />
+              ))}
         </div>
       </div>
     </div>

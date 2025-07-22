@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Post = ({ user, post, darkMode, HOST, followingUsers, updateFollowingStatus, refetchFollowers }) => {
+const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, updateFollowingStatus, refetchFollowers }) => {
   const [liked, setLiked] = useState((post && post.liked) || false);
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
@@ -99,7 +99,7 @@ const Post = ({ user, post, darkMode, HOST, followingUsers, updateFollowingStatu
         alt="avatar"
       />
       <div className="flex-1">
-        <div className="flex items-center space-x-2 mb-1">
+        <div className="flex items-center space-x-2 mb-1">{console.log("asdasd", postData)}
           <a
             onClick={(e) => {
               e.stopPropagation();
@@ -114,16 +114,16 @@ const Post = ({ user, post, darkMode, HOST, followingUsers, updateFollowingStatu
             @{postData && postData.user && postData.user.username}
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">·</span>
-          <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
+          <span id="hola" onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
           </span>
           {user && postData.user && postData.user.id !== user.id && (
-            <button
+            <button  id="ComoTas?"
               className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
                 }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleFollow(user.id, postData.user.id);
+                handleFollow(specificUser.id, postData.user.id);
               }}
             >
               {isFollowing(postData.user.id) ? "Following" : "Follow"}
@@ -181,11 +181,11 @@ const Post = ({ user, post, darkMode, HOST, followingUsers, updateFollowingStatu
             <Heart
               size={18}
               fill={
-                user &&
+                specificUser &&
                   post &&
                   post.likedBy &&
                   post.likedBy.userIds &&
-                  post.likedBy.userIds.includes(user.id)
+                  post.likedBy.userIds.includes(specificUser.id)
                   ? "currentColor"
                   : "none"
               }
@@ -243,13 +243,13 @@ const Post = ({ user, post, darkMode, HOST, followingUsers, updateFollowingStatu
                   </span>
                   <span className="text-gray-500">·</span>
                   <span className="text-gray-500">{post.originalPost.timestamp}</span>
-                  {user && post.originalPost.user && post.originalPost.user.id !== user.id && (
+                  {user && post.originalPost.user && post.originalPost.user.id !== specificUser.id && (
                     <button
                       className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
                         }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleFollow(user.id, post.originalPost.user.id);
+                        handleFollow(specificUser.id, post.originalPost.user.id);
                       }}
                     >
                       {isFollowing(post.originalPost.user.id) ? "Following" : "Follow"}
