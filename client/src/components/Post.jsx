@@ -116,14 +116,14 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">·</span>
           <span id="hola" onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
-          </span>
+          </span>{console.log("uff", user.id, postData.user.id)}
           {user && postData.user && postData.user.id !== user.id && (
             <button  id="ComoTas?"
               className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
                 }`}
               onClick={(e) => {
                 e.stopPropagation();
-                handleFollow(specificUser.id, postData.user.id);
+                handleFollow(user.id, postData.user.id);
               }}
             >
               {isFollowing(postData.user.id) ? "Following" : "Follow"}

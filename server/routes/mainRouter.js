@@ -192,8 +192,12 @@ mainRouter.get("/api/v1/userHandle/:handle", async (req, res) => {
 mainRouter.post("/api/v1/followers/", async (req, res) => {
   try {
     console.log("req.body", req.body)
+    const user = req.body.userData?.id || req.body.userData?.user?.id;
+    const specificUser =  req.body.specificUserData?.id || req.body.specificUserData?.user?.id;
+    console.log("uno", user)
+    console.log("dos", specificUser)
     const { followingUsers, followerCount, followingCount } =
-      await queries.getUserFollowersData(req.body.userData.user.id, req.body.specificUserData?.user.id || null);
+      await queries.getUserFollowersData(user, specificUser || null);
     res.json({ followingUsers, followerCount, followingCount });
   } catch (err) {
     console.error("failed to fetch post", err);
