@@ -11,7 +11,6 @@ const Profile = ({
   followersData,
   refetchFollowers,
 }) => {
-  console.log("followersData", followersData)
   let date = specificUser?.createdAt && new Date(specificUser?.createdAt);
   date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
   const [activeTab, setActiveTab] = useState("posts");

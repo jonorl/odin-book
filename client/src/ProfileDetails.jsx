@@ -12,7 +12,7 @@ export default function OdinBook() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [specificUser, setSpecificUserDetails] = useState(null);
+  const [specificUser, setSpecificUser] = useState(null);
   const [followers, setFollowers] = useState({
     followingUsers: [],
     followerCount: 0,
@@ -27,15 +27,14 @@ export default function OdinBook() {
   };
 
   const fetchUserAndFollowers = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    setIsLoadingUser(true);
     try {
-      const userRes = await fetch(`${HOST}/api/v1/me`, {
-        headers: { authorization: `Bearer ${token}` },
-      });
-      const userData = await userRes.json();
-      setUser(userData.user);
+        const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user, specificUser }),
+        });
+      const followersData = await followersRes.json();
+      setFollowers(followersData);
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
@@ -43,31 +42,45 @@ export default function OdinBook() {
     }
   };
 
-  useEffect(() => {
-    fetchUserAndFollowers();
-  }, []);
-
-  useEffect(() => {
-    console.log("followers state updated:", followers);
-  }, [followers]);
+  // useEffect(() => {
+  //   fetchUserAndFollowers();
+  // }, [followers]);
 
   // Fetch post user details
   useEffect(() => {
     async function fetchUserDetails() {
+      const token = localStorage.getItem("token");
+      setIsLoadingUser(true);
       try {
-        const user = await fetch(`${HOST}/api/v1/userHandle/${handle}`);
-        const data = await user.json();
-        console.log("SpecificUserDetails", data.user)
-        setSpecificUserDetails(data.user);
-        const followersRes = await fetch(`${HOST}/api/v1/followers/${data.user.id}`);
+
+        const userRes = await fetch(`${HOST}/api/v1/me`, {
+          headers: { authorization: `Bearer ${token}` },
+        });
+        const userData = await userRes.json();
+        setUser(userData.user);
+
+        const specificUser = await fetch(`${HOST}/api/v1/userHandle/${handle}`);
+        const specificUserData = await specificUser.json();
+        setSpecificUser(specificUserData.user);
+        // const followersRes = await fetch(`${HOST}/api/v1/followers/${data.user.id}`);
+
+        // REPLICATE THIS IN OTHER ROUTES!
+        const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userData, specificUserData }),
+        });
+
         const followersData = await followersRes.json();
         setFollowers(followersData);
       } catch (err) {
         console.error("Error fetching post details", err);
+      } finally {
+        setIsLoadingUser(false);
       }
     }
     fetchUserDetails();
-  }, [handle]);
+  }, [handle, user]);
 
   // Fetch user data
   useEffect(() => {

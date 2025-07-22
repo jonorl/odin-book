@@ -99,7 +99,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
         alt="avatar"
       />
       <div className="flex-1">
-        <div className="flex items-center space-x-2 mb-1">{console.log("asdasd", postData)}
+        <div className="flex items-center space-x-2 mb-1">
           <a
             onClick={(e) => {
               e.stopPropagation();

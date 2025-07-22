@@ -17,52 +17,60 @@ export default function OdinBook() {
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const toggleDarkMode = () => {
+ const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  const fetchUserAndFollowers = async () => {
+  const fetchUserAndData = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
+    
     setIsLoadingUser(true);
+    setIsLoading(true);
+    
     try {
-      const userRes = await fetch(`${HOST}/api/v1/me`, {
-        headers: { authorization: `Bearer ${token}` },
-      });
-      const userData = await userRes.json();
-      setUser(userData.user);
+      // First, fetch the current user and posts
+      const [userRes, postsRes] = await Promise.all([
+        fetch(`${HOST}/api/v1/me`, {
+          headers: { authorization: `Bearer ${token}` },
+        }),
+        fetch(`${HOST}/api/v1/getPosts/`)
+      ]);
 
-      const followersRes = await fetch(`${HOST}/api/v1/followers/${userData.user.id}`);
+      const [userData, postsData] = await Promise.all([
+        userRes.json(),
+        postsRes.json()
+      ]);
+
+      setUser(userData.user);
+      setFormattedPosts(postsData.postFeed || []);
+      console.log("postsData", postsData.postFeed)
+
+      // Now fetch followers using both userData and the user from posts
+      const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userData }),
+      });
+
       const followersData = await followersRes.json();
       setFollowers(followersData);
+      
     } catch (err) {
       console.error("Error fetching data:", err);
     } finally {
       setIsLoadingUser(false);
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUserAndFollowers();
+    fetchUserAndData();
   }, []);
 
   useEffect(() => {
     console.log("followers state updated:", followers);
   }, [followers]);
-
-  useEffect(() => {
-    const fetchFormattedPosts = async () => {
-      try {
-        const res = await fetch(`${HOST}/api/v1/getPosts/`);
-        const data = await res.json();
-        setFormattedPosts(data.postFeed || []);
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch formatted posts:", err);
-      }
-    };
-    fetchFormattedPosts();
-  }, []);
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
@@ -76,7 +84,7 @@ export default function OdinBook() {
             darkMode={darkMode}
             formattedPosts={formattedPosts}
             followersData={followers}
-            refetchFollowers={fetchUserAndFollowers} // Pass refetch function
+            refetchFollowers={fetchUserAndData} // Pass refetch function
           />
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
