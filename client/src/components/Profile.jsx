@@ -16,6 +16,47 @@ const Profile = ({
   const [activeTab, setActiveTab] = useState("posts");
   const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
 
+
+  const handleFollow = async (userId, targetUserId) => {
+    const wasFollowing = isFollowing(targetUserId);
+    updateFollowingStatus(targetUserId, !wasFollowing);
+
+    try {
+      await followUser(userId, targetUserId);
+      await refetchFollowers(); // Refetch followers to sync with server
+    } catch (error) {
+      updateFollowingStatus(targetUserId, wasFollowing); // Revert on error
+      console.error("Failed to update follow status, reverting changes", error);
+    }
+  };
+
+  const followUser = async (userId, targetUserId) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, targetUserId }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Failed to update follow status:", errorData.message || res.statusText);
+        throw new Error(errorData.message || "Failed to update follow status");
+      }
+
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to follow user", err);
+      throw err;
+    }
+  };
+
+  const isFollowing = (targetUserId) => {
+    return followingUsers?.some(follower =>
+      follower.followingId === targetUserId || follower.id === targetUserId
+    );
+  };
   // Sync followingUsers with followersData when it changes
   useEffect(() => {
     setFollowingUsers(followersData?.followingUsers || []);
@@ -92,9 +133,22 @@ const Profile = ({
                 className={`text-xl font-bold ${darkMode ? "text-white" : "text-black"
                   }`}
               >
-                {specificUser?.name}
+                {specificUser?.name}&nbsp;{specificUser?.surname}
               </h2>
             </div>
+
+            {user && specificUser && user.id !== specificUser.id && (
+              <button
+                className={`text-s px-2 py-0.5 rounded-full  ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
+                  }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleFollow(user.id, specificUser.id);
+                }}
+              >
+                {isFollowing(specificUser.id) ? "Following" : "Follow"}
+              </button>
+            )}
 
             {/* Username */}
             <p
@@ -127,6 +181,7 @@ const Profile = ({
                 <span className="text-gray-500">Followers</span>
               </div>
             </div>
+
           </div>
         </div>
         {/* Navigation Tabs */}
