@@ -249,7 +249,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
                         }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleFollow(specificUser.id, post.originalPost.user.id);
+                        handleFollow(user.id, post.originalPost.user.id);
                       }}
                     >
                       {isFollowing(post.originalPost.user.id) ? "Following" : "Follow"}
