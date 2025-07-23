@@ -11,19 +11,6 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
 
   const navigate = useNavigate();
 
-  // Filter posts based on activeTab - this approach works, but it's a reduced filtered amount
-  // if (activeTab === "Following" && post && followingUsers) {
-  //   console.log(followingUsers)
-  //   const isUserFollowed = followingUsers.some(follower => 
-  //     follower.followingId === post.user.id || follower.id === post.user.id
-  //   );
-    
-  //   if (!isUserFollowed) {
-  //     return null; // Don't render this post
-  //   }
-  // }
-  // If activeTab is "For You", render all posts (no filtering needed)
-
   const isFollowing = (targetUserId) => {
     return followingUsers?.some(follower =>
       follower.followingId === targetUserId || follower.id === targetUserId
