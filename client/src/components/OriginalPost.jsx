@@ -89,14 +89,14 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
         className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"
           }`}
         style={{ height: 'calc(100% - 4rem + 1rem)' }}
-      />}
+      />}{console.log("fjaosfjfasof", formattedPost)}
       <img
         onClick={(e) => {
           e.stopPropagation();
           navigate(`/profile/${formattedPost.user.handle}`);
         }}
         className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl cursor-pointer"
-        src={(formattedPost?.formattedPost.user?.formattedPost.user.profilePicUrl) || null}
+        src={(formattedPost?.user?.profilePicUrl) || null}
         alt="avatar"
       />
       <div className="flex-1">
@@ -110,18 +110,18 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
             className={`hover:underline font-bold cursor-pointer ${darkMode ? "text-white" : "text-black"
               }`}
           >
-            {formattedPost?.formattedPost.user?.formattedPost.user.name} {formattedPost?.formattedPost.user?.formattedPost.user.surname}
+            {formattedPost?.user?.name} {formattedPost?.user?.surname}
           </a>
           <span className="text-gray-500">
-            @{formattedPost?.formattedPost.user?.formattedPost.user.handle}
+            @{formattedPost?.user?.handle}
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
             ·
           </span>
           <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
-            {formattedPost?.formattedPost.timestamp}
-          </span>{user?.console.log("user", user)}
-          {(formattedPost?.formattedPost.user?.user?.formattedPost.user.id !== user.id && <button
+            {formattedPost?.timestamp}
+          </span>
+          {(formattedPost?.user?.id !== user?.id && <button
             className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
               ? 'bg-[rgb(239,243,244)] text-black'
               : 'bg-black text-white'
@@ -139,7 +139,7 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
           <p className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"}`}>
             {formattedPost && (formattedPost.content || formattedPost.text)}
           </p>
-          {formattedPost?.(formattedPost.image || formattedPost.imageUrl) && (
+          {formattedPost && (formattedPost.image || formattedPost.imageUrl) && (
             <img
               className="rounded-xl max-w-full max-h-80"
               onClick={(e) => e.stopPropagation()}
@@ -160,7 +160,7 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
               }`}
           >
             <MessageCircle size={18} />
-            <span className="text-sm">{formattedPost?.formattedPost.replies}</span>
+            <span className="text-sm">{formattedPost?.replies}</span>
           </button>
 
           <button
@@ -194,9 +194,9 @@ const Post = ({ user, postId, darkMode, HOST, reply }) => {
               fill={
                 user &&
                   formattedPost?.
-                    formattedPost.likedBy?.
-                    formattedPost.likedBy.userIds?.
-                    formattedPost.likedBy.userIds.includes(user.id)
+                    likedBy?.
+                    likedBy.userIds?.
+                    likedBy.userIds.includes(user.id)
                   ? "currentColor"
                   : "none"
               }

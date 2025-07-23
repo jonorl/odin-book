@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user, followersData, refetchFollowers }) => {
+const MainFeed = ({ darkMode, formattedPosts, /* isLoading, */ HOST, user, followersData, refetchFollowers }) => {
   const [activeTab, setActiveTab] = useState("Following");
   const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
 
@@ -55,9 +55,9 @@ const MainFeed = ({ darkMode, formattedPosts, isLoading, HOST, user, followersDa
       {user !== null && (
         <PostComposer darkMode={darkMode} HOST={HOST} user={user} />
       )}
-      {isLoading ? (
+      {/* isLoading ? (
         <div className='spinner spinner-container'></div>
-      ) : (
+      ) : */ (
         formattedPosts.length > 0 && (
           <div>
             {formattedPosts.map(post => (

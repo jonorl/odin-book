@@ -15,62 +15,80 @@ export default function OdinBook() {
     followingCount: 0,
   });
   const [formattedPosts, setFormattedPosts] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
 
- const toggleDarkMode = () => {
+  const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
   const fetchUserAndData = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    
     setIsLoadingUser(true);
-    setIsLoading(true);
-    
+    // setIsLoading(true);
+
     try {
-      // First, fetch the current user and posts
-      const [userRes, postsRes] = await Promise.all([
-        fetch(`${HOST}/api/v1/me`, {
-          headers: { authorization: `Bearer ${token}` },
-        }),
-        fetch(`${HOST}/api/v1/getPosts/`)
-      ]);
+      const token = localStorage.getItem("token");
 
-      const [userData, postsData] = await Promise.all([
-        userRes.json(),
-        postsRes.json()
-      ]);
-
-      setUser(userData.user);
+      // Always fetch posts regardless of authentication status
+      const postsRes = await fetch(`${HOST}/api/v1/getPosts/`);
+      const postsData = await postsRes.json();
       setFormattedPosts(postsData.postFeed || []);
-      console.log("postsData", postsData.postFeed)
+      console.log("postsData", postsData.postFeed);
 
-      // Now fetch followers using both userData and the user from posts
-      const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userData }),
-      });
+      // Only fetch user-specific data if token exists
+      if (token) {
+        try {
+          // Fetch user data and followers
+          const userRes = await fetch(`${HOST}/api/v1/me`, {
+            headers: { authorization: `Bearer ${token}` },
+          });
 
-      const followersData = await followersRes.json();
-      setFollowers(followersData);
-      
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            setUser(userData.user);
+
+            // Fetch followers using userData
+            const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ userData }),
+            });
+
+            if (followersRes.ok) {
+              const followersData = await followersRes.json();
+              setFollowers(followersData);
+            }
+          } else {
+            // Token might be invalid, clear it
+            localStorage.removeItem("token");
+            setUser(null);
+            setFollowers([]);
+          }
+        } catch (userErr) {
+          console.error("Error fetching user data:", userErr);
+          // Don't clear posts on user data error, just clear user state
+          setUser(null);
+          setFollowers([]);
+        }
+      } else {
+        // No token, ensure user state is cleared
+        setUser(null);
+        setFollowers([]);
+      }
+
     } catch (err) {
-      console.error("Error fetching data:", err);
+      console.error("Error fetching posts:", err);
+      // Even if posts fail, try to maintain user state if possible
     } finally {
       setIsLoadingUser(false);
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUserAndData();
-  }, []);
-
-  useEffect(() => {
     console.log("followers state updated:", followers);
   }, [followers]);
+
+  useEffect(() => { fetchUserAndData() }, [])
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
@@ -78,7 +96,7 @@ export default function OdinBook() {
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
           <MainFeed
-            isLoading={isLoading}
+            // isLoading={isLoading}
             HOST={HOST}
             user={user}
             darkMode={darkMode}
