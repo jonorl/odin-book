@@ -3,13 +3,26 @@ import { useState } from "react";
 import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, updateFollowingStatus, refetchFollowers }) => {
+const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, updateFollowingStatus, refetchFollowers, activeTab }) => {
   const [liked, setLiked] = useState((post && post.liked) || false);
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
   const [retweets, setRetweets] = useState(post && post.retweets);
 
   const navigate = useNavigate();
+
+  // Filter posts based on activeTab - this approach works, but it's a reduced filtered amount
+  // if (activeTab === "Following" && post && followingUsers) {
+  //   console.log(followingUsers)
+  //   const isUserFollowed = followingUsers.some(follower => 
+  //     follower.followingId === post.user.id || follower.id === post.user.id
+  //   );
+    
+  //   if (!isUserFollowed) {
+  //     return null; // Don't render this post
+  //   }
+  // }
+  // If activeTab is "For You", render all posts (no filtering needed)
 
   const isFollowing = (targetUserId) => {
     return followingUsers?.some(follower =>
@@ -83,12 +96,18 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
   };
 
   const renderPostContent = (postData) => (
+
+    // Rendering of posts
     <div
       onClick={() => postDetailsRedirect(postData.user.id, postData.id)}
       id="replies"
       className={`border-b cursor-pointer transition-colors ${darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
         } relative p-4 flex space-x-3`}
     >
+      {console.log("postData", postData)}
+      {console.log("followingUsers", followingUsers)}
+      {console.log("active tab", activeTab)}
+      {/* The for you implementation needs to take postData.user.id and compare it against each value in the followingUsers array */}
       <img
         onClick={(e) => {
           e.stopPropagation();
@@ -118,7 +137,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
             {postData && postData.timestamp}
           </span>
           {user && postData.user && postData.user.id !== user.id && (
-            <button  id="ComoTas?"
+            <button id="ComoTas?"
               className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
                 }`}
               onClick={(e) => {
@@ -146,8 +165,8 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
         <div onClick={(e) => e.stopPropagation()} className="flex justify-between max-w-md">
           <button
             className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+              ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+              : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
               }`}
           >
             <MessageCircle size={18} />
@@ -156,12 +175,12 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           <button
             onClick={handleRetweet}
             className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
-                ? darkMode
-                  ? "text-green-400"
-                  : "text-green-500"
-                : darkMode
-                  ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
-                  : "text-gray-500 hover:text-green-500 hover:bg-green-(playground)50"
+              ? darkMode
+                ? "text-green-400"
+                : "text-green-500"
+              : darkMode
+                ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
+                : "text-gray-500 hover:text-green-500 hover:bg-green-50"
               }`}
           >
             <Repeat2 size={18} />
@@ -170,12 +189,12 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           <button
             onClick={handleLike}
             className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
-                ? darkMode
-                  ? "text-red-400"
-                  : "text-red-500"
-                : darkMode
-                  ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
-                  : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+              ? darkMode
+                ? "text-red-400"
+                : "text-red-500"
+              : darkMode
+                ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                : "text-gray-500 hover:text-red-500 hover:bg-red-50"
               }`}
           >
             <Heart
@@ -194,8 +213,8 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           </button>
           <button
             className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+              ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+              : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
               }`}
           >
             <Share size={18} />
@@ -205,6 +224,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
     </div>
   );
 
+  // Conditional for profile view / reply view
   if (post && post.originalPost) {
     return (
       <div className="">

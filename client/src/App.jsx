@@ -8,23 +8,19 @@ const HOST = import.meta.env.VITE_LOCALHOST
 export default function OdinBook() {
   const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState(null);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [followers, setFollowers] = useState({
     followingUsers: [],
     followerCount: 0,
     followingCount: 0,
   });
   const [formattedPosts, setFormattedPosts] = useState([]);
-  // const [isLoading, setIsLoading] = useState(true);
+  const [followersPosts, setFollowersPosts] = useState([])
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
   const fetchUserAndData = async () => {
-    setIsLoadingUser(true);
-    // setIsLoading(true);
-
     try {
       const token = localStorage.getItem("token");
 
@@ -32,7 +28,6 @@ export default function OdinBook() {
       const postsRes = await fetch(`${HOST}/api/v1/getPosts/`);
       const postsData = await postsRes.json();
       setFormattedPosts(postsData.postFeed || []);
-      console.log("postsData", postsData.postFeed);
 
       // Only fetch user-specific data if token exists
       if (token) {
@@ -56,6 +51,16 @@ export default function OdinBook() {
             if (followersRes.ok) {
               const followersData = await followersRes.json();
               setFollowers(followersData);
+
+              const followersPosts = await fetch(`${HOST}/api/v1/followingposts/`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ followersData }),
+              })
+              if (followersPosts.ok) {
+                const followersPostData = await followersPosts.json();
+                setFollowersPosts(followersPostData.postFeed)
+              }
             }
           } else {
             // Token might be invalid, clear it
@@ -78,15 +83,8 @@ export default function OdinBook() {
     } catch (err) {
       console.error("Error fetching posts:", err);
       // Even if posts fail, try to maintain user state if possible
-    } finally {
-      setIsLoadingUser(false);
-      // setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    console.log("followers state updated:", followers);
-  }, [followers]);
 
   useEffect(() => { fetchUserAndData() }, [])
 
@@ -96,12 +94,12 @@ export default function OdinBook() {
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
           <MainFeed
-            // isLoading={isLoading}
             HOST={HOST}
             user={user}
             darkMode={darkMode}
             formattedPosts={formattedPosts}
             followersData={followers}
+            followersPosts={followersPosts}
             refetchFollowers={fetchUserAndData} // Pass refetch function
           />
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />

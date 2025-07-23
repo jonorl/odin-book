@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-const MainFeed = ({ darkMode, formattedPosts, /* isLoading, */ HOST, user, followersData, refetchFollowers }) => {
+const MainFeed = ({ darkMode, formattedPosts, followersPosts, HOST, user, followersData, refetchFollowers }) => {
   const [activeTab, setActiveTab] = useState("Following");
   const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
 
@@ -23,6 +23,8 @@ const MainFeed = ({ darkMode, formattedPosts, /* isLoading, */ HOST, user, follo
       );
     }
   };
+
+  const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (
     <div className={`flex-1 border ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
@@ -51,16 +53,14 @@ const MainFeed = ({ darkMode, formattedPosts, /* isLoading, */ HOST, user, follo
         >
           Following
         </button>
-      </div>
+      </div>{console.log("followersPosts", followersPosts)}
       {user !== null && (
         <PostComposer darkMode={darkMode} HOST={HOST} user={user} />
       )}
-      {/* isLoading ? (
-        <div className='spinner spinner-container'></div>
-      ) : */ (
-        formattedPosts.length > 0 && (
+      {(
+        postsToDisplay?.length > 0 && (
           <div>
-            {formattedPosts.map(post => (
+            {postsToDisplay.map(post => (
               <Post
                 user={user}
                 specificUser={user}
@@ -71,6 +71,7 @@ const MainFeed = ({ darkMode, formattedPosts, /* isLoading, */ HOST, user, follo
                 followingUsers={followingUsers}
                 updateFollowingStatus={updateFollowingStatus}
                 refetchFollowers={refetchFollowers} // Pass refetch function
+                activeTab={activeTab}
               />
             ))}
           </div>

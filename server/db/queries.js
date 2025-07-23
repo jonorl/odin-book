@@ -63,6 +63,25 @@ async function fetchAllPosts() {
   return users;
 }
 
+async function fetchAllPostsFromFollowing(usersArray) {
+  const users = await prisma.post.findMany({
+    take: 10,
+    where: {
+      replyToId: null,
+      authorId: {
+        in: usersArray,
+      },
+    },
+
+    orderBy: [
+      {
+        createdAt: "desc",
+      },
+    ],
+  });
+  return users;
+}
+
 async function fetchAllPostsFromSpecificUser(id) {
   const posts = await prisma.post.findMany({
     take: 10,
@@ -403,4 +422,5 @@ export default {
   getUniqueUserDetailsByHandle,
   toggleFollow,
   getUserFollowersData,
+  fetchAllPostsFromFollowing,
 };

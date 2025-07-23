@@ -189,19 +189,6 @@ mainRouter.get("/api/v1/userHandle/:handle", async (req, res) => {
   }
 });
 
-mainRouter.post("/api/v1/followers/", async (req, res) => {
-  try {
-    const user = req.body.userData?.id || req.body.userData?.user?.id;
-    const specificUser =  req.body.specificUserData?.id || req.body.specificUserData?.user?.id;
-    const { followingUsers, followerCount, followingCount } =
-      await queries.getUserFollowersData(user, specificUser || null);
-    res.json({ followingUsers, followerCount, followingCount });
-  } catch (err) {
-    console.error("failed to fetch post", err);
-    res.status(500).json({ message: "server error" });
-  }
-});
-
 // POST routes
 
 mainRouter.post(
@@ -299,6 +286,48 @@ mainRouter.post("/api/v1/newFollow/", async (req, res) => {
   const { userId, targetUserId } = req.body;
   const follow = await queries.toggleFollow(userId, targetUserId);
   res.json({ follow });
+});
+
+mainRouter.post("/api/v1/followers/", async (req, res) => {
+  try {
+    const user = req.body.userData?.id || req.body.userData?.user?.id;
+    const specificUser =
+      req.body.specificUserData?.id || req.body.specificUserData?.user?.id;
+    const { followingUsers, followerCount, followingCount } =
+      await queries.getUserFollowersData(user, specificUser || null);
+    res.json({ followingUsers, followerCount, followingCount });
+  } catch (err) {
+    console.error("failed to fetch post", err);
+    res.status(500).json({ message: "server error", err });
+  }
+});
+
+mainRouter.post("/api/v1/followingposts", async (req, res) => {
+  try {
+    
+    const followerJSON = req.body.followersData.followingUsers;
+    const followerArray = followerJSON.map(user => user.followingId)
+    const posts = await queries.fetchAllPostsFromFollowing(followerArray);
+    const postsIdArray = posts.map((obj) => obj.id);
+    const postsComments = await queries.getPostsComments(postsIdArray);
+    const postsUserArray = posts.map((obj) => obj.authorId);
+    const postsUsers = await queries.getPostUsers(postsUserArray);
+    const favourites = await queries.countAllLikes(postsIdArray);
+    const commentCount = await queries.countAllComments(postsIdArray);
+    const retweetCount = await queries.countAllRetweets(postsIdArray);
+    const postFeed = formatPostsForFeedOptimized(
+      posts,
+      postsUsers,
+      favourites,
+      commentCount,
+      retweetCount
+    );
+    const resolvedPostFeed = await postFeed;
+    res.json({ postFeed: resolvedPostFeed });
+  } catch (err) {
+    console.error("failed to fetch post", err);
+    res.status(500).json({ message: "server error", err });
+  }
 });
 
 // PUT routes
