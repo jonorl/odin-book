@@ -8,10 +8,66 @@ import validateUser from "../controllers/formValidation.js";
 import { authenticateToken, signToken } from "../controllers/authentication.js";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 const mainRouter = Router();
 
 // Import database queries
 import queries from "../db/queries.js";
+
+// Environment variables (use .env file in production)
+const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+const REDIRECT_URI = "http://localhost:3000/api/v1/auth/github/callback";
+
+mainRouter.get("/debug/token-exchange", async (req, res) => {
+  const { code } = req.query;
+
+  if (!code) {
+    return res.json({ error: "No code provided. Add ?code=your_code_here" });
+  }
+
+  try {
+    console.log("Debug: Testing token exchange with code:", code);
+
+    const response = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          code: code,
+          redirect_uri: REDIRECT_URI,
+        }),
+      }
+    );
+
+    const responseText = await response.text();
+
+    res.json({
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      body: responseText,
+      parsedBody: (() => {
+        try {
+          return JSON.parse(responseText);
+        } catch {
+          return "Not valid JSON";
+        }
+      })(),
+    });
+  } catch (error) {
+    res.json({
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+});
 
 // GET routes
 
@@ -123,7 +179,7 @@ mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
     // const postsIdArray = post.map((obj) => obj.id);
-    const postsComments = await queries.getPostsComments(post.id);
+    // const postsComments = await queries.getPostsComments(post.id);
     // const postsUserArray = post.map((obj) => obj.authorId);
     const postsUsers = await queries.getPostUsers(post.authorId);
     const favourites = await queries.countAllLikes(post.id);
@@ -186,6 +242,130 @@ mainRouter.get("/api/v1/userHandle/:handle", async (req, res) => {
   } catch (err) {
     console.error("failed to fetch post", err);
     res.status(500).json({ message: "server error" });
+  }
+});
+
+mainRouter.get("/api/v1/auth/github", (req, res) => {
+  // Generate a random state parameter for security
+  const state = crypto.randomBytes(16).toString("hex");
+  req.session.oauthState = state;
+
+  const githubAuthUrl =
+    `https://github.com/login/oauth/authorize?` +
+    `client_id=${CLIENT_ID}&` +
+    `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
+    `scope=${encodeURIComponent("user:email")}&` +
+    `state=${state}`;
+
+  res.redirect(githubAuthUrl);
+});
+
+mainRouter.get("/api/v1/auth/github/callback", async (req, res) => {
+  const { code, state } = req.query;
+
+  // Verify state parameter to prevent CSRF attacks
+  if (state !== req.session.oauthState) {
+    return res.status(400).json({ error: "Invalid state parameter" });
+  }
+  delete req.session.oauthState; // Clear immediately after verification
+
+  if (!code) {
+    return res.status(400).json({ error: "Authorization code not provided" });
+  }
+
+  try {
+    const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+    const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+    const REDIRECT_URI = process.env.GITHUB_REDIRECT_URI;
+
+    const tokenFetchResponse = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          code: code,
+          redirect_uri: REDIRECT_URI,
+        }),
+      }
+    );
+
+    if (!tokenFetchResponse.ok) {
+      const errorText = await tokenFetchResponse.text();
+      return res.status(tokenFetchResponse.status).json({
+        error: "Failed to obtain access token from GitHub",
+        details: errorText,
+      });
+    }
+
+    const tokenData = await tokenFetchResponse.json();
+    const accessToken = tokenData.access_token;
+
+    if (!accessToken) {
+      return res.status(400).json({
+        error: "Failed to obtain access token: token missing from response",
+      });
+    }
+
+    const userFetchResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+
+    if (!userFetchResponse.ok) {
+      const errorText = await userFetchResponse.text();
+      return res.status(userFetchResponse.status).json({
+        error: "Failed to fetch user data from GitHub",
+        details: errorText,
+      });
+    }
+
+    const userResponse = await userFetchResponse.json();
+
+    // Get user email (if not public)
+    const emailResponse = await fetch("https://api.github.com/user/emails", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      return res.status(emailResponse.status).json({
+        error: "Failed to fetch user emails from GitHub",
+        details: errorText,
+      });
+    }
+
+    const emailData = await emailResponse.json();
+    const primaryEmail = Array.isArray(emailData)
+      ? emailData.find((email) => email.primary)?.email
+      : null;
+
+    const user = {
+      id: userResponse.id,
+      login: userResponse.login,
+      name: userResponse.name,
+      email: primaryEmail || userResponse.email,
+      avatar_url: userResponse.avatar_url,
+    };
+
+    // Store user in session
+    req.session.user = user;
+    req.session.accessToken = accessToken;
+
+    // Redirect to your app's dashboard or home page
+    res.redirect(process.env.FRONTEND_URL);
+  } catch (error) {
+    res.status(500).json({ error: "Authentication failed" });
   }
 });
 
@@ -304,9 +484,8 @@ mainRouter.post("/api/v1/followers/", async (req, res) => {
 
 mainRouter.post("/api/v1/followingposts", async (req, res) => {
   try {
-    
     const followerJSON = req.body.followersData.followingUsers;
-    const followerArray = followerJSON.map(user => user.followingId)
+    const followerArray = followerJSON.map((user) => user.followingId);
     const posts = await queries.fetchAllPostsFromFollowing(followerArray);
     const postsIdArray = posts.map((obj) => obj.id);
     const postsComments = await queries.getPostsComments(postsIdArray);

@@ -1,10 +1,17 @@
 import { useState } from "react";
 import SignUpModal from "./SignUpModal";
 import LoginModal from "./LoginModal";
+import { FaGithub } from 'react-icons/fa';
 
 const SignUpCard = ({ HOST, user }) => {
   const [showSingupModal, setShowSingupModal] = useState(false);
   const [showLoginModal, setLoginModal] = useState(false);
+
+  const handleGitHubLogin = () => {
+    // This redirects to your backend OAuth route
+    window.location.href = `${HOST}/api/v1/auth/github`;
+  };
+
   return (
     <>
       {user === null &&
@@ -23,6 +30,10 @@ const SignUpCard = ({ HOST, user }) => {
 
           <button onClick={() => setLoginModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
             Login
+          </button>
+
+          <button onClick={() => handleGitHubLogin()} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+            Login with github <FaGithub className="flex content-center mt-1" />
           </button>
           {showLoginModal && <LoginModal HOST={HOST} onClose={() => setLoginModal(false)} />}
 

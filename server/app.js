@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import session from "express-session";
 import mainRouter from "./routes/mainRouter.js";
 
 // Config
@@ -11,6 +12,16 @@ const app = express();
 // CORS setup
 app.use(cors());
 app.use(express.json());
+
+// Session middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }, // Set to true in production with HTTPS
+  })
+);
 
 // Router triggering
 app.use("/", mainRouter);

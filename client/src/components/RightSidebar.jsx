@@ -4,6 +4,8 @@ import { Input } from "./ui/input";
 import SignUpCard from "./Signup"
 
 
+
+
 const RightSidebar = ({ darkMode, HOST, user }) => {
   const trends = [
     { topic: 'Technology', tag: '#ReactJS', posts: '45.2K posts' },
