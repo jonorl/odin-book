@@ -26,4 +26,14 @@ function signToken(req, res, next) {
   res.status(201).json({ token });
 }
 
-export { authenticateToken, signToken };
+function signGithubToken(req, res, next) {
+  const newUser = req.newUser;
+  const token = jwt.sign(
+    { userId: newUser.id, email: newUser.email },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+  return token
+}
+
+export { authenticateToken, signToken, signGithubToken };

@@ -396,6 +396,37 @@ async function getUserFollowersData(userid, targetId) {
   };
 }
 
+async function getUserByGithubId(githubId) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { githubId },
+    });
+    return user;
+  } catch (error) {
+    console.error("Error fetching user by GitHub ID:", error);
+    throw error;
+  }
+}
+
+async function createGithubUser({ githubId, handle, name, surname, email, profilePicUrl }) {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        githubId,
+        handle,
+        name,
+        surname,
+        email,
+        profilePicUrl,
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error("Error creating GitHub user:", error);
+    throw error;
+  }
+}
+
 export default {
   fetchAllUsers,
   fetchAllPosts,
@@ -423,4 +454,6 @@ export default {
   toggleFollow,
   getUserFollowersData,
   fetchAllPostsFromFollowing,
+  getUserByGithubId,
+  createGithubUser,
 };

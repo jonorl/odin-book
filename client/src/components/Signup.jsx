@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SignUpModal from "./SignUpModal";
 import LoginModal from "./LoginModal";
 import { FaGithub } from 'react-icons/fa';
@@ -6,10 +6,33 @@ import { FaGithub } from 'react-icons/fa';
 const SignUpCard = ({ HOST, user }) => {
   const [showSingupModal, setShowSingupModal] = useState(false);
   const [showLoginModal, setLoginModal] = useState(false);
+  const [error, setError] = useState(null)
 
-  const handleGitHubLogin = () => {
-    // This redirects to your backend OAuth route
-    window.location.href = `${HOST}/api/v1/auth/github`;
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    const error = urlParams.get("error");
+
+    if (token) {
+      console.log("Received token:", token);
+      localStorage.setItem("token", token); // Store token in localStorage
+      // Clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Refresh page
+      window.location.reload();
+    } else if (error) {
+      console.error("GitHub OAuth error:", error);
+      setError(`GitHub authentication failed: ${urlParams.get("error_description")}`);
+    }
+  }, []);
+  const handleGitHubLogin = async (e) => {
+    e.preventDefault();
+    try {
+      window.location.href = `${HOST}/api/v1/auth/github`
+    } catch (err) {
+      setError("An unexpected error occurred.", err);
+    }
   };
 
   return (
@@ -32,9 +55,10 @@ const SignUpCard = ({ HOST, user }) => {
             Login
           </button>
 
-          <button onClick={() => handleGitHubLogin()} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          <button onClick={(e) => handleGitHubLogin(e)} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
             Login with github <FaGithub className="flex content-center mt-1" />
           </button>
+          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
           {showLoginModal && <LoginModal HOST={HOST} onClose={() => setLoginModal(false)} />}
 
           <p className="text-xs text-gray-500">
