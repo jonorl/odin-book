@@ -33,7 +33,7 @@ const RightSidebar = ({ darkMode, HOST, user }) => {
   return (
     <>
       <div className="w-80 p-4 space-y-4">
-      <SignUpCard HOST={HOST} user={user} />
+      <SignUpCard HOST={HOST} user={user} darkMode={darkMode} />
 
         <div className="flex items-center p-2">
 

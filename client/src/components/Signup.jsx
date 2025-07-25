@@ -3,7 +3,7 @@ import SignUpModal from "./SignUpModal";
 import LoginModal from "./LoginModal";
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 
-const SignUpCard = ({ HOST, user }) => {
+const SignUpCard = ({ darkMode, HOST, user }) => {
   const [showSingupModal, setShowSingupModal] = useState(false);
   const [showLoginModal, setLoginModal] = useState(false);
   const [error, setError] = useState(null)
@@ -69,34 +69,38 @@ const SignUpCard = ({ HOST, user }) => {
   return (
     <>
       {user === null &&
-        <div className="bg-black text-white rounded-xl p-6 max-w-sm mx-auto border border-gray-700">
-          <h2 className="text-xl font-bold mb-2">New to OdinBook?</h2>
+        <div className={`${darkMode
+          ? 'bg-black border-gray-800 hover:bg-gray-950'
+          : 'bg-white border-gray-200 hover:bg-gray-50'
+          }border-rounded p-6 max-w-sm mx-auto rounded-xl border-gray-700`}>
+          <h2 className={`${darkMode
+            ? 'text-white' : 'text-black'} text-xl font-bold mb-2`}>New to OdinBook?</h2>
           <p className="mb-4 text-gray-400">
             Sign up now to get your own personalized timeline!
           </p>
 
-          <button onClick={() => setShowSingupModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          <button onClick={() => setShowSingupModal(true)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full  font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition`}>
             Create account
           </button>
           {showSingupModal && <SignUpModal HOST={HOST} onClose={() => setShowSingupModal(false)} />}
 
           <p className="mb-2 text-gray-400">Or login:</p>
 
-          <button onClick={() => setLoginModal(true)} className="w-full bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          <button onClick={() => setLoginModal(true)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full  font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition`}>
             Login
           </button>
 
-          <button onClick={(e) => handleGuestLogin(e)} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          <button onClick={(e) => handleGuestLogin(e)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full  font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition`}>
             Login as Guest
           </button>
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
-          <button onClick={(e) => handleGitHubLogin(e)} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          <button onClick={(e) => handleGitHubLogin(e)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full flex gap-3 content-center justify-center font-bold py-2.5 rounded-full mb-4  transition`}>
             Login with Github <FaGithub className="flex content-center mt-1" />
           </button>
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
-          <button onClick={(e) => handleGoogleLogin(e)} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+          <button onClick={(e) => handleGoogleLogin(e)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full flex gap-3 content-center justify-center font-bold py-2.5 rounded-full mb-4  transition`}>
             Login with Google <FaGoogle className="flex content-center mt-1" />
           </button>
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
