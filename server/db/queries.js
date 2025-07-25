@@ -218,7 +218,7 @@ async function getUserByEmail(email) {
   return user;
 }
 
-async function createUser(handle, name, surname, email, hashedPassword) {
+async function createUser(handle, name, surname, email, hashedPassword, profilePicUrl) {
   const newUser = await prisma.user.create({
     data: {
       handle: handle,
@@ -226,6 +226,7 @@ async function createUser(handle, name, surname, email, hashedPassword) {
       surname: surname,
       email: email,
       passwordHash: hashedPassword,
+      profilePicUrl:profilePicUrl || null,
     },
   });
   return newUser;

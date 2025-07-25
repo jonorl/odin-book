@@ -5,6 +5,7 @@ import {
   getTimeAgo,
 } from "../services/feedService.js";
 import validateUser from "../controllers/formValidation.js";
+import generateGuestCredentials from "../utils/generateGuestUser.js";
 import {
   authenticateToken,
   signToken,
@@ -487,7 +488,7 @@ mainRouter.get("/api/v1/auth/google/callback", async (req, res) => {
 
     const userData = await userResponse.json();
 
-    console.log("userData", userData)
+    console.log("userData", userData);
 
     // Prepare user data for database
     const googleUser = {
@@ -505,13 +506,14 @@ mainRouter.get("/api/v1/auth/google/callback", async (req, res) => {
       user = await queries.getUserByEmail(googleUser.email);
     }
 
-    console.log("user", user)
+    console.log("user", user);
 
     // Create or update user
     if (!user) {
       // Check if handle is already taken and make it unique if needed
       let uniqueHandle = googleUser.handle;
-      let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+      let handleExists =
+        await queries.getUniqueUserDetailsByHandle(uniqueHandle);
       let counter = 1;
 
       while (handleExists) {
@@ -679,6 +681,36 @@ mainRouter.post("/api/v1/followingposts", async (req, res) => {
     res.status(500).json({ message: "server error", err });
   }
 });
+
+mainRouter.post(
+  "/api/v1/guest",
+  validateUser,
+  async (req, res, next) => {
+    try {
+      const { handle, name, surname, email, password, profilePicUrl } =
+        generateGuestCredentials();
+      const existingUser = await queries.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await queries.createUser(
+        handle,
+        name,
+        surname,
+        email,
+        hashedPassword,
+        profilePicUrl
+      );
+      req.newUser = newUser;
+      next();
+    } catch (err) {
+      console.error("Signup error:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+  signToken
+);
 
 // PUT routes
 mainRouter.put(
