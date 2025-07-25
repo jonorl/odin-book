@@ -408,7 +408,14 @@ async function getUserByGithubId(githubId) {
   }
 }
 
-async function createGithubUser({ githubId, handle, name, surname, email, profilePicUrl }) {
+async function createGithubUser({
+  githubId,
+  handle,
+  name,
+  surname,
+  email,
+  profilePicUrl,
+}) {
   try {
     const user = await prisma.user.create({
       data: {
@@ -426,6 +433,40 @@ async function createGithubUser({ githubId, handle, name, surname, email, profil
     throw error;
   }
 }
+
+// Get user by Google ID
+const getUserByGoogleId = async (googleId) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { googleId: googleId },
+    });
+    return user;
+  } catch (error) {
+    console.error("Error fetching user by Google ID:", error);
+    throw error;
+  }
+};
+
+// Create new user from Google OAuth
+const createGoogleUser = async (googleUser) => {
+  try {
+    const user = await prisma.user.create({
+      data: {
+        googleId: googleUser.googleId,
+        handle: googleUser.handle,
+        name: googleUser.name,
+        surname: googleUser.surname,
+        email: googleUser.email,
+        profilePicUrl: googleUser.profilePicUrl,
+        // Note: No password hash for OAuth users
+      },
+    });
+    return user;
+  } catch (error) {
+    console.error("Error creating Google user:", error);
+    throw error;
+  }
+};
 
 export default {
   fetchAllUsers,
@@ -456,4 +497,6 @@ export default {
   fetchAllPostsFromFollowing,
   getUserByGithubId,
   createGithubUser,
+  getUserByGoogleId,
+  createGoogleUser,
 };

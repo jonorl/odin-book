@@ -21,57 +21,10 @@ import queries from "../db/queries.js";
 // Environment variables (use .env file in production)
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 const CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
-const REDIRECT_URI = "http://localhost:3000/api/v1/auth/github/callback";
-
-mainRouter.get("/debug/token-exchange", async (req, res) => {
-  const { code } = req.query;
-
-  if (!code) {
-    return res.json({ error: "No code provided. Add ?code=your_code_here" });
-  }
-
-  try {
-    console.log("Debug: Testing token exchange with code:", code);
-
-    const response = await fetch(
-      "https://github.com/login/oauth/access_token",
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-          code: code,
-          redirect_uri: REDIRECT_URI,
-        }),
-      }
-    );
-
-    const responseText = await response.text();
-
-    res.json({
-      status: response.status,
-      statusText: response.statusText,
-      headers: Object.fromEntries(response.headers.entries()),
-      body: responseText,
-      parsedBody: (() => {
-        try {
-          return JSON.parse(responseText);
-        } catch {
-          return "Not valid JSON";
-        }
-      })(),
-    });
-  } catch (error) {
-    res.json({
-      error: error.message,
-      stack: error.stack,
-    });
-  }
-});
+const REDIRECT_URI = process.env.GITHUB_REDIRECT_URI;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
 
 // GET routes
 
@@ -390,7 +343,9 @@ mainRouter.get(
         name: userData.name?.split(" ")[0] || userData.login,
         surname: userData.name?.split(" ")[1] || "",
         email:
-          primaryEmail || userData.email || `${userData.id}+${userData.login}@users.noreply.github.com`,
+          primaryEmail ||
+          userData.email ||
+          `${userData.id}+${userData.login}@users.noreply.github.com`,
         profilePicUrl: userData.avatar_url || null,
       };
 
@@ -422,6 +377,168 @@ mainRouter.get(
   },
   signToken
 );
+
+// Google OAuth initiation route
+mainRouter.get("/api/v1/auth/google", (req, res) => {
+  // Generate a random state parameter for security
+  const state = crypto.randomBytes(16).toString("hex");
+  req.session.oauthState = state;
+
+  const googleAuthUrl =
+    `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `client_id=${GOOGLE_CLIENT_ID}&` +
+    `redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}&` +
+    `response_type=code&` +
+    `scope=${encodeURIComponent("openid email profile")}&` +
+    `state=${state}`;
+
+  res.redirect(googleAuthUrl);
+});
+
+// Google OAuth callback route
+mainRouter.get("/api/v1/auth/google/callback", async (req, res) => {
+  try {
+    const { code, state, error } = req.query;
+
+    // Handle OAuth errors
+    if (error) {
+      console.log("Google OAuth error:", error);
+      return res.status(400).json({ error: `OAuth error: ${error}` });
+    }
+
+    // Verify state parameter to prevent CSRF attacks
+    if (state !== req.session.oauthState) {
+      console.log("State mismatch in Google callback");
+      return res.status(400).json({ error: "Invalid state parameter" });
+    }
+    delete req.session.oauthState;
+
+    if (!code) {
+      console.log("No authorization code provided");
+      return res.status(400).json({ error: "Authorization code not provided" });
+    }
+
+    // Validate environment variables
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI) {
+      console.error("Missing Google OAuth environment variables");
+      return res.status(500).json({ error: "Server configuration error" });
+    }
+
+    // Exchange code for access token
+    const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+        code,
+        grant_type: "authorization_code",
+        redirect_uri: GOOGLE_REDIRECT_URI,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error(
+        "Google token exchange failed:",
+        tokenResponse.status,
+        errorText
+      );
+      return res.status(tokenResponse.status).json({
+        error: "Failed to obtain access token from Google",
+        details: errorText,
+      });
+    }
+
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+
+    if (!accessToken) {
+      console.error("Access token missing from Google response:", tokenData);
+      return res.status(400).json({
+        error: "Failed to obtain access token: token missing from response",
+      });
+    }
+
+    // Fetch user profile from Google
+    const userResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!userResponse.ok) {
+      const errorText = await userResponse.text();
+      console.error(
+        "Google user fetch failed:",
+        userResponse.status,
+        errorText
+      );
+      return res.status(userResponse.status).json({
+        error: "Failed to fetch user data from Google",
+        details: errorText,
+      });
+    }
+
+    const userData = await userResponse.json();
+
+    console.log("userData", userData)
+
+    // Prepare user data for database
+    const googleUser = {
+      googleId: userData.id.toString(),
+      handle: userData.email.split("@")[0], // Use email prefix as initial handle
+      name: userData.given_name || userData.name?.split(" ")[0] || "User",
+      surname: userData.family_name || userData.name?.split(" ")[1] || "",
+      email: userData.email,
+      profilePicUrl: userData.picture || null,
+    };
+
+    // Check if user exists by Google ID or email
+    let user = await queries.getUserByGoogleId(googleUser.googleId);
+    if (!user) {
+      user = await queries.getUserByEmail(googleUser.email);
+    }
+
+    console.log("user", user)
+
+    // Create or update user
+    if (!user) {
+      // Check if handle is already taken and make it unique if needed
+      let uniqueHandle = googleUser.handle;
+      let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+      let counter = 1;
+
+      while (handleExists) {
+        uniqueHandle = `${googleUser.handle}${counter}`;
+        handleExists = await queries.getUserDetailsByHandle(uniqueHandle);
+        counter++;
+      }
+
+      googleUser.handle = uniqueHandle;
+      user = await queries.createGoogleUser(googleUser);
+      console.log("New Google user created:", user.id);
+    } else {
+      console.log("Existing user logged in via Google:", user.id);
+    }
+
+    // Generate JWT token
+    req.newUser = user;
+    const token = signGithubToken(req, res); // Reuse the same token signing function
+    res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
+  } catch (error) {
+    console.error("Error in Google OAuth callback:", error);
+    res.status(500).json({
+      error: "Authentication failed",
+      details: error.message,
+    });
+  }
+});
 
 // POST routes
 

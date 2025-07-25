@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SignUpModal from "./SignUpModal";
 import LoginModal from "./LoginModal";
-import { FaGithub } from 'react-icons/fa';
+import { FaGithub, FaGoogle  } from 'react-icons/fa';
 
 const SignUpCard = ({ HOST, user }) => {
   const [showSingupModal, setShowSingupModal] = useState(false);
@@ -35,6 +35,15 @@ const SignUpCard = ({ HOST, user }) => {
     }
   };
 
+  const handleGoogleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      window.location.href = `${HOST}/api/v1/auth/google`
+    } catch (err) {
+      setError("An unexpected error occurred.", err);
+    }
+  };
+
   return (
     <>
       {user === null &&
@@ -56,7 +65,12 @@ const SignUpCard = ({ HOST, user }) => {
           </button>
 
           <button onClick={(e) => handleGitHubLogin(e)} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
-            Login with github <FaGithub className="flex content-center mt-1" />
+            Login with Github <FaGithub className="flex content-center mt-1" />
+          </button>
+          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+
+          <button onClick={(e) => handleGoogleLogin(e)} className="w-full flex gap-3 content-center justify-center bg-white text-black font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition">
+            Login with Google <FaGoogle className="flex content-center mt-1" />
           </button>
           {error && <p className="text-red-400 text-sm text-center">{error}</p>}
           {showLoginModal && <LoginModal HOST={HOST} onClose={() => setLoginModal(false)} />}
