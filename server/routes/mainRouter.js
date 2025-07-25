@@ -265,7 +265,7 @@ mainRouter.get("/api/v1/auth/github", (req, res) => {
 
 mainRouter.get(
   "/api/v1/auth/github/callback",
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const { code, state } = req.query;
 
@@ -386,11 +386,11 @@ mainRouter.get(
       // Prepare user data for database
       const githubUser = {
         githubId: userData.id.toString(),
-        handle: userData.login || `github_${userData.id}`,
+        handle: userData.login,
         name: userData.name?.split(" ")[0] || userData.login,
         surname: userData.name?.split(" ")[1] || "",
         email:
-          primaryEmail || userData.email || `github_${userData.id}@example.com`,
+          primaryEmail || userData.email || `${userData.id}+${userData.login}@users.noreply.github.com`,
         profilePicUrl: userData.avatar_url || null,
       };
 
@@ -405,13 +405,7 @@ mainRouter.get(
         user = await queries.createGithubUser(githubUser);
         console.log("New user created:", user.id);
       } else {
-        user = await queries.updateUser(user.id, {
-          handle: githubUser.handle,
-          name: githubUser.name,
-          surname: githubUser.surname,
-          profilePicUrl: githubUser.profilePicUrl,
-        });
-        console.log("Existing user updated:", user.id);
+        console.log("Existing user logged in:", user.id);
       }
 
       // Generate JWT token

@@ -8,6 +8,8 @@ const Settings = ({ HOST, darkMode, user }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const isDisabled = !!user?.githubId || !!user?.googleId;
+
   useEffect(() => {
     if (user) {
       setFormData({
@@ -197,7 +199,7 @@ const Settings = ({ HOST, darkMode, user }) => {
             </div>
 
             {/* Email */}
-            <div className="flex flex-col space-y-2">
+            <div className={`flex flex-col space-y-2`}>
               <label htmlFor="email" className="text-white font-medium">
                 Email
               </label>
@@ -205,10 +207,13 @@ const Settings = ({ HOST, darkMode, user }) => {
                 id="email"
                 name="email"
                 type="email"
+                disabled={isDisabled}
                 value={formData.email}
+                title={`${isDisabled && "This field cannot be modified because it's linked to your GitHub/Google account."}`}
                 onChange={handleInputChange}
-                className="bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email"
+                className={`bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter your email ${isDisabled ? 'cursor-not-allowed' : ''}
+          ${isDisabled ? 'pointer-events-auto' : ''}`}
               />
             </div>
 
@@ -223,8 +228,11 @@ const Settings = ({ HOST, darkMode, user }) => {
                   name="password"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
+                  disabled={isDisabled}
+                  title={`${isDisabled && "This field cannot be modified because it's linked to your GitHub/Google account."}`}
                   onChange={handleInputChange}
-                  className="bg-gray-900 border border-gray-700 rounded-md px-3 py-2 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                  className={`bg-gray-900 border border-gray-700 rounded-md px-3 py-2 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full ${isDisabled ? 'cursor-not-allowed' : ''}
+                  ${isDisabled ? 'pointer-events-auto' : ''}`}
                   placeholder="Enter new password (leave blank to keep current)"
                 />
                 <button
@@ -241,8 +249,8 @@ const Settings = ({ HOST, darkMode, user }) => {
             {message && (
               <div
                 className={`p-3 rounded-md ${message.includes("successfully")
-                    ? "bg-green-900 text-green-200"
-                    : "bg-red-900 text-red-200"
+                  ? "bg-green-900 text-green-200"
+                  : "bg-red-900 text-red-200"
                   }`}
               >
                 {message}
