@@ -601,7 +601,7 @@ mainRouter.post(
         surname,
         email,
         hashedPassword,
-        imageUrl,
+        imageUrl
       );
       req.newUser = newUser;
       next();
@@ -823,5 +823,29 @@ mainRouter.put(
     }
   }
 );
+
+// DELETE routes
+
+mainRouter.delete("/api/v1/deletepost/:postId", async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const post = await queries.deletePost(postId);
+    res.json({ post });
+  } catch (err) {
+    console.error("Failed to delete post:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+mainRouter.delete("/api/v1/deleteuser/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await queries.deleteUser(userId);
+    res.json({ user });
+  } catch (err) {
+    console.error("Failed to delete post:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 export default mainRouter;

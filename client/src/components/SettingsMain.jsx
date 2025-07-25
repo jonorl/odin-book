@@ -46,7 +46,7 @@ const Settings = ({ HOST, darkMode, user }) => {
       reader.readAsDataURL(file);
     }
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -90,6 +90,20 @@ const Settings = ({ HOST, darkMode, user }) => {
       setMessage("An error occurred while updating settings");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  async function deleteUser(userId) {
+    try {
+      const res = await fetch(`${HOST}/api/v1/deleteuser/${userId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      localStorage.removeItem("token");
+      window.location.href = `${import.meta.env.VITE_THISHOST}`
+      return data;
+    } catch (err) {
+      console.error("Failed to post new message:", err);
     }
   };
 
@@ -266,6 +280,16 @@ const Settings = ({ HOST, darkMode, user }) => {
                 }`}
             >
               {isLoading ? "Updating..." : "Save Changes"}
+            </button>
+
+            {/* Delete Button */}
+            <button
+              disabled={isLoading}
+              onClick={(e) => { e.preventDefault(); deleteUser(user?.id) }}
+              className={`w-full bg-red-700 hover:bg-red-800 disabled:bg-red-900 text-white font-medium py-2 px-4 rounded-md transition-colors ${isLoading ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+            >
+              Delete user
             </button>
           </form>
         </div>

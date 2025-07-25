@@ -218,7 +218,14 @@ async function getUserByEmail(email) {
   return user;
 }
 
-async function createUser(handle, name, surname, email, hashedPassword, profilePicUrl) {
+async function createUser(
+  handle,
+  name,
+  surname,
+  email,
+  hashedPassword,
+  profilePicUrl
+) {
   const newUser = await prisma.user.create({
     data: {
       handle: handle,
@@ -226,7 +233,7 @@ async function createUser(handle, name, surname, email, hashedPassword, profileP
       surname: surname,
       email: email,
       passwordHash: hashedPassword,
-      profilePicUrl:profilePicUrl || null,
+      profilePicUrl: profilePicUrl || null,
     },
   });
   return newUser;
@@ -469,6 +476,20 @@ const createGoogleUser = async (googleUser) => {
   }
 };
 
+async function deletePost(id) {
+  const post = await prisma.post.delete({
+    where: { id: id },
+  });
+  return post;
+}
+
+async function deleteUser(id) {
+  const user = await prisma.user.delete({
+    where: { id: id },
+  });
+  return user;
+}
+
 export default {
   fetchAllUsers,
   fetchAllPosts,
@@ -500,4 +521,6 @@ export default {
   createGithubUser,
   getUserByGoogleId,
   createGoogleUser,
+  deletePost,
+  deleteUser,
 };

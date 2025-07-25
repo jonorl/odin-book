@@ -1,6 +1,6 @@
 // Post.jsx
 import { useState } from "react";
-import { Heart, MessageCircle, Repeat2, Share } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, updateFollowingStatus, refetchFollowers, activeTab }) => {
@@ -8,7 +8,6 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
   const [retweets, setRetweets] = useState(post && post.retweets);
-
   const navigate = useNavigate();
 
   const isFollowing = (targetUserId) => {
@@ -26,6 +25,19 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
         body: JSON.stringify({ id, user }),
       });
       const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to post new message:", err);
+    }
+  };
+
+  async function deletePost(postId) {
+    try {
+      const res = await fetch(`${HOST}/api/v1/deletepost/${postId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      window.location.reload()
       return data;
     } catch (err) {
       console.error("Failed to post new message:", err);
@@ -123,6 +135,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           <span id="hola" onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
           </span>
+          {postData?.user?.id === user?.id && <Trash2 size={18} className="text-red-500" onClick={(e) => { e.stopPropagation(); deletePost(postData.id) }} />}{console.log("Fijate aca", postData.id)}
           {user && postData.user && postData.user.id !== user.id && (
             <button id="ComoTas?"
               className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
