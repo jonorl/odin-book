@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Camera } from "lucide-react";
 
 const SignUpModal = ({ onClose, HOST }) => {
   const [handle, setHandle] = useState("");
@@ -7,15 +8,45 @@ const SignUpModal = ({ onClose, HOST }) => {
   const [surname, setSurname] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [profilePicFile, setProfilePicFile] = useState(null); // Store the actual file
+  const [profilePicPreview, setProfilePicPreview] = useState(null); // Store preview URL
   const [error, setError] = useState(null)
+
+  const handleProfilePicChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Store the actual file for upload
+      setProfilePicFile(file);
+      
+      // Create preview URL for display
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfilePicPreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
+      // Create FormData object
+      const formData = new FormData();
+      formData.append('handle', handle);
+      formData.append('name', name);
+      formData.append('surname', surname);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('confirmPassword', confirmPassword);
+      
+      // Append the file if it exists
+      if (profilePicFile) {
+        formData.append('profilePic', profilePicFile);
+      }
+
       const response = await fetch(`${HOST}/api/v1/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ handle, name, surname, email, password, confirmPassword }),
+        body: formData,
       });
 
       const data = await response.json();
@@ -59,7 +90,6 @@ const SignUpModal = ({ onClose, HOST }) => {
             <path fillRule="evenodd" clipRule="evenodd" d="M17.6068 33.2937L13.5939 54.8432L22.0655 59.2411L30.5372 54.8432L26.5243 33.2937L22.3981 31.2588L22.0655 31.0947L17.6068 33.2937Z" fill="#E6E6E6" />
             <path fillRule="evenodd" clipRule="evenodd" d="M23.6636 34.1729H20.5425C20.5425 34.1729 20.5425 34.694 20.5425 35.2732C20.5425 35.6813 20.707 36.0723 20.9995 36.3608C21.292 36.6493 21.6884 36.8116 22.1022 36.8116C22.1026 36.8116 22.1035 36.8116 22.1039 36.8116C22.5177 36.8116 22.9141 36.6493 23.2066 36.3608C23.4991 36.0723 23.6636 35.6813 23.6636 35.2732C23.6636 34.694 23.6636 34.1729 23.6636 34.1729Z" fill="#353535" />
           </svg>
-
         </div>
 
         {/* Title */}
@@ -106,6 +136,38 @@ const SignUpModal = ({ onClose, HOST }) => {
             placeholder="Password Confirmation"
             className="bg-transparent border border-gray-600 rounded p-3 placeholder-gray-400 focus:outline-none"
           />
+
+          <div className="flex flex-col space-y-2">
+            <label className="text-white font-medium">Profile Picture</label>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <label
+                  htmlFor="profilePic"
+                  className="hover:cursor-pointer flex items-center justify-center w-12 h-12 border-2 border-gray-600 rounded-full overflow-hidden"
+                >
+                  {profilePicPreview ? (
+                    <img
+                      src={profilePicPreview}
+                      alt="Profile preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Camera size={24} className="text-white" />
+                  )}
+                </label>
+                <input
+                  id="profilePic"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePicChange}
+                  className="hidden"
+                />
+              </div>
+              <div className="text-gray-400 text-sm">
+                {profilePicFile ? profilePicFile.name : "Click to add your profile picture"}
+              </div>
+            </div>
+          </div>
 
           <button
             type="submit"

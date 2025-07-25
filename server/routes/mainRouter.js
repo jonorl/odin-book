@@ -583,9 +583,12 @@ mainRouter.post("/api/v1/newLike", async (req, res) => {
 mainRouter.post(
   "/api/v1/signup/",
   validateUser,
+  parser.single("profilePic"),
+  processCloudinaryUpload,
   async (req, res, next) => {
     try {
       const { handle, name, surname, email, password } = req.body;
+      const imageUrl = req.imageUrl;
 
       const existingUser = await queries.getUserByEmail(email);
       if (existingUser) {
@@ -597,7 +600,8 @@ mainRouter.post(
         name,
         surname,
         email,
-        hashedPassword
+        hashedPassword,
+        imageUrl,
       );
       req.newUser = newUser;
       next();

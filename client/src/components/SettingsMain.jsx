@@ -46,6 +46,7 @@ const Settings = ({ HOST, darkMode, user }) => {
       reader.readAsDataURL(file);
     }
   };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
