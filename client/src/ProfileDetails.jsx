@@ -68,7 +68,7 @@ export default function OdinBook() {
       }
     }
     fetchUserDetails();
-  }, [handle, token]); // Only depend on handle and token
+  }, [user, handle, token]); // Only depend on handle and token
 
   // Fetch formatted posts for specific user
   useEffect(() => {
