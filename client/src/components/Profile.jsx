@@ -104,7 +104,7 @@ const Profile = ({
               className={`text-sm text-gray-500 ${darkMode ? "text-white" : "text-black"
                 }`}
             >
-              {specificUser?.postCount} posts
+              {specificUser?.postCount} Profile
             </p>
           </div>
         </div>

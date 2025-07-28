@@ -379,10 +379,12 @@ async function getUserFollowersData(userid, targetId) {
   // Get all the data in parallel
   const [followingUsers, followerCount, followingCount] = await Promise.all([
     // People the user is following
-    prisma.follow.findMany({
-      where: { followerId: userid },
-      select: { followingId: true },
-    }),
+    userid !== null
+      ? prisma.follow.findMany({
+          where: { followerId: userid },
+          select: { followingId: true },
+        })
+      : Promise.resolve([]),
     // Count of people who follow this user
     targetId !== null
       ? prisma.follow.count({

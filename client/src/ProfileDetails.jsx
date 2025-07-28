@@ -28,25 +28,27 @@ export default function OdinBook() {
   // Fetch user and specific user details
   useEffect(() => {
     async function fetchUserDetails() {
-      if (!token || !handle) {
+      if (/* !token ||  */!handle) {
         setIsLoadingUser(false);
         return;
       }
       setIsLoadingUser(true);
       try {
         // Fetch authenticated user
+        let userData
+        if (user) {
         const userRes = await fetch(`${HOST}/api/v1/me`, {
           headers: { authorization: `Bearer ${token}` },
         });
-        const userData = await userRes.json();
+        userData = await userRes.json();
         if (!userRes.ok) throw new Error("Failed to fetch user");
-
+        }
         // Fetch specific user by handle
         const specificUserRes = await fetch(`${HOST}/api/v1/userHandle/${handle}`);
         const specificUserData = await specificUserRes.json();
         if (!specificUserRes.ok) throw new Error("Failed to fetch specific user");
 
-        setUser(userData.user);
+        setUser(userData?.user || null);
         setSpecificUser(specificUserData.user);
 
         // Fetch followers only if both user and specificUser are available
@@ -56,6 +58,7 @@ export default function OdinBook() {
           body: JSON.stringify({ userData: userData, specificUserData: specificUserData}),
         });
         const followersData = await followersRes.json();
+        console.log("followersData", followersData)
         if (!followersRes.ok) throw new Error("Failed to fetch followers");
         setFollowers(followersData);
       } catch (err) {
@@ -115,9 +118,9 @@ export default function OdinBook() {
           />
         )}
         <div className="flex-1 flex mr-auto ml-auto">
-          {isLoading || isLoadingUser ? (
+          {/* {isLoading || isLoadingUser ? (
             <div className="spinner spinner-container"></div>
-          ) : (
+          ) : ( */}
             <Profile
               isLoading={isLoading}
               HOST={HOST}
@@ -128,7 +131,7 @@ export default function OdinBook() {
               followersData={followers}
               refetchFollowers={fetchUserAndFollowers}
             />
-          )}
+          {/* )} */}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
       </div>
