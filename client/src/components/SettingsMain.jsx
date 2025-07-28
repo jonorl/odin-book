@@ -102,12 +102,12 @@ const Settings = ({ HOST, darkMode, user }) => {
         } bg-opacity-50 backdrop-blur-sm`}>
         <div className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
           } text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border `}>
-          <h2 className="text-xl font-semibold mb-4">Delete Post</h2>
-          <p className="text-gray-300 mb-6">Are you sure you want to delete your user? This action cannot be undone.</p>
+          <h2 className="text-xl font-semibold mb-4">Delete User</h2>
+          <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-6`}>Are you sure you want to delete your user? This action cannot be undone.</p>
           <div className="flex justify-end gap-4">
             <button
               onClick={(e) => { e.stopPropagation(); onClose() }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-full"
+              className={`px-4 py-2 ${darkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-black"} transition-colors rounded-full`}
             >
               Cancel
             </button>
@@ -351,6 +351,7 @@ const Settings = ({ HOST, darkMode, user }) => {
                 Delete user
               </button>
               <ConfirmDeleteModal
+                darkMode={darkMode}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={handleConfirmDelete}

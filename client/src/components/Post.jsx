@@ -15,14 +15,16 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-        <div className="bg-[#192734] text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-gray-700">
+      <div className={`fixed inset-0 z-50 flex items-center justify-center ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+        } bg-opacity-50 backdrop-blur-sm`}>
+        <div className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+          } text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border `}>
           <h2 className="text-xl font-semibold mb-4">Delete Post</h2>
-          <p className="text-gray-300 mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
+          <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-6`}>Are you sure you want to delete this post? This action cannot be undone.</p>
           <div className="flex justify-end gap-4">
             <button
               onClick={(e) => { e.stopPropagation(); onClose() }}
-              className="px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-full"
+              className={`px-4 py-2 ${darkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-black"} transition-colors rounded-full`}
             >
               Cancel
             </button>
@@ -180,6 +182,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
                 e.stopPropagation(); handleDeleteClick(e)
               }} />
               <ConfirmDeleteModal
+                darkMode={darkMode}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={handleConfirmDelete}
