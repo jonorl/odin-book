@@ -8,7 +8,38 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
   const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
   const [likes, setLikes] = useState(post && post.likes);
   const [retweets, setRetweets] = useState(post && post.retweets);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, postId }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div className="bg-[#192734] text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-gray-700">
+          <h2 className="text-xl font-semibold mb-4">Delete Post</h2>
+          <p className="text-gray-300 mb-6">Are you sure you want to delete this post? This action cannot be undone.</p>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={(e) => { e.stopPropagation(); onClose() }}
+              className="px-4 py-2 text-gray-400 hover:text-white transition-colors rounded-full"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Explicitly stop propagation
+                onConfirm(postId);
+              }}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const isFollowing = (targetUserId) => {
     return followingUsers?.some(follower =>
@@ -29,6 +60,17 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
     } catch (err) {
       console.error("Failed to post new message:", err);
     }
+  };
+
+
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmDelete = async (postId) => {
+    await deletePost(postId);
+    setIsModalOpen(false);
   };
 
   async function deletePost(postId) {
@@ -103,9 +145,6 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
       className={`border-b cursor-pointer transition-colors ${darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
         } relative p-4 flex space-x-3`}
     >
-      {console.log("postData", postData)}
-      {console.log("followingUsers", followingUsers)}
-      {console.log("active tab", activeTab)}
       {/* The for you implementation needs to take postData.user.id and compare it against each value in the followingUsers array */}
       <img
         onClick={(e) => {
@@ -135,7 +174,18 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           <span id="hola" onClick={(e) => e.stopPropagation()} className="text-gray-500">
             {postData && postData.timestamp}
           </span>
-          {postData?.user?.id === user?.id && <Trash2 size={18} className="text-red-500" onClick={(e) => { e.stopPropagation(); deletePost(postData.id) }} />}{console.log("Fijate aca", postData.id)}
+          {postData?.user?.id === user?.id &&
+            <div>
+              <Trash2 size={18} className="text-red-500" onClick={(e) => {
+                e.stopPropagation(); handleDeleteClick(e)
+              }} />
+              <ConfirmDeleteModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                postId={postData.id}
+              />
+            </div>}
           {user && postData.user && postData.user.id !== user.id && (
             <button id="ComoTas?"
               className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
@@ -145,6 +195,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
                 handleFollow(user.id, postData.user.id);
               }}
             >
+
               {isFollowing(postData.user.id) ? "Following" : "Follow"}
             </button>
           )}
