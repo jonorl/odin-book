@@ -112,14 +112,12 @@ export default function OdinBook() {
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? "bg-black" : "bg-white"}`}>
       <div className="flex max-w-7xl mr-auto ml-auto">
-        {user && (
           <Sidebar
             className="flex ml-64"
             darkMode={darkMode}
             user={user}
             toggleDarkMode={toggleDarkMode}
           />
-        )}
         <div className="flex-1 flex mr-auto ml-auto">
           {/* {isLoading || isLoadingUser ? (
             <div className="spinner spinner-container"></div>

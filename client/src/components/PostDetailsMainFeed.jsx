@@ -93,20 +93,25 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, 
 
   return (
     <div
-      className={`flex-1 border  ${darkMode ? "border-gray-800" : "border-gray-200"
+      className={`flex-1 border ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
         }`}
     >
-      <div id="backButton" className="flex flex-col bg-black text-white">
-        <div className="flex items-center p-4 border-b border-gray-800">
+      <div id="backButton" className={`flex flex-col ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+        }`}>
+        <div className={`flex items-center p-4 border-b ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+          }`}>
           <button
             onClick={() => history.back()}
-            className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2"
+            className={`cursor-pointer ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+              } rounded-full p-2`}
           >
             <ArrowLeft
               size={32}
-              className="cursor-pointer hover:bg-gray-900 rounded-full p-1"
+              className={`cursor-pointer ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+                } rounded-full p-1`}
             />
-          </button><div className="justify-start text-xl font-bold text-white">Thread</div>
+          </button><div className={`justify-start text-xl font-bold ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+            }`}>Thread</div>
 
         </div>
 
@@ -120,7 +125,8 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, 
           <div className="spinner spinner-container"></div>
         ) : (
           <div
-            id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors border-gray-800 hover:bg-gray-950  `}
+            id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+              } `}
             onClick={() => {
               console.log("jodeme que era aca")
               navigate(`/${post.user.id}/${post.id}`);

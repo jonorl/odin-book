@@ -185,7 +185,7 @@ const Profile = ({
           </div>
         </div>
         {/* Navigation Tabs */}
-        <div className="border-b border-gray-800">
+        <div className={`border-b ${darkMode ? "border-gray-800" : "border-gray-200"} `}>
           <div className="flex">
             {/* Posts Button */}
             <button

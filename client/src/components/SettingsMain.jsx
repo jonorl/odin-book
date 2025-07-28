@@ -94,12 +94,14 @@ const Settings = ({ HOST, darkMode, user }) => {
     }
   };
 
-  const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, postId }) => {
+  const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, postId, darkMode }) => {
     if (!isOpen) return null;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-        <div className="bg-[#192734] text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border border-gray-700">
+      <div className={`fixed inset-0 z-50 flex items-center justify-center ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+        } bg-opacity-50 backdrop-blur-sm`}>
+        <div className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+          } text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border `}>
           <h2 className="text-xl font-semibold mb-4">Delete Post</h2>
           <p className="text-gray-300 mb-6">Are you sure you want to delete your user? This action cannot be undone.</p>
           <div className="flex justify-end gap-4">
@@ -150,22 +152,27 @@ const Settings = ({ HOST, darkMode, user }) => {
 
   return (
     <div
-      className={`flex-1 border ${darkMode ? "border-gray-800" : "border-gray-200"
+      className={`flex-1 border ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
         }`}
     >
       {/* Header */}
-      <div className="flex flex-col bg-black text-white">
-        <div className="flex items-center p-4 border-b border-gray-800">
+      <div className={`flex flex-col ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+        }`}>
+        <div className={`flex items-center p-4 border-b ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+          }`}>
           <button
             onClick={() => history.back()}
-            className="cursor-pointer text-white hover:bg-gray-800 rounded-full p-2"
+            className={`cursor-pointer ${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+              } rounded-full p-2`}
           >
             <ArrowLeft
               size={32}
-              className="cursor-pointer hover:bg-gray-900 rounded-full p-1"
+              className={`cursor-pointer ${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                } rounded-full p-1`}
             />
           </button>
-          <div className="justify-start text-xl font-bold text-white ml-4">
+          <div className={`justify-start text-xl font-bold ${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+            } ml-4`}>
             Settings
           </div>
         </div>
@@ -175,7 +182,8 @@ const Settings = ({ HOST, darkMode, user }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Profile Picture */}
             <div className="flex flex-col space-y-2">
-              <label className="text-white font-medium">Profile Picture</label>
+              <label className={`${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                } font-medium`}>Profile Picture</label>
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <img
@@ -185,9 +193,11 @@ const Settings = ({ HOST, darkMode, user }) => {
                   />
                   <label
                     htmlFor="profilePic"
-                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity"
+                    className={`absolute inset-0 flex items-center justify-center ${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                      } bg-opacity-50 rounded-full cursor-pointer opacity-0 hover:opacity-100 transition-opacity`}
                   >
-                    <Camera size={24} className="text-white" />
+                    <Camera size={24} className={`${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                      }`} />
                   </label>
                   <input
                     id="profilePic"
@@ -197,7 +207,8 @@ const Settings = ({ HOST, darkMode, user }) => {
                     className="hidden"
                   />
                 </div>
-                <div className="text-gray-400 text-sm">
+                <div className={`${darkMode ? "bg-black text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                  } text-sm`}>
                   Click on the image to change your profile picture
                 </div>
               </div>
@@ -205,7 +216,8 @@ const Settings = ({ HOST, darkMode, user }) => {
 
             {/* Name */}
             <div className="flex flex-col space-y-2">
-              <label htmlFor="name" className="text-white font-medium">
+              <label htmlFor="name" className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+                } font-medium`}>
                 Name
               </label>
               <input
@@ -214,14 +226,16 @@ const Settings = ({ HOST, darkMode, user }) => {
                 type="text"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`rounded-md px-3 py-2 ${darkMode ? "bg-gray-900 text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                  } border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                 placeholder="Enter your name"
               />
             </div>
 
             {/* Surname */}
             <div className="flex flex-col space-y-2">
-              <label htmlFor="surname" className="text-white font-medium">
+              <label htmlFor="surname" className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+                } font-medium`}>
                 Surname
               </label>
               <input
@@ -230,14 +244,15 @@ const Settings = ({ HOST, darkMode, user }) => {
                 type="text"
                 value={formData.surname}
                 onChange={handleInputChange}
-                className="bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className={`rounded-md px-3 py-2 ${darkMode ? "bg-gray-900 text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                  } border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                 placeholder="Enter your surname"
               />
             </div>
 
             {/* Handle */}
             <div className="flex flex-col space-y-2">
-              <label htmlFor="handle" className="text-white font-medium">
+              <label htmlFor="handle" className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"}`}>
                 Handle
               </label>
               <div className="relative">
@@ -248,7 +263,7 @@ const Settings = ({ HOST, darkMode, user }) => {
                   type="text"
                   value={formData.handle}
                   onChange={handleInputChange}
-                  className="bg-gray-900 border border-gray-700 rounded-md pl-8 pr-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+                  className={`${darkMode ? "bg-gray-900 text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"} border rounded-md pl-8 pr-3 py-2  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full`}
                   placeholder="username"
                 />
               </div>
@@ -256,7 +271,8 @@ const Settings = ({ HOST, darkMode, user }) => {
 
             {/* Email */}
             <div className={`flex flex-col space-y-2`}>
-              <label htmlFor="email" className="text-white font-medium">
+              <label htmlFor="email" className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+                } font-medium`}>
                 Email
               </label>
               <input
@@ -267,15 +283,15 @@ const Settings = ({ HOST, darkMode, user }) => {
                 value={formData.email}
                 title={`${isDisabled && "This field cannot be modified because it's linked to your GitHub/Google account."}`}
                 onChange={handleInputChange}
-                className={`bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter your email ${isDisabled ? 'cursor-not-allowed' : ''}
-          ${isDisabled ? 'pointer-events-auto' : ''}`}
+                className={`rounded-md px-3 py-2 ${darkMode ? "bg-gray-900 text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                  } border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isDisabled ? 'pointer-events-auto cursor-not-allowed' : ''}`}
+                placeholder={`Enter your email `}
               />
             </div>
 
             {/* Password */}
             <div className="flex flex-col space-y-2">
-              <label htmlFor="password" className="text-white font-medium">
+              <label htmlFor="password" className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"}`}>
                 Password
               </label>
               <div className="relative">
@@ -287,7 +303,8 @@ const Settings = ({ HOST, darkMode, user }) => {
                   disabled={isDisabled}
                   title={`${isDisabled && "This field cannot be modified because it's linked to your GitHub/Google account."}`}
                   onChange={handleInputChange}
-                  className={`bg-gray-900 border border-gray-700 rounded-md px-3 py-2 pr-10 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full ${isDisabled ? 'cursor-not-allowed' : ''}
+                  className={` w-full rounded-md px-3 py-2 ${darkMode ? "bg-gray-900 text-white border-gray-800 hover:bg-gray-800" : "bg-white text-black border-gray-200 hover:bg-gray-200"
+                    } border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${isDisabled ? 'cursor-not-allowed' : ''}
                   ${isDisabled ? 'pointer-events-auto' : ''}`}
                   placeholder="Enter new password (leave blank to keep current)"
                 />
