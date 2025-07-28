@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useData } from './DataContext';
+
 import Sidebar from "./components/Sidebar";
 import RightSidebar from "./components/RightSidebar";
 import Profile from "./components/Profile";
@@ -7,7 +9,8 @@ import Profile from "./components/Profile";
 const HOST = import.meta.env.VITE_LOCALHOST;
 
 export default function OdinBook() {
-  const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleDarkMode } = useData();
+  // const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [formattedPosts, setFormattedPosts] = useState([]);
@@ -21,9 +24,9 @@ export default function OdinBook() {
   const { handle } = useParams();
   const token = localStorage.getItem("token");
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  // const toggleDarkMode = () => {
+  //   setDarkMode(!darkMode);
+  // };
 
   // Fetch user and specific user details
   useEffect(() => {

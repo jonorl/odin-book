@@ -3,10 +3,13 @@ import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import MainFeed from "./components/MainFeed"
 
+import { useData } from './DataContext';
+
 const HOST = import.meta.env.VITE_LOCALHOST
 
 export default function OdinBook() {
-  const [darkMode, setDarkMode] = useState(true);
+  // const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleDarkMode } = useData();
   const [user, setUser] = useState(null);
   const [followers, setFollowers] = useState({
     followingUsers: [],
@@ -16,9 +19,9 @@ export default function OdinBook() {
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [followersPosts, setFollowersPosts] = useState([])
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  // const toggleDarkMode = () => {
+  //   setDarkMode(!darkMode);
+  // };
 
   const fetchUserAndData = async () => {
     try {

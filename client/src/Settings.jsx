@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useData } from './DataContext';
+
 import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import SettingsMain from './components/SettingsMain';
@@ -6,16 +8,17 @@ import SettingsMain from './components/SettingsMain';
 const HOST = import.meta.env.VITE_LOCALHOST
 
 export default function OdinBook() {
-  const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleDarkMode } = useData();
+  // const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState(null)
   const [isLoadingUser, setIsLoadingUser] = useState(true)
   const [isLoading, setIsLoading] = useState(true);
 
   const token = localStorage.getItem("token");
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  // const toggleDarkMode = () => {
+  //   setDarkMode(!darkMode);
+  // };
 
   // Fetch user data
   useEffect(() => {
