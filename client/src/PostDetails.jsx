@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams } from "react-router-dom";
 import { useTheme } from './hooks/useTheme';
 import { useUser } from './hooks/UseUser'
@@ -10,19 +10,13 @@ import PostDetailsMainFeed from './components/PostDetailsMainFeed';
 export default function OdinBook() {
 
   const { darkMode, toggleDarkMode } = useTheme();
-  const { HOST, formattedPosts, user, followers, postDetails, postUserDetails, fetchUserAndData, fetchPostAndUserDetails } = useUser();
-  const [isLoading, setIsLoading] = useState(false);
+  const { HOST, formattedPosts, user, followers, postDetails, postUserDetails, fetchUserAndData, fetchPostDetails, fetchUserProfileDetails } = useUser();
   const { postId, userId } = useParams();
 
   useEffect(() => {
-    if (postId && userId) {
-      fetchPostAndUserDetails(postId, userId);
-    }
-  }, [postId, userId, fetchPostAndUserDetails]);
-
-  if (!postDetails || !postUserDetails) {
-    return <div className="spinner spinner-container"></div>;
-  }
+      fetchPostDetails(postId);
+      fetchUserProfileDetails(userId)
+  }, [postId, userId, fetchPostDetails, fetchUserProfileDetails]);
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
@@ -30,7 +24,7 @@ export default function OdinBook() {
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
           {
-            postDetails && postUserDetails && <PostDetailsMainFeed postUser={postUserDetails} post={postDetails} isLoading={isLoading} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} followersData={followers} refetchFollowers={fetchUserAndData} />}
+            postDetails && postUserDetails && <PostDetailsMainFeed postUser={postUserDetails} post={postDetails} isLoading={false} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} followersData={followers} refetchFollowers={fetchUserAndData} />}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
       </div>

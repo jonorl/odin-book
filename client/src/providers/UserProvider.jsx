@@ -15,30 +15,24 @@ export const UserProvider = ({ children }) => {
     followingCount: 0,
   });
   const [followersPosts, setFollowersPosts] = useState([])
-  const [postId, setPostId] = useState(null);
-  const [userId, setUserId] = useState(null);
   const [postDetails, setPostDetails] = useState(null);
   const [postUserDetails, setPostUserDetails] = useState(null);
 
   // Fetch post details from postDetails API
-  useEffect(() => {
-    async function fetchPostDetails() {
-      if (!postId) return;
-      try {
-        const response = await fetch(`${HOST}/api/v1/postDetails/${postId}`);
-        const data = await response.json();
-        setPostDetails(data.postFeed[0]);
-      } catch (err) {
-        console.error("Error fetching post details", err);
-        setPostDetails(null);
-      }
+
+  async function fetchPostDetails(newPostId) {
+    try {
+      const response = await fetch(`${HOST}/api/v1/postDetails/${newPostId}`);
+      const data = await response.json();
+      setPostDetails(data.postFeed[0]);
+    } catch (err) {
+      console.error("Error fetching post details", err);
+      setPostDetails(null);
     }
-    fetchPostDetails();
-  }, [postId]);
+  }
 
   // Get user details from posting user
-  useEffect(() => {
-    async function fetchUserDetails() {
+    async function fetchUserProfileDetails(userId) {
       if (!userId) return;
       try {
         const response = await fetch(`${HOST}/api/v1/userDetails/${userId}`);
@@ -49,14 +43,6 @@ export const UserProvider = ({ children }) => {
         setPostUserDetails(null);
       }
     }
-    fetchUserDetails();
-  }, [userId]);
-
-  // Function to trigger fetching post and user details for PostDetails
-  const fetchPostAndUserDetails = (newPostId, newUserId) => {
-    setPostId(newPostId);
-    setUserId(newUserId);
-  };
 
   // get last 20 posts, logged in user data and logged-in user follower data and last 20
   // posts from posters that the user follow.
@@ -173,7 +159,6 @@ export const UserProvider = ({ children }) => {
         body: JSON.stringify({ userData: userData, specificUserData: specificUserData }),
       });
       const followersData = await followersRes.json();
-      console.log("followersData", followersData)
       if (!followersRes.ok) throw new Error("Failed to fetch followers");
       setFollowers(followersData);
     } catch (err) {
@@ -181,7 +166,7 @@ export const UserProvider = ({ children }) => {
     }
   }
 
-  // Fetch formatted posts for specific user
+  // Fetch formatted posts for specific user to be used in ProfileDetails
   useEffect(() => {
     async function fetchFormattedPosts() {
       if (!specificUser?.id) return;
@@ -201,7 +186,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => { fetchUserAndData() }, [])
 
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, fetchUserAndData, fetchPostAndUserDetails, fetchUserAndFollowers, fetchUserDetails }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails}}>
       {children}
     </UserContext.Provider>
   );
