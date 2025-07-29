@@ -135,9 +135,6 @@ mainRouter.get("/api/v1/me", authenticateToken, async (req, res) => {
 mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
-    // const postsIdArray = post.map((obj) => obj.id);
-    // const postsComments = await queries.getPostsComments(post.id);
-    // const postsUserArray = post.map((obj) => obj.authorId);
     const postsUsers = await queries.getPostUsers(post.authorId);
     const favourites = await queries.countAllLikes(post.id);
     const commentCount = await queries.countAllComments(post.id);

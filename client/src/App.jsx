@@ -1,95 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useTheme } from './hooks/useTheme';
+import { useUser } from './hooks/UseUser'
 import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import MainFeed from "./components/MainFeed"
 
-import { useTheme } from './hooks/useTheme';
-
-const HOST = import.meta.env.VITE_LOCALHOST
-
 export default function OdinBook() {
-  // const [darkMode, setDarkMode] = useState(true);
   const { darkMode, toggleDarkMode } = useTheme();
-  const [user, setUser] = useState(null);
-  const [followers, setFollowers] = useState({
-    followingUsers: [],
-    followerCount: 0,
-    followingCount: 0,
-  });
-  const [formattedPosts, setFormattedPosts] = useState([]);
-  const [followersPosts, setFollowersPosts] = useState([])
-
-  // const toggleDarkMode = () => {
-  //   setDarkMode(!darkMode);
-  // };
-
-  const fetchUserAndData = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      // Always fetch posts regardless of authentication status
-      const postsRes = await fetch(`${HOST}/api/v1/getPosts/`);
-      const postsData = await postsRes.json();
-      setFormattedPosts(postsData.postFeed || []);
-
-      // Only fetch user-specific data if token exists
-      if (token) {
-        try {
-          // Fetch user data and followers
-          const userRes = await fetch(`${HOST}/api/v1/me`, {
-            headers: { authorization: `Bearer ${token}` },
-          });
-
-          if (userRes.ok) {
-            const userData = await userRes.json();
-            setUser(userData.user);
-
-            // Fetch followers using userData
-            const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userData }),
-            });
-
-            if (followersRes.ok) {
-              const followersData = await followersRes.json();
-              setFollowers(followersData);
-
-              const followersPosts = await fetch(`${HOST}/api/v1/followingposts/`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ followersData }),
-              })
-              if (followersPosts.ok) {
-                const followersPostData = await followersPosts.json();
-                setFollowersPosts(followersPostData.postFeed)
-              }
-            }
-          } else {
-            // Token might be invalid, clear it
-            localStorage.removeItem("token");
-            setUser(null);
-            setFollowers([]);
-          }
-        } catch (userErr) {
-          console.error("Error fetching user data:", userErr);
-          // Don't clear posts on user data error, just clear user state
-          setUser(null);
-          setFollowers([]);
-        }
-      } else {
-        // No token, ensure user state is cleared
-        setUser(null);
-        setFollowers([]);
-      }
-
-    } catch (err) {
-      console.error("Error fetching posts:", err);
-      // Even if posts fail, try to maintain user state if possible
-    }
-  };
-
-  useEffect(() => { fetchUserAndData() }, [])
+  const { HOST, formattedPosts, user, followers, followersPosts, fetchUserAndData } = useUser();
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
@@ -103,7 +20,7 @@ export default function OdinBook() {
             formattedPosts={formattedPosts}
             followersData={followers}
             followersPosts={followersPosts}
-            refetchFollowers={fetchUserAndData} // Pass refetch function
+            refetchFollowers={fetchUserAndData}
           />
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
