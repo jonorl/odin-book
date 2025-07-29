@@ -3,13 +3,13 @@ import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import MainFeed from "./components/MainFeed"
 
-import { useData } from './DataContext';
+import { useTheme } from './hooks/useTheme';
 
 const HOST = import.meta.env.VITE_LOCALHOST
 
 export default function OdinBook() {
   // const [darkMode, setDarkMode] = useState(true);
-  const { darkMode, toggleDarkMode } = useData();
+  const { darkMode, toggleDarkMode } = useTheme();
   const [user, setUser] = useState(null);
   const [followers, setFollowers] = useState({
     followingUsers: [],

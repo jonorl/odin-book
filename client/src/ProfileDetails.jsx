@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useData } from './DataContext';
+import { useTheme } from './hooks/useTheme';
 
 import Sidebar from "./components/Sidebar";
 import RightSidebar from "./components/RightSidebar";
@@ -9,7 +9,7 @@ import Profile from "./components/Profile";
 const HOST = import.meta.env.VITE_LOCALHOST;
 
 export default function OdinBook() {
-  const { darkMode, toggleDarkMode } = useData();
+  const { darkMode, toggleDarkMode } = useTheme();
   // const [darkMode, setDarkMode] = useState(true);
   const [user, setUser] = useState(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
