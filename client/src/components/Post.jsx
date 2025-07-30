@@ -1,128 +1,28 @@
-// Post.jsx
 import { useState } from "react";
+import { useTheme } from '../hooks/useTheme';
+import { usePost } from '../hooks/usePosts'
+import { useUser } from '../hooks/UseUser'
+import ConfirmationModal from './ConfirmationModal';
 import { Heart, MessageCircle, Repeat2, Share, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, updateFollowingStatus, refetchFollowers, activeTab }) => {
-  const [liked, setLiked] = useState((post && post.liked) || false);
-  const [retweeted, setRetweeted] = useState((post && post.retweeted) || false);
-  const [likes, setLikes] = useState(post && post.likes);
-  const [retweets, setRetweets] = useState(post && post.retweets);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const Post = ({ post, followingUsers, updateFollowingStatus }) => {
+  const [likes, setLikes] = useState(post?.likes);
+  const [liked, setLiked] = useState(post?.likes !== 0 ? true : false);
+
+  const [retweeted, setRetweeted] = useState((post?.retweeted) || false);
+  const [retweets, setRetweets] = useState(post?.retweets);
   const navigate = useNavigate();
 
-  const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, postId }) => {
-    if (!isOpen) return null;
+  const { darkMode } = useTheme();
+  const { user, specificUser, fetchUserAndData, followUser } = useUser();
+  const { isModalOpen, setIsModalOpen, handleConfirmDelete, postLike } = usePost();
 
-    return (
-      <div className={`fixed inset-0 z-50 flex items-center justify-center ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
-        } bg-opacity-50 backdrop-blur-sm`}>
-        <div className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
-          } text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border `}>
-          <h2 className="text-xl font-semibold mb-4">Delete Post</h2>
-          <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-6`}>Are you sure you want to delete this post? This action cannot be undone.</p>
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={(e) => { e.stopPropagation(); onClose() }}
-              className={`px-4 py-2 ${darkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-black"} transition-colors rounded-full`}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Explicitly stop propagation
-                onConfirm(postId);
-              }}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   const isFollowing = (targetUserId) => {
     return followingUsers?.some(follower =>
       follower.followingId === targetUserId || follower.id === targetUserId
     );
-  };
-
-  const postLike = async () => {
-    const id = post.id;
-    try {
-      const res = await fetch(`${HOST}/api/v1/newLike/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, user }),
-      });
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("Failed to post new message:", err);
-    }
-  };
-
-
-  const handleDeleteClick = (e) => {
-    e.stopPropagation();
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmDelete = async (postId) => {
-    await deletePost(postId);
-    setIsModalOpen(false);
-  };
-
-  async function deletePost(postId) {
-    try {
-      const res = await fetch(`${HOST}/api/v1/deletepost/${postId}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      window.location.reload()
-      return data;
-    } catch (err) {
-      console.error("Failed to post new message:", err);
-    }
-  };
-
-  const followUser = async (userId, targetUserId) => {
-    try {
-      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, targetUserId }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Failed to update follow status:", errorData.message || res.statusText);
-        throw new Error(errorData.message || "Failed to update follow status");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("Failed to follow user", err);
-      throw err;
-    }
-  };
-
-  const postDetailsRedirect = (userId, postId) => {
-    navigate(`/${userId}/${postId}`);
-  };
-
-  const handleLike = () => {
-    setLiked(!liked);
-    setLikes(liked ? likes - 1 : likes + 1);
-    postLike();
-  };
-
-  const handleRetweet = () => {
-    setRetweeted(!retweeted);
-    setRetweets(retweeted ? retweets - 1 : retweets + 1);
   };
 
   const handleFollow = async (userId, targetUserId) => {
@@ -131,18 +31,29 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
 
     try {
       await followUser(userId, targetUserId);
-      await refetchFollowers(); // Refetch followers to sync with server
+      await fetchUserAndData(); // Refetch followers to sync with server
     } catch (error) {
       updateFollowingStatus(targetUserId, wasFollowing); // Revert on error
       console.error("Failed to update follow status, reverting changes", error);
     }
   };
 
+  const handleLike = (post, user) => {
+    setLikes(liked ? likes - 1 : likes + 1);
+    setLiked(!liked);
+    postLike(post, user);
+  };
+
+  const handleRetweet = () => {
+    setRetweeted(!retweeted);
+    setRetweets(retweeted ? retweets - 1 : retweets + 1);
+  };
+
   const renderPostContent = (postData) => (
 
     // Rendering of posts
     <div
-      onClick={() => postDetailsRedirect(postData.user.id, postData.id)}
+      onClick={() => navigate(`/${postData.user.id}/${postData.id}`)}
       id="replies"
       className={`border-b cursor-pointer transition-colors ${darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
         } relative p-4 flex space-x-3`}
@@ -179,9 +90,9 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           {postData?.user?.id === user?.id &&
             <div>
               <Trash2 size={18} className="text-red-500" onClick={(e) => {
-                e.stopPropagation(); handleDeleteClick(e)
+                e.stopPropagation(); setIsModalOpen(true)
               }} />
-              <ConfirmDeleteModal
+              <ConfirmationModal
                 darkMode={darkMode}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -239,28 +150,35 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
           >
             <Repeat2 size={18} />
             <span className="text-sm">{retweets}</span>
-          </button>
+          </button>{console.log("liked", post)}
           <button
-            onClick={handleLike}
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
-              ? darkMode
-                ? "text-red-400"
-                : "text-red-500"
-              : darkMode
-                ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
-                : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+            onClick={() => handleLike(postData, user)}
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
+              liked 
+                ? darkMode
+                  ? "text-red-400"
+                  : "text-red-500"
+                : darkMode
+                  ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                  : "text-gray-500 hover:text-red-500 hover:bg-red-50"
               }`}
           >
             <Heart
               size={18}
               fill={
-                specificUser &&
-                  post &&
-                  post.likedBy &&
-                  post.likedBy.userIds &&
-                  post.likedBy.userIds.includes(specificUser.id)
-                  ? "currentColor"
-                  : "none"
+                user && post?.likedBy?.userIds?.includes(user?.id)
+                  ? (darkMode ? "rgb(248 113 113)" : "rgb(239 68 68)") 
+                  : "none" 
+              }
+              stroke={
+                user && post?.likedBy?.userIds?.includes(user?.id)
+                  ? "none" 
+                  : (darkMode ? "rgb(156 163 175)" : "rgb(107 114 128)") 
+              }
+              strokeWidth={
+                user && post?.likedBy?.userIds?.includes(user?.id)
+                  ? 0 // No stroke width when liked
+                  : 2 // Default stroke width for the border when not liked (adjust as needed)
               }
             />
             <span className="text-sm">{likes}</span>
@@ -287,7 +205,7 @@ const Post = ({ user, specificUser, post, darkMode, HOST, followingUsers, update
             id="originalPost"
             onClick={(e) => {
               e.stopPropagation();
-              postDetailsRedirect(post.originalPost.user.id, post.originalPost.id);
+              navigate(`/${post.originalPost.user.id}/${post.originalPost.id}`);
             }}
             className={`p-4 cursor-pointer transition-colors ${darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
               } relative mb-4`}

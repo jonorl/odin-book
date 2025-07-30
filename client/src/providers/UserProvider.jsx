@@ -14,6 +14,7 @@ export const UserProvider = ({ children }) => {
   const [followersPosts, setFollowersPosts] = useState([]);
   const [postDetails, setPostDetails] = useState(null);
   const [postUserDetails, setPostUserDetails] = useState(null);
+  const [followingUsers, setFollowingUsers] = useState(followers?.followingUsers || []);
 
   // Memoize TOKEN to prevent re-evaluation on every render
   const TOKEN = useMemo(() => localStorage.getItem("token"), []);
@@ -138,6 +139,41 @@ export const UserProvider = ({ children }) => {
     }
   }, [HOST, user, postUserDetails]);
 
+
+  const updateFollowingStatus = useCallback(async (targetUserId, isFollowing) => {
+    if (isFollowing) {
+      setFollowingUsers(prev => [...prev, { followingId: targetUserId }]);
+    } else {
+      setFollowingUsers(prev =>
+        prev.filter(follower =>
+          follower.followingId !== targetUserId && follower.id !== targetUserId
+        )
+      );
+    }
+  }, []);
+
+    const followUser = async (userId, targetUserId) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, targetUserId }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Failed to update follow status:", errorData.message || res.statusText);
+        throw new Error(errorData.message || "Failed to update follow status");
+      }
+
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to follow user", err);
+      throw err;
+    }
+  };
+
   //ProfileDetails
   const fetchUserDetails = useCallback(async (handle) => {
     if (!handle) {
@@ -197,8 +233,13 @@ export const UserProvider = ({ children }) => {
     fetchUserAndData();
   }, [fetchUserAndData]);
 
+  // Sync followingUsers with followersData when it changes
+  useEffect(() => {
+    setFollowingUsers(followers?.followingUsers || []);
+  }, [followers]);
+
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -1,29 +1,13 @@
-// MainFeed.jsx
-import { useState, useEffect } from 'react';
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
 import PostComposer from './PostComposer';
 import Post from './Post';
 
-const MainFeed = ({ darkMode, formattedPosts, followersPosts, HOST, user, followersData, refetchFollowers }) => {
-  const [activeTab, setActiveTab] = useState("For you");
-  const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
-
-  // Sync followingUsers with followersData when it changes
-  useEffect(() => {
-    setFollowingUsers(followersData?.followingUsers || []);
-  }, [followersData]);
-
-  const updateFollowingStatus = (targetUserId, isFollowing) => {
-    if (isFollowing) {
-      setFollowingUsers(prev => [...prev, { followingId: targetUserId }]);
-    } else {
-      setFollowingUsers(prev =>
-        prev.filter(follower =>
-          follower.followingId !== targetUserId && follower.id !== targetUserId
-        )
-      );
-    }
-  };
-
+const MainFeed = () => {
+  
+  const { darkMode, activeTab, setActiveTab } = useTheme();
+  const { HOST, followersPosts, user, formattedPosts, followingUsers, updateFollowingStatus } = useUser();
+  
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (
@@ -63,16 +47,10 @@ const MainFeed = ({ darkMode, formattedPosts, followersPosts, HOST, user, follow
           <div>
             {postsToDisplay.map(post => (
               <Post
-                user={user}
-                specificUser={user}
-                HOST={HOST}
                 key={post.id}
                 post={post}
-                darkMode={darkMode}
                 followingUsers={followingUsers}
                 updateFollowingStatus={updateFollowingStatus}
-                refetchFollowers={refetchFollowers} // Pass refetch function
-                activeTab={activeTab}
               />
             ))}
           </div>
