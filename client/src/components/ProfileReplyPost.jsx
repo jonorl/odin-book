@@ -1,41 +1,13 @@
-import { useState, useEffect } from "react";
 import { useTheme } from '../hooks/useTheme';
-import { usePost } from '../hooks/usePosts'
 import { useUser } from '../hooks/UseUser'
 import Post from './Post'
-import ConfirmationModal from './ConfirmationModal';
-import { Heart, MessageCircle, Repeat2, Share, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const ProfileReplyPost = ({ post }) => {
-  const [likes, setLikes] = useState(post?.likes);
-  const [retweeted, setRetweeted] = useState((post?.retweeted) || false);
-  const [retweets, setRetweets] = useState(post?.retweets);
   const navigate = useNavigate();
 
   const { darkMode } = useTheme();
   const { user, specificUser, handleFollow, isFollowing } = useUser();
-  const { isModalOpen, setIsModalOpen, handleConfirmDelete, postLike } = usePost();
-  const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
-
-  // Trigger re-render when user and post are fully loaded to fetch liked posts.
-  useEffect(() => {
-    setLiked(user && post?.likedBy?.userIds?.includes(user?.id));
-  }, [user, post?.likedBy?.userIds]);
-
-  // Checks if post is liked, add/removes counter and does the list POST fetching
-  const handleLike = (post, user) => {
-    setLikes(liked ? likes - 1 : likes + 1);
-    setLiked(!liked);
-    console.log("post", post, "user", user)
-    postLike(post, user);
-  };
-
-  // WIP Retweeting
-  const handleRetweet = () => {
-    setRetweeted(!retweeted);
-    setRetweets(retweeted ? retweets - 1 : retweets + 1);
-  };
 
   if (post?.originalPost) {
     return (
