@@ -6,14 +6,14 @@ import ConfirmationModal from './ConfirmationModal';
 import { Heart, MessageCircle, Repeat2, Share, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const Post = ({ post, followingUsers, updateFollowingStatus }) => {
+const Post = ({ post }) => {
   const [likes, setLikes] = useState(post?.likes);
   const [retweeted, setRetweeted] = useState((post?.retweeted) || false);
   const [retweets, setRetweets] = useState(post?.retweets);
   const navigate = useNavigate();
 
   const { darkMode } = useTheme();
-  const { user, specificUser, fetchUserAndData, followUser } = useUser();
+  const { user, specificUser, handleFollow, isFollowing } = useUser();
   const { isModalOpen, setIsModalOpen, handleConfirmDelete, postLike } = usePost();
   const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
 
@@ -22,25 +22,7 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
     setLiked(user && post?.likedBy?.userIds?.includes(user?.id));
   }, [user, post?.likedBy?.userIds]);
 
-  const isFollowing = (targetUserId) => {
-    return followingUsers?.some(follower =>
-      follower.followingId === targetUserId || follower.id === targetUserId
-    );
-  };
-
-  const handleFollow = async (userId, targetUserId) => {
-    const wasFollowing = isFollowing(targetUserId);
-    updateFollowingStatus(targetUserId, !wasFollowing);
-
-    try {
-      await followUser(userId, targetUserId);
-      await fetchUserAndData(); // Refetch followers to sync with server
-    } catch (error) {
-      updateFollowingStatus(targetUserId, wasFollowing); // Revert on error
-      console.error("Failed to update follow status, reverting changes", error);
-    }
-  };
-
+  // Checks if post is liked, add/removes counter and does the list POST fetching
   const handleLike = (post, user) => {
     setLikes(liked ? likes - 1 : likes + 1);
     setLiked(!liked);
@@ -48,6 +30,7 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
     postLike(post, user);
   };
 
+  // WIP Retweeting
   const handleRetweet = () => {
     setRetweeted(!retweeted);
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
@@ -190,7 +173,7 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
   );
 
   // Conditional for profile view / reply view
-  if (post && post.originalPost) {
+  if (post?.originalPost) {
     return (
       <div className="">
         <div>
@@ -198,7 +181,7 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
             id="originalPost"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/${post.originalPost.user.id}/${post.originalPost.id}`);
+              navigate(`/${post.originalPost.user?.id}/${post.originalPost?.id}`);
             }}
             className={`p-4 cursor-pointer transition-colors ${darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
               } relative mb-4`}
@@ -208,7 +191,7 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
                 onClick={(e) => {
                   e.stopPropagation();
                   if (post.originalPost.user) {
-                    navigate(`/profile/${post.originalPost.user.username}`);
+                    navigate(`/profile/${post.originalPost.user?.username}`);
                   }
                 }}
                 className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl cursor-pointer"
@@ -234,10 +217,10 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
                         }`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleFollow(user.id, post.originalPost.user.id);
+                        handleFollow(user.id, post.originalPost.user?.id);
                       }}
                     >
-                      {isFollowing(post.originalPost.user.id) ? "Following" : "Follow"}
+                      {isFollowing(post.originalPost.user?.id) ? "Following" : "Follow"}
                     </button>
                   )}
                 </div>

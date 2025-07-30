@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, ArrowLeft } from "lucide-react";
 import PostComposer from "./PostComposer";
-import Post from "./Post"
+import ProfileReplyPost from "./ProfileReplyPost"
 import OriginalPost from "./OriginalPost"
 
 const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, followersData, refetchFollowers }) => {
@@ -257,7 +257,7 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, 
       {post.replies > 0 &&
         postReplies &&
         postReplies.map((postReply) => (
-          <Post key={postReply.id} user={user} specificUser={user} HOST={HOST} post={postReply} darkMode={darkMode} followingUsers={followingUsers}
+          <ProfileReplyPost key={postReply.id} user={user} specificUser={user} HOST={HOST} post={postReply} darkMode={darkMode} followingUsers={followingUsers}
             updateFollowingStatus={updateFollowingStatus} refetchFollowers={refetchFollowers} />
         ))}
     </div>

@@ -1,5 +1,5 @@
 import { ArrowLeft, Calendar } from "lucide-react";
-import Post from "./Post";
+import ProfileReplyPost from "./ProfileReplyPost";
 import { useState, useEffect } from "react";
 
 const Profile = ({
@@ -214,7 +214,7 @@ const Profile = ({
             formattedPosts
               .filter((post) => post.replyToId === null)
               .map((post) => (
-                <Post
+                <ProfileReplyPost
                   key={post.id}
                   user={user}
                   specificUser={specificUser}
@@ -230,7 +230,7 @@ const Profile = ({
             formattedPosts
               .filter((post) => post.replyToId !== null)
               .map((post) => (
-                <Post
+                <ProfileReplyPost
                   key={post.id}
                   user={user}
                   specificUser={specificUser}

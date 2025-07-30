@@ -212,6 +212,30 @@ export const UserProvider = ({ children }) => {
     }
   }, [HOST]); // Removed TOKEN and user dependencies
 
+
+  // returns true or false if user is following poster
+  const isFollowing = (targetUserId) => {
+    return followingUsers?.some(follower =>
+      follower.followingId === targetUserId
+    );
+  };
+
+  const handleFollow = async (userId, targetUserId) => {
+    const wasFollowing = isFollowing(targetUserId);
+    updateFollowingStatus(targetUserId, !wasFollowing);
+
+    try {
+      await followUser(userId, targetUserId);
+      await fetchUserAndData(); 
+    } catch (error) {
+      updateFollowingStatus(targetUserId, wasFollowing);
+      console.error("Failed to update follow status, reverting changes", error);
+    }
+  };
+
+
+
+
   // Fetch formatted posts for specific user to be used in ProfileDetails
   useEffect(() => {
     async function fetchFormattedPosts() {
@@ -239,7 +263,7 @@ export const UserProvider = ({ children }) => {
   }, [followers]);
 
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing }}>
       {children}
     </UserContext.Provider>
   );

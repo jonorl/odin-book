@@ -6,7 +6,7 @@ import Post from './Post';
 const MainFeed = () => {
   
   const { darkMode, activeTab, setActiveTab } = useTheme();
-  const { HOST, followersPosts, user, formattedPosts, followingUsers, updateFollowingStatus } = useUser();
+  const { HOST, followersPosts, user, formattedPosts } = useUser();
   
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
@@ -49,8 +49,6 @@ const MainFeed = () => {
               <Post
                 key={post.id}
                 post={post}
-                followingUsers={followingUsers}
-                updateFollowingStatus={updateFollowingStatus}
               />
             ))}
           </div>
