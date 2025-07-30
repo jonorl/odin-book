@@ -1,5 +1,5 @@
 import { ArrowLeft, Calendar } from "lucide-react";
-import ProfileReplyPost from "./ProfileReplyPost";
+import Post from "./Post";
 import { useState, useEffect } from "react";
 
 const Profile = ({
@@ -214,7 +214,7 @@ const Profile = ({
             formattedPosts
               .filter((post) => post.replyToId === null)
               .map((post) => (
-                <ProfileReplyPost
+                <Post
                   key={post.id}
                   user={user}
                   specificUser={specificUser}
@@ -224,13 +224,14 @@ const Profile = ({
                   followingUsers={followingUsers}
                   updateFollowingStatus={updateFollowingStatus}
                   refetchFollowers={refetchFollowers} // Pass refetch function
+                  isReply={false}
                 />
               ))
             : formattedPosts &&
             formattedPosts
               .filter((post) => post.replyToId !== null)
               .map((post) => (
-                <ProfileReplyPost
+                <Post
                   key={post.id}
                   user={user}
                   specificUser={specificUser}
@@ -240,6 +241,7 @@ const Profile = ({
                   followingUsers={followingUsers}
                   updateFollowingStatus={updateFollowingStatus}
                   refetchFollowers={refetchFollowers} // Pass refetch function
+                  isReply={true}
                 />
               ))}
         </div>

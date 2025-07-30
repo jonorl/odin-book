@@ -3,13 +3,12 @@ import { useUser } from '../hooks/UseUser'
 import Post from './Post'
 import { useNavigate } from "react-router-dom";
 
-const ProfileReplyPost = ({ post }) => {
+const PostAddendum = ({ post }) => {
   const navigate = useNavigate();
 
   const { darkMode } = useTheme();
   const { user, specificUser, handleFollow, isFollowing } = useUser();
 
-  if (post?.originalPost) {
     return (
       <div className="">
         <div>
@@ -81,13 +80,11 @@ const ProfileReplyPost = ({ post }) => {
             />
           </div>
           <div className={`ml-0 pl-0 relative`}>
-            <div className="ml-0 pl-0">{<Post post={post} />}</div>
+            <div className="ml-0 pl-0">{<Post post={post} isReply={false} />}</div>
           </div>
         </div>
       </div>
     );
-  } else { return <div className="ml-0 pl-0">{<Post post={post} />}</div> }
-}
+  } 
 
-
-export default ProfileReplyPost;
+export default PostAddendum;
