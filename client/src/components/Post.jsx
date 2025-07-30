@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from '../hooks/useTheme';
 import { usePost } from '../hooks/usePosts'
 import { useUser } from '../hooks/UseUser'
@@ -8,8 +8,6 @@ import { useNavigate } from "react-router-dom";
 
 const Post = ({ post, followingUsers, updateFollowingStatus }) => {
   const [likes, setLikes] = useState(post?.likes);
-  const [liked, setLiked] = useState(post?.likes !== 0 ? true : false);
-
   const [retweeted, setRetweeted] = useState((post?.retweeted) || false);
   const [retweets, setRetweets] = useState(post?.retweets);
   const navigate = useNavigate();
@@ -17,7 +15,12 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
   const { darkMode } = useTheme();
   const { user, specificUser, fetchUserAndData, followUser } = useUser();
   const { isModalOpen, setIsModalOpen, handleConfirmDelete, postLike } = usePost();
+  const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
 
+  // Trigger re-render when user and post are fully loaded to fetch liked posts.
+  useEffect(() => {
+    setLiked(user && post?.likedBy?.userIds?.includes(user?.id));
+  }, [user, post?.likedBy?.userIds]);
 
   const isFollowing = (targetUserId) => {
     return followingUsers?.some(follower =>
@@ -41,6 +44,7 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
   const handleLike = (post, user) => {
     setLikes(liked ? likes - 1 : likes + 1);
     setLiked(!liked);
+    console.log("post", post, "user", user)
     postLike(post, user);
   };
 
@@ -150,38 +154,27 @@ const Post = ({ post, followingUsers, updateFollowingStatus }) => {
           >
             <Repeat2 size={18} />
             <span className="text-sm">{retweets}</span>
-          </button>{console.log("liked", post)}
+          </button>{console.log("averrrr", post?.likedBy?.userIds, user?.id, post?.likedBy?.userIds?.includes(user?.id))}
           <button
-            onClick={() => handleLike(postData, user)}
-            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${
-              liked 
-                ? darkMode
-                  ? "text-red-400"
-                  : "text-red-500"
-                : darkMode
-                  ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
-                  : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+            onClick={() => handleLike(post, user)}
+            className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
+              ? darkMode
+                ? "text-red-400"
+                : "text-red-500"
+              : darkMode
+                ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                : "text-gray-500 hover:text-red-500 hover:bg-red-50"
               }`}
           >
             <Heart
               size={18}
               fill={
-                user && post?.likedBy?.userIds?.includes(user?.id)
-                  ? (darkMode ? "rgb(248 113 113)" : "rgb(239 68 68)") 
-                  : "none" 
-              }
-              stroke={
-                user && post?.likedBy?.userIds?.includes(user?.id)
-                  ? "none" 
-                  : (darkMode ? "rgb(156 163 175)" : "rgb(107 114 128)") 
-              }
-              strokeWidth={
-                user && post?.likedBy?.userIds?.includes(user?.id)
-                  ? 0 // No stroke width when liked
-                  : 2 // Default stroke width for the border when not liked (adjust as needed)
-              }
+                user && liked
+                  ? "currentColor"
+                  : "none"}
             />
             <span className="text-sm">{likes}</span>
+
           </button>
           <button
             className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode

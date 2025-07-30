@@ -11,6 +11,7 @@ export const PostsProvider = ({ children }) => {
   const { user } = useUser();
 
   const postLike = async (post) => {
+    console.log(post)
     const id = post.id;
     try {
       const res = await fetch(`${HOST}/api/v1/newLike/`, {
