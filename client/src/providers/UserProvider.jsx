@@ -1,8 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { UserContext } from '../contexts/UserContext';
-
-const HOST = import.meta.env.VITE_LOCALHOST
-const TOKEN = localStorage.getItem("token");
 
 export const UserProvider = ({ children }) => {
   const [formattedPosts, setFormattedPosts] = useState([]);
@@ -14,13 +11,16 @@ export const UserProvider = ({ children }) => {
     followerCount: 0,
     followingCount: 0,
   });
-  const [followersPosts, setFollowersPosts] = useState([])
+  const [followersPosts, setFollowersPosts] = useState([]);
   const [postDetails, setPostDetails] = useState(null);
   const [postUserDetails, setPostUserDetails] = useState(null);
 
-  // Fetch post details from postDetails API
+  // Memoize TOKEN to prevent re-evaluation on every render
+  const TOKEN = useMemo(() => localStorage.getItem("token"), []);
+  const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
-  async function fetchPostDetails(newPostId) {
+  // Fetch post details from postDetails API
+  const fetchPostDetails = useCallback(async (newPostId) => {
     try {
       const response = await fetch(`${HOST}/api/v1/postDetails/${newPostId}`);
       const data = await response.json();
@@ -29,27 +29,25 @@ export const UserProvider = ({ children }) => {
       console.error("Error fetching post details", err);
       setPostDetails(null);
     }
-  }
+  }, [HOST]);
 
   // Get user details from posting user
-    async function fetchUserProfileDetails(userId) {
-      if (!userId) return;
-      try {
-        const response = await fetch(`${HOST}/api/v1/userDetails/${userId}`);
-        const data = await response.json();
-        setPostUserDetails(data.user);
-      } catch (err) {
-        console.error("Error fetching user details", err);
-        setPostUserDetails(null);
-      }
+  const fetchUserProfileDetails = useCallback(async (userId) => {
+    if (!userId) return;
+    try {
+      const response = await fetch(`${HOST}/api/v1/userDetails/${userId}`);
+      const data = await response.json();
+      setPostUserDetails(data.user);
+    } catch (err) {
+      console.error("Error fetching user details", err);
+      setPostUserDetails(null);
     }
+  }, [HOST]);
 
   // get last 20 posts, logged in user data and logged-in user follower data and last 20
   // posts from posters that the user follow.
-  const fetchUserAndData = async () => {
+  const fetchUserAndData = useCallback(async () => {
     try {
-
-
       // Always fetch posts regardless of authentication status
       const postsRes = await fetch(`${HOST}/api/v1/getPosts/`);
       const postsData = await postsRes.json();
@@ -82,38 +80,49 @@ export const UserProvider = ({ children }) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ followersData }),
-              })
+              });
               if (followersPosts.ok) {
                 const followersPostData = await followersPosts.json();
-                setFollowersPosts(followersPostData.postFeed)
+                setFollowersPosts(followersPostData.postFeed);
               }
             }
           } else {
             // Token might be invalid, clear it
             localStorage.removeItem("token");
             setUser(null);
-            setFollowers([]);
+            setFollowers({
+              followingUsers: [],
+              followerCount: 0,
+              followingCount: 0,
+            });
           }
         } catch (userErr) {
           console.error("Error fetching user data:", userErr);
           // Don't clear posts on user data error, just clear user state
           setUser(null);
-          setFollowers([]);
+          setFollowers({
+            followingUsers: [],
+            followerCount: 0,
+            followingCount: 0,
+          });
         }
       } else {
         // No token, ensure user state is cleared
         setUser(null);
-        setFollowers([]);
+        setFollowers({
+          followingUsers: [],
+          followerCount: 0,
+          followingCount: 0,
+        });
       }
-
     } catch (err) {
       console.error("Error fetching posts:", err);
       // Even if posts fail, try to maintain user state if possible
     }
-  };
+  }, [HOST, TOKEN]);
 
   // Function to refetch followers when needed (e.g., after follow/unfollow)
-  const fetchUserAndFollowers = async () => {
+  const fetchUserAndFollowers = useCallback(async () => {
     if (!user) return;
     try {
       const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
@@ -127,19 +136,20 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Error refetching followers:", err);
     }
-  };
+  }, [HOST, user, postUserDetails]);
 
   //ProfileDetails
-  async function fetchUserDetails(handle) {
+  const fetchUserDetails = useCallback(async (handle) => {
     if (!handle) {
       return;
     }
     try {
       // Fetch authenticated logged-in user
-      let userData
-      if (user) {
+      let userData;
+      const currentToken = localStorage.getItem("token"); // Get fresh token
+      if (currentToken) {
         const userRes = await fetch(`${HOST}/api/v1/me`, {
-          headers: { authorization: `Bearer ${TOKEN}` },
+          headers: { authorization: `Bearer ${currentToken}` },
         });
         userData = await userRes.json();
         if (!userRes.ok) throw new Error("Failed to fetch user");
@@ -164,7 +174,7 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching data:", err);
     }
-  }
+  }, [HOST]); // Removed TOKEN and user dependencies
 
   // Fetch formatted posts for specific user to be used in ProfileDetails
   useEffect(() => {
@@ -180,13 +190,15 @@ export const UserProvider = ({ children }) => {
       }
     }
     fetchFormattedPosts();
-  }, [specificUser]);
+  }, [specificUser?.id, HOST]); // Only depend on the id, not the entire object
 
   // Run fetchUserAndData once upon mount.
-  useEffect(() => { fetchUserAndData() }, [])
+  useEffect(() => {
+    fetchUserAndData();
+  }, [fetchUserAndData]);
 
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails}}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails }}>
       {children}
     </UserContext.Provider>
   );
