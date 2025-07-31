@@ -3,7 +3,7 @@ import { Paperclip } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme';
 import { useUser } from '../hooks/UseUser'
 
-const PostComposer = ({ redirected}) => {
+const PostComposer = ({ redirected }) => {
     const { darkMode } = useTheme();
     const { postDetails, HOST, user } = useUser();
     const [postText, setPostText] = useState('');

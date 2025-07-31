@@ -1,14 +1,21 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Camera, Eye, EyeOff } from "lucide-react";
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
+import { usePost } from '../hooks/usePosts'
+import ConfirmationModal from './ConfirmationModal';
 
-const Settings = ({ HOST, darkMode, user }) => {
+const Settings = () => {
+
+  const { darkMode } = useTheme();
+  const { user, HOST } = useUser();
+  const { setIsModalOpen } = usePost();
+
   const [formData, setFormData] = useState([]);
   const [showPassword, setShowPassword] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const isDisabled = !!user?.githubId || !!user?.googleId;
 
   useEffect(() => {
@@ -91,62 +98,6 @@ const Settings = ({ HOST, darkMode, user }) => {
       setMessage("An error occurred while updating settings");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm, postId, darkMode }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className={`fixed inset-0 z-50 flex items-center justify-center ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
-        } bg-opacity-50 backdrop-blur-sm`}>
-        <div className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
-          } text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border `}>
-          <h2 className="text-xl font-semibold mb-4">Delete User</h2>
-          <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-6`}>Are you sure you want to delete your user? This action cannot be undone.</p>
-          <div className="flex justify-end gap-4">
-            <button
-              onClick={(e) => { e.stopPropagation(); onClose() }}
-              className={`px-4 py-2 ${darkMode ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-black"} transition-colors rounded-full`}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Explicitly stop propagation
-                onConfirm(postId);
-              }}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const handleDeleteClick = (e) => {
-    e.stopPropagation();
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmDelete = async (postId) => {
-    await deleteUser(postId);
-    setIsModalOpen(false);
-  };
-
-  async function deleteUser(userId) {
-    try {
-      const res = await fetch(`${HOST}/api/v1/deleteuser/${userId}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      localStorage.removeItem("token");
-      window.location.href = `${import.meta.env.VITE_THISHOST}`
-      return data;
-    } catch (err) {
-      console.error("Failed to post new message:", err);
     }
   };
 
@@ -344,17 +295,14 @@ const Settings = ({ HOST, darkMode, user }) => {
             <div>
               <button
                 disabled={isLoading}
-                onClick={(e) => { e.preventDefault(); handleDeleteClick(e) }}
+                onClick={(e) => { e.preventDefault(); setIsModalOpen(true) }}
                 className={`w-full bg-red-700 hover:bg-red-800 disabled:bg-red-900 text-white font-medium py-2 px-4 rounded-md transition-colors ${isLoading ? "cursor-not-allowed" : "cursor-pointer"
                   }`}
               >
                 Delete user
               </button>
-              <ConfirmDeleteModal
-                darkMode={darkMode}
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onConfirm={handleConfirmDelete}
+              <ConfirmationModal
+                user={user?.id} select={"user"}
               />
             </div>
           </form>

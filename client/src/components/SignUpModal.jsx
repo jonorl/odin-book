@@ -1,15 +1,17 @@
 import { useState } from 'react'
 import { Camera } from "lucide-react";
+import { useUser } from '../hooks/UseUser'
 
-const SignUpModal = ({ onClose, HOST }) => {
+const SignUpModal = ({ onClose }) => {
+  const { HOST } = useUser();
   const [handle, setHandle] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [profilePicFile, setProfilePicFile] = useState(null); // Store the actual file
-  const [profilePicPreview, setProfilePicPreview] = useState(null); // Store preview URL
+  const [profilePicFile, setProfilePicFile] = useState(null); 
+  const [profilePicPreview, setProfilePicPreview] = useState(null); 
   const [error, setError] = useState(null)
 
   const handleProfilePicChange = (e) => {

@@ -9,8 +9,8 @@ import PostDetailsMainFeed from './components/PostDetailsMainFeed';
 
 export default function OdinBook() {
 
-  const { darkMode, toggleDarkMode } = useTheme();
-  const { HOST, user, postDetails, postUserDetails, fetchPostDetails, fetchUserProfileDetails } = useUser();
+  const { darkMode } = useTheme();
+  const { postDetails, postUserDetails, fetchPostDetails, fetchUserProfileDetails } = useUser();
   const { postId, userId } = useParams();
 
   // Fetch details of specific post clicked on
@@ -22,11 +22,10 @@ export default function OdinBook() {
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
       <div className="flex max-w-7xl mr-auto ml-auto">
-        <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
+        <Sidebar className="flex ml-64"/>
         <div className="flex-1 flex mr-auto ml-auto">
-          {
-            postDetails && postUserDetails && <PostDetailsMainFeed/>}
-          <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
+          {postDetails && postUserDetails && <PostDetailsMainFeed/>}
+          <RightSidebar/>
         </div>
       </div>
     </div>

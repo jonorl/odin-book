@@ -28,7 +28,7 @@ export const PostsProvider = ({ children }) => {
     }
   };
 
-  const handleConfirmDelete = async (postId, returnToHomepage, navigate) => {
+  const handleConfirmPostDelete = async (postId, returnToHomepage, navigate) => {
     try {
       console.log("postId", postId)
       const res = await fetch(`${HOST}/api/v1/deletepost/${postId}`, {
@@ -44,8 +44,23 @@ export const PostsProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
+    const handleConfirmUserDelete = async (userId) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/deleteuser/${userId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      localStorage.removeItem("token");
+      window.location.href = `${import.meta.env.VITE_THISHOST}`
+      return data;
+    } catch (err) {
+      console.error("Failed to post new message:", err);
+    }
+    setIsModalOpen(false);
+  };
+
   return (
-    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmDelete }}>
+    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete }}>
       {children}
     </PostsContext.Provider>
   );

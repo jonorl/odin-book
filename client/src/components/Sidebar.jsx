@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { MoreHorizontal, Home, User, Settings, Moon, Sun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
 
-
-const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
+const Sidebar = () => {
+  const { darkMode, toggleDarkMode } = useTheme();
+  const { user } = useUser();
   const [userPopupMenu, setUserPopupMenu] = useState(false);
   const popupRef = useRef(null); // Ref for the popup container
   const moreHorizontalRef = useRef(null); // Ref for the MoreHorizontal icon
   const navigate = useNavigate();
-
 
   const menuItems = [
     { icon: Home, label: 'Home', nav: '/', active: true },
@@ -19,13 +21,11 @@ const Sidebar = ({ darkMode, toggleDarkMode, user }) => {
   // Function to close the popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if the click is outside the popup AND outside the MoreHorizontal icon
-      // If event.target is NOT inside popupRef.current AND NOT inside moreHorizontalRef.current
       if (
         popupRef.current && !popupRef.current.contains(event.target) &&
         moreHorizontalRef.current && !moreHorizontalRef.current.contains(event.target)
       ) {
-        setUserPopupMenu(false); // Corrected: Set to false to close the popup
+        setUserPopupMenu(false); 
       }
     };
 

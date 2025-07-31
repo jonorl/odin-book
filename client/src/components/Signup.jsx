@@ -2,36 +2,32 @@ import { useState, useEffect } from "react";
 import SignUpModal from "./SignUpModal";
 import LoginModal from "./LoginModal";
 import { FaGithub, FaGoogle } from 'react-icons/fa';
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
 
-const SignUpCard = ({ darkMode, HOST, user }) => {
+const SignUpCard = () => {
+  const { darkMode } = useTheme();
+  const { HOST, user } = useUser();
   const [showSingupModal, setShowSingupModal] = useState(false);
   const [showLoginModal, setLoginModal] = useState(false);
-  const [error, setError] = useState(null)
-
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
-    const error = urlParams.get("error");
 
     if (token) {
       console.log("Received token:", token);
-      localStorage.setItem("token", token); // Store token in localStorage
-      // Clean URL
+      localStorage.setItem("token", token); 
       window.history.replaceState({}, document.title, window.location.pathname);
-      // Refresh page
       window.location.reload();
-    } else if (error) {
-      console.error("GitHub OAuth error:", error);
-      setError(`GitHub authentication failed: ${urlParams.get("error_description")}`);
-    }
+    } 
   }, []);
   const handleGitHubLogin = async (e) => {
     e.preventDefault();
     try {
       window.location.href = `${HOST}/api/v1/auth/github`
     } catch (err) {
-      setError("An unexpected error occurred.", err);
+      console.log("An unexpected error occurred.", err);
     }
   };
 
@@ -40,7 +36,7 @@ const SignUpCard = ({ darkMode, HOST, user }) => {
     try {
       window.location.href = `${HOST}/api/v1/auth/google`
     } catch (err) {
-      setError("An unexpected error occurred.", err);
+      console.log("An unexpected error occurred.", err);
     }
   };
 
@@ -59,10 +55,10 @@ const SignUpCard = ({ darkMode, HOST, user }) => {
         window.location.reload()
         return
       } else {
-        setError(data.message || "Signup failed");
+        console.log(data.message || "Signup failed");
       }
     } catch (err) {
-      setError("An unexpected error occurred.", err);
+      console.log("An unexpected error occurred.", err);
     }
   };
 
@@ -93,17 +89,14 @@ const SignUpCard = ({ darkMode, HOST, user }) => {
           <button onClick={(e) => handleGuestLogin(e)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full  font-bold py-2.5 rounded-full mb-4 hover:bg-gray-200 transition`}>
             Login as Guest
           </button>
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
           <button onClick={(e) => handleGitHubLogin(e)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full flex gap-3 content-center justify-center font-bold py-2.5 rounded-full mb-4  transition`}>
             Login with Github <FaGithub className="flex content-center mt-1" />
           </button>
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
           <button onClick={(e) => handleGoogleLogin(e)} className={`${darkMode ? 'bg-white text-black hover:bg-gray-200' : 'bg-black text-white hover:bg-gray-800'} w-full flex gap-3 content-center justify-center font-bold py-2.5 rounded-full mb-4  transition`}>
             Login with Google <FaGoogle className="flex content-center mt-1" />
           </button>
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
           {showLoginModal && <LoginModal HOST={HOST} onClose={() => setLoginModal(false)} />}
 
           <p className="text-xs text-gray-500">

@@ -2,9 +2,9 @@ import { useTheme } from '../hooks/useTheme';
 import { usePost } from '../hooks/usePosts'
 import { useNavigate } from "react-router-dom";
 
-const ConfirmDeleteModal = ({ postId, returnToHomepage }) => {
+const ConfirmDeleteModal = ({ postId, returnToHomepage, user, select }) => {
   const { darkMode } = useTheme();
-  const { isModalOpen, setIsModalOpen, handleConfirmDelete } = usePost();
+  const { isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete } = usePost();
   const navigate = useNavigate();
 
   if (!isModalOpen) return null;
@@ -14,8 +14,9 @@ const ConfirmDeleteModal = ({ postId, returnToHomepage }) => {
       } bg-opacity-50 backdrop-blur-sm`}>
       <div className={`${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
         } text-white rounded-2xl p-6 w-full max-w-md mx-4 shadow-xl border `}>
-        <h2 className="text-xl font-semibold mb-4">Delete Post</h2>
-        <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-6`}>Are you sure you want to delete this post? This action cannot be undone.</p>
+        <h2 className="text-xl font-semibold mb-4">Delete {select==="user" ? "user" : "Post"}</h2>
+        <p className={`${darkMode ? "text-gray-300" : "text-gray-700"} mb-6`}>
+          "Are you sure you want to delete this {select==="user" ? "user" : "post"}? This action cannot be undone.</p>
         <div className="flex justify-end gap-4">
           <button
             onClick={(e) => { e.stopPropagation(); setIsModalOpen() }}
@@ -25,8 +26,7 @@ const ConfirmDeleteModal = ({ postId, returnToHomepage }) => {
           </button>
           <button
             onClick={(e) => {
-              e.stopPropagation(); // Explicitly stop propagation
-              handleConfirmDelete(postId, returnToHomepage, navigate)
+              e.stopPropagation(); (select ? handleConfirmUserDelete(user?.id) : handleConfirmPostDelete(postId, returnToHomepage, navigate))
             }}
             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
           >

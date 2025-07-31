@@ -15,7 +15,7 @@ const Post = ({ post, isReply }) => {
 
   const { darkMode } = useTheme();
   const { user, handleFollow, isFollowing } = useUser();
-  const { isModalOpen, setIsModalOpen, handleConfirmDelete, postLike } = usePost();
+  const { setIsModalOpen, postLike } = usePost();
   const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
 
   // Trigger re-render when user and post are fully loaded to fetch liked posts.
@@ -79,11 +79,8 @@ const Post = ({ post, isReply }) => {
                   e.stopPropagation(); setIsModalOpen(true)
                 }} />
                 <ConfirmationModal
-                  darkMode={darkMode}
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                  onConfirm={handleConfirmDelete}
                   postId={post?.id}
+                  returnToHomepage={false}
                 />
               </div>}
             {user && post?.user?.id !== user?.id && (

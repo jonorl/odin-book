@@ -2,11 +2,11 @@ import { useEffect, useRef } from 'react';
 import { Search} from 'lucide-react';
 import { Input } from "./ui/input";
 import SignUpCard from "./Signup"
+import { useTheme } from '../hooks/useTheme';
 
+const RightSidebar = () => {
+  const { darkMode } = useTheme();
 
-
-
-const RightSidebar = ({ darkMode, HOST, user }) => {
   const trends = [
     { topic: 'Technology', tag: '#ReactJS', posts: '45.2K posts' },
     { topic: 'Programming', tag: '#JavaScript', posts: '32.1K posts' },
@@ -20,7 +20,6 @@ const RightSidebar = ({ darkMode, HOST, user }) => {
     { name: 'MDN Web Docs', username: 'mozdevnet', avatar: '📚' }
   ];
 
-
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -33,7 +32,7 @@ const RightSidebar = ({ darkMode, HOST, user }) => {
   return (
     <>
       <div className="w-80 p-4 space-y-4">
-      <SignUpCard HOST={HOST} user={user} darkMode={darkMode} />
+      <SignUpCard/>
 
         <div className="flex items-center p-2">
 

@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useUser } from '../hooks/UseUser'
 
-const LoginModal = ({ onClose, HOST }) => {
+const LoginModal = ({ onClose }) => {
 
+  const { HOST } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null)
