@@ -1,78 +1,11 @@
 import { ArrowLeft, Calendar } from "lucide-react";
 import Post from "./Post";
-import { useState, useEffect } from "react";
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
 
-const Profile = ({
-  darkMode,
-  user,
-  specificUser,
-  formattedPosts,
-  HOST,
-  followersData,
-  refetchFollowers,
-}) => {
-  let date = specificUser?.createdAt && new Date(specificUser?.createdAt);
-  date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
-  const [activeTab, setActiveTab] = useState("posts");
-  const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
-
-
-  const handleFollow = async (userId, targetUserId) => {
-    const wasFollowing = isFollowing(targetUserId);
-    updateFollowingStatus(targetUserId, !wasFollowing);
-
-    try {
-      await followUser(userId, targetUserId);
-      await refetchFollowers(); // Refetch followers to sync with server
-    } catch (error) {
-      updateFollowingStatus(targetUserId, wasFollowing); // Revert on error
-      console.error("Failed to update follow status, reverting changes", error);
-    }
-  };
-
-  const followUser = async (userId, targetUserId) => {
-    try {
-      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, targetUserId }),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Failed to update follow status:", errorData.message || res.statusText);
-        throw new Error(errorData.message || "Failed to update follow status");
-      }
-
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("Failed to follow user", err);
-      throw err;
-    }
-  };
-
-  const isFollowing = (targetUserId) => {
-    return followingUsers?.some(follower =>
-      follower.followingId === targetUserId || follower.id === targetUserId
-    );
-  };
-  // Sync followingUsers with followersData when it changes
-  useEffect(() => {
-    setFollowingUsers(followersData?.followingUsers || []);
-  }, [followersData]);
-
-  const updateFollowingStatus = (targetUserId, isFollowing) => {
-    if (isFollowing) {
-      setFollowingUsers(prev => [...prev, { followingId: targetUserId }]);
-    } else {
-      setFollowingUsers(prev =>
-        prev.filter(follower =>
-          follower.followingId !== targetUserId && follower.id !== targetUserId
-        )
-      );
-    }
-  };
+const Profile = () => {
+  const { darkMode, profileActiveTab, setProfileActiveTab } = useTheme();
+  const { formattedProfilePosts, followers, date, HOST, user, specificUser, handleFollow, isFollowing } = useUser();
 
   return (
     <div
@@ -170,13 +103,13 @@ const Profile = ({
             <div className="flex space-x-6 text-sm">
               <div className="flex items-center space-x-1">
                 <span className="font-bold text-white">
-                  {followersData.followingCount}
+                  {followers.followingCount}
                 </span>
                 <span className="text-gray-500">Following</span>
               </div>
               <div className="flex items-center space-x-1">
                 <span className="font-bold text-white">
-                  {followersData.followerCount}
+                  {followers.followerCount}
                 </span>
                 <span className="text-gray-500">Followers</span>
               </div>
@@ -189,60 +122,38 @@ const Profile = ({
           <div className="flex">
             {/* Posts Button */}
             <button
-              className={`flex-1 py-4 text-center ${activeTab === "posts"
+              className={`flex-1 py-4 text-center ${profileActiveTab === "posts"
                 ? "border-b-2 border-blue-500 text-gray-500 font-medium"
                 : "text-gray-500 hover:bg-gray-900 hover:text-white"
                 } transition-colors`}
-              onClick={() => setActiveTab("posts")}
+              onClick={() => setProfileActiveTab("posts")}
             >
               Posts
             </button>
             {/* Replies Button */}
             <button
-              className={`flex-1 py-4 text-center ${activeTab === "replies"
+              className={`flex-1 py-4 text-center ${profileActiveTab === "replies"
                 ? "border-b-2 border-blue-500 text-gray-500 font-medium"
                 : "text-gray-500 hover:bg-gray-900 hover:text-white"
                 } transition-colors`}
-              onClick={() => setActiveTab("replies")}
+              onClick={() => setProfileActiveTab("replies")}
             >
               Replies
             </button>
           </div>
           {/* 3. Conditionally render content based on the active tab */}
-          {activeTab === "posts"
-            ? formattedPosts &&
-            formattedPosts
+          {profileActiveTab === "posts"
+            ? formattedProfilePosts &&
+            formattedProfilePosts
               .filter((post) => post.replyToId === null)
               .map((post) => (
-                <Post
-                  key={post.id}
-                  user={user}
-                  specificUser={specificUser}
-                  HOST={HOST}
-                  post={post}
-                  darkMode={darkMode}
-                  followingUsers={followingUsers}
-                  updateFollowingStatus={updateFollowingStatus}
-                  refetchFollowers={refetchFollowers} // Pass refetch function
-                  isReply={false}
-                />
+                <Post key={post.id} post={post} isReply={false} />
               ))
-            : formattedPosts &&
-            formattedPosts
+            : formattedProfilePosts &&
+            formattedProfilePosts
               .filter((post) => post.replyToId !== null)
               .map((post) => (
-                <Post
-                  key={post.id}
-                  user={user}
-                  specificUser={specificUser}
-                  HOST={HOST}
-                  post={post}
-                  darkMode={darkMode}
-                  followingUsers={followingUsers}
-                  updateFollowingStatus={updateFollowingStatus}
-                  refetchFollowers={refetchFollowers} // Pass refetch function
-                  isReply={true}
-                />
+                <Post key={post.id} post={post} isReply={true} />
               ))}
         </div>
       </div>

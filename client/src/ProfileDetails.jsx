@@ -9,7 +9,7 @@ import Profile from "./components/Profile";
 
 export default function OdinBook() {
   const { darkMode, toggleDarkMode } = useTheme();
-  const { HOST, user, followers, specificUser, formattedProfilePosts, fetchUserAndFollowers, fetchUserDetails } = useUser();
+  const { HOST, user, fetchUserDetails } = useUser();
   const { handle } = useParams();
 
   // Fetch user and specific user details
@@ -29,16 +29,7 @@ export default function OdinBook() {
           toggleDarkMode={toggleDarkMode}
         />
         <div className="flex-1 flex mr-auto ml-auto">
-          <Profile
-            isLoading={false}
-            HOST={HOST}
-            user={user}
-            specificUser={specificUser}
-            darkMode={darkMode}
-            formattedPosts={formattedProfilePosts}
-            followersData={followers}
-            refetchFollowers={fetchUserAndFollowers}
-          />
+          <Profile/>
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
       </div>

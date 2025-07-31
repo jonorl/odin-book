@@ -200,13 +200,7 @@ const PostDetailsMainFeed = () => {
 
 
         {user !== null && (
-          <PostComposer
-            darkMode={darkMode}
-            HOST={HOST}
-            user={user}
-            originalPostId={postDetails?.id}
-            redirected="true"
-          />
+          <PostComposer redirected="true"/>
         )}
       </div>
 

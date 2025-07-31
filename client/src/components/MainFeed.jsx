@@ -6,7 +6,7 @@ import Post from './Post';
 const MainFeed = () => {
   
   const { darkMode, activeTab, setActiveTab } = useTheme();
-  const { HOST, followersPosts, user, formattedPosts } = useUser();
+  const { followersPosts, user, formattedPosts } = useUser();
   
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
@@ -40,7 +40,7 @@ const MainFeed = () => {
           </button>
         </div>)}
       {user !== null && (
-        <PostComposer darkMode={darkMode} HOST={HOST} user={user} />
+        <PostComposer/>
       )}
       {(
         postsToDisplay?.length > 0 && (

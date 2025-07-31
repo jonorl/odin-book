@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Paperclip } from 'lucide-react'
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
 
-const PostComposer = ({ darkMode, HOST, user, redirected, originalPostId }) => {
+const PostComposer = ({ redirected}) => {
+    const { darkMode } = useTheme();
+    const { postDetails, HOST, user } = useUser();
     const [postText, setPostText] = useState('');
     const [imageFile, setImageFile] = useState(null);
 
@@ -32,7 +36,7 @@ const PostComposer = ({ darkMode, HOST, user, redirected, originalPostId }) => {
         }
         formData.append('user[id]', user.id);
         formData.append('postText', postText);
-        formData.append('originalPostId', originalPostId)
+        formData.append('originalPostId', postDetails?.id)
         try {
             const res = await fetch(`${HOST}/api/v1/newComment/`, {
                 method: "POST",

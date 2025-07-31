@@ -260,7 +260,7 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Failed to fetch formatted posts:", err);
     }
-  },[HOST]);
+  }, [HOST]);
 
   // Run fetchUserAndData once upon mount.
   useEffect(() => {
@@ -272,8 +272,11 @@ export const UserProvider = ({ children }) => {
     setFollowingUsers(followers?.followingUsers || []);
   }, [followers]);
 
+  let date = specificUser?.createdAt && new Date(specificUser?.createdAt);
+  date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, date, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts }}>
       {children}
     </UserContext.Provider>
   );
