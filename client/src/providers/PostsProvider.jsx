@@ -3,8 +3,10 @@ import { useUser } from '../hooks/UseUser'
 import { PostsContext } from '../contexts/PostsContext';
 
 export const PostsProvider = ({ children }) => {
+
   const [liked, setLiked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
@@ -26,13 +28,15 @@ export const PostsProvider = ({ children }) => {
     }
   };
 
-  const handleConfirmDelete = async (postId) => {
+  const handleConfirmDelete = async (postId, returnToHomepage, navigate) => {
     try {
+      console.log("postId", postId)
       const res = await fetch(`${HOST}/api/v1/deletepost/${postId}`, {
         method: "DELETE",
       });
       const data = await res.json();
-      window.location.reload()
+      returnToHomepage ? (navigate(`/`), window.location.reload()) :
+        window.location.reload()
       return data;
     } catch (err) {
       console.error("Failed to post new message:", err);

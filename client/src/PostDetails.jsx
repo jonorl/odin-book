@@ -10,9 +10,10 @@ import PostDetailsMainFeed from './components/PostDetailsMainFeed';
 export default function OdinBook() {
 
   const { darkMode, toggleDarkMode } = useTheme();
-  const { HOST, formattedPosts, user, followers, postDetails, postUserDetails, fetchUserAndData, fetchPostDetails, fetchUserProfileDetails } = useUser();
+  const { HOST, user, postDetails, postUserDetails, fetchPostDetails, fetchUserProfileDetails } = useUser();
   const { postId, userId } = useParams();
 
+  // Fetch details of specific post clicked on
   useEffect(() => {
       fetchPostDetails(postId);
       fetchUserProfileDetails(userId)
@@ -24,7 +25,7 @@ export default function OdinBook() {
         <Sidebar className="flex ml-64" darkMode={darkMode} user={user} toggleDarkMode={toggleDarkMode} />
         <div className="flex-1 flex mr-auto ml-auto">
           {
-            postDetails && postUserDetails && <PostDetailsMainFeed postUser={postUserDetails} post={postDetails} isLoading={false} HOST={HOST} user={user} darkMode={darkMode} formattedPosts={formattedPosts} followersData={followers} refetchFollowers={fetchUserAndData} />}
+            postDetails && postUserDetails && <PostDetailsMainFeed/>}
           <RightSidebar darkMode={darkMode} HOST={HOST} user={user} />
         </div>
       </div>

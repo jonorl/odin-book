@@ -14,6 +14,7 @@ export const UserProvider = ({ children }) => {
   const [followersPosts, setFollowersPosts] = useState([]);
   const [postDetails, setPostDetails] = useState(null);
   const [postUserDetails, setPostUserDetails] = useState(null);
+  const [postReplies, setPostReplies] = useState(null)
   const [followingUsers, setFollowingUsers] = useState(followers?.followingUsers || []);
 
   // Memoize TOKEN to prevent re-evaluation on every render
@@ -152,7 +153,7 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-    const followUser = async (userId, targetUserId) => {
+  const followUser = async (userId, targetUserId) => {
     try {
       const res = await fetch(`${HOST}/api/v1/newFollow/`, {
         method: "POST",
@@ -210,7 +211,7 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching data:", err);
     }
-  }, [HOST]); // Removed TOKEN and user dependencies
+  }, [HOST]);
 
 
   // returns true or false if user is following poster
@@ -226,15 +227,12 @@ export const UserProvider = ({ children }) => {
 
     try {
       await followUser(userId, targetUserId);
-      await fetchUserAndData(); 
+      await fetchUserAndData();
     } catch (error) {
       updateFollowingStatus(targetUserId, wasFollowing);
       console.error("Failed to update follow status, reverting changes", error);
     }
   };
-
-
-
 
   // Fetch formatted posts for specific user to be used in ProfileDetails
   useEffect(() => {
@@ -250,7 +248,19 @@ export const UserProvider = ({ children }) => {
       }
     }
     fetchFormattedPosts();
-  }, [specificUser?.id, HOST]); // Only depend on the id, not the entire object
+  }, [specificUser?.id, HOST]);
+
+
+  const fetchFormattedPosts = useCallback(async (post) => {
+    try {
+      const res = await fetch(`${HOST}/api/v1/postReplies/${post.id}/`);
+      const data = await res.json();
+      setPostReplies(data.postFeed || []);
+      return data;
+    } catch (err) {
+      console.error("Failed to fetch formatted posts:", err);
+    }
+  },[HOST]);
 
   // Run fetchUserAndData once upon mount.
   useEffect(() => {
@@ -263,7 +273,7 @@ export const UserProvider = ({ children }) => {
   }, [followers]);
 
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts }}>
       {children}
     </UserContext.Provider>
   );

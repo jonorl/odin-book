@@ -27,7 +27,6 @@ const Post = ({ post, isReply }) => {
   const handleLike = (post, user) => {
     setLikes(liked ? likes - 1 : likes + 1);
     setLiked(!liked);
-    console.log("post", post, "user", user)
     postLike(post, user);
   };
 
@@ -137,7 +136,7 @@ const Post = ({ post, isReply }) => {
             >
               <Repeat2 size={18} />
               <span className="text-sm">{retweets}</span>
-            </button>{console.log("averrrr", post?.likedBy?.userIds, user?.id, post?.likedBy?.userIds?.includes(user?.id))}
+            </button>
             <button
               onClick={() => handleLike(post, user)}
               className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked

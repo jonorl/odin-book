@@ -154,12 +154,11 @@ mainRouter.get("/api/v1/postDetails/:postId", async (req, res) => {
   }
 });
 
+// This is for replies only
 mainRouter.get("/api/v1/postReplies/:postId", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
-    // const postsIdArray = post.map((obj) => obj.id);
     const postsComments = await queries.getPostsComments(post.id);
-    // const postsUserArray = post.map((obj) => obj.authorId);
     const postsUsers = await queries.getPostUsers(postsComments.authorId);
     const favourites = await queries.countAllLikes(postsComments.id);
     const commentCount = await queries.countAllComments(postsComments.id);

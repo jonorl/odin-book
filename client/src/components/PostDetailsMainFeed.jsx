@@ -1,94 +1,46 @@
 import { useState, useEffect } from "react";
+import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
+import { usePost } from '../hooks/usePosts'
 import { useNavigate } from "react-router-dom";
-import { Heart, MessageCircle, Repeat2, Share, ArrowLeft } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share, ArrowLeft, Trash2 } from "lucide-react";
 import PostComposer from "./PostComposer";
 import Post from "./Post"
-import OriginalPost from "./OriginalPost"
+import ConfirmationModal from './ConfirmationModal';
 
-const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, followersData, refetchFollowers }) => {
-  const [liked, setLiked] = useState(post.liked);
-  const [retweeted, setRetweeted] = useState(post.retweeted);
-  const [likes, setLikes] = useState(post.likes);
-  const [retweets, setRetweets] = useState(post.retweets);
-  const [follow, setFollow] = useState("Follow")
-  const [postReplies, setPostReplies] = useState(null);
-  const [followingUsers, setFollowingUsers] = useState(followersData?.followingUsers || []);
+const PostDetailsMainFeed = () => {
 
-  useEffect(() => {
-    setFollowingUsers(followersData?.followingUsers || []);
-  }, [followersData]);
+  const { darkMode } = useTheme();
+  const { postDetails, HOST, user, isFollowing, postUserDetails, handleFollow, postReplies, fetchFormattedPosts } = useUser();
+  const { setIsModalOpen, postLike } = usePost();
 
-  const updateFollowingStatus = (targetUserId, isFollowing) => {
-    if (isFollowing) {
-      setFollowingUsers(prev => [...prev, { followingId: targetUserId }]);
-    } else {
-      setFollowingUsers(prev =>
-        prev.filter(follower =>
-          follower.followingId !== targetUserId && follower.id !== targetUserId
-        )
-      );
-    }
-  };
-
+  const [liked, setLiked] = useState(user && postDetails?.likedBy?.userIds?.includes(user?.id));
+  const [likes, setLikes] = useState(postDetails?.likes);
+  const [retweeted, setRetweeted] = useState(postDetails?.retweeted);
+  const [retweets, setRetweets] = useState(postDetails?.retweets);
   const navigate = useNavigate();
 
-  const postLike = async () => {
-    const id = post.id;
-    try {
-      const res = await fetch(`${HOST}/api/v1/newLike/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, user }),
-      });
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("Failed to post new message:", err);
-    }
-  };
-
-  const followUser = async (userId, targetUserId) => {
-    try {
-      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, targetUserId }),
-      })
-      const data = await res.json()
-      return data
-    } catch (err) {
-      console.error("Failer to Follow user", err)
-    }
-  }
-
+  // Fetch all post details including replies upon all hooks loading
   useEffect(() => {
-    const fetchFormattedPosts = async () => {
-      try {
-        const res = await fetch(`${HOST}/api/v1/postReplies/${post.id}/`, {});
-        const data = await res.json();
-        setPostReplies(data.postFeed || []);
-        return data;
-      } catch (err) {
-        console.error("Failed to fetch formatted posts:", err);
-      }
-    };
-    fetchFormattedPosts();
-  }, [HOST, post.id]);
+    fetchFormattedPosts(postDetails);
+  }, [postDetails, fetchFormattedPosts]);
 
-  const handleLike = () => {
-    setLiked(!liked);
+  // Trigger re-render when user and post are fully loaded to fetch liked posts.
+  useEffect(() => {
+    setLiked(user && postDetails?.likedBy?.userIds?.includes(user?.id));
+  }, [user, postDetails?.likedBy?.userIds]);
+
+  // Checks if post is liked, add/removes counter and does the list POST fetching
+  const handleLike = (post, user) => {
     setLikes(liked ? likes - 1 : likes + 1);
-    postLike();
+    setLiked(!liked);
+    postLike(post, user);
   };
 
+  // WIP Retweeting
   const handleRetweet = () => {
     setRetweeted(!retweeted);
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
-  };
-
-  const handleFollow = (userId, targetId) => {
-    setFollow(follow === "Follow" ? "Unfollow" : "Follow");
-    followUser(userId, targetId)
   };
 
   return (
@@ -116,149 +68,151 @@ const PostDetailsMainFeed = ({ HOST, darkMode, user, post, postUser, isLoading, 
         </div>
 
         {/* If original post exists, render it */}
-        {(post.replyToId) && <>
-          <OriginalPost key={post.replyToId} user={user} HOST={HOST} postId={post.replyToId} darkMode={darkMode} reply={true} />
+        {(postDetails.replyToId) && <>
+          <Post key={postDetails.replyToId} user={user} HOST={HOST} postId={postDetails.replyToId} darkMode={darkMode} reply={true} />
         </>}
 
         {/* Post Content */}
-        {isLoading ? (
-          <div className="spinner spinner-container"></div>
-        ) : (
-          <div
-            id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
-              } `}
-            onClick={() => {
-              console.log("jodeme que era aca")
-              navigate(`/${post.user.id}/${post.id}`);
-            }}
-          >
-            <img
-              className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
-              src={postUser.profilePicUrl}
-            ></img>
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 mb-1">
-                <a
-                  className={`hover:underline font-bold ${darkMode ? "text-white" : "text-black"
-                    }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/profile/${post.user.username}`);
-                  }}
-                >
-                  {postUser.name} {postUser.surname}
-                </a>
-                <span className="text-gray-500">@{postUser.handle}</span>
-                <span className="text-gray-500">·</span>
-                <span className="text-gray-500">{post.timestamp}</span>
-                {(post && post.user && user && post.user.id !== user.id && <button
-                  className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
-                    ? 'bg-[rgb(239,243,244)] text-black'
-                    : 'bg-black text-white'
-                    }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    { handleFollow(user.id, post.user.id) }
-                  }}
-                >
-                  {follow}
-                </button>)}
-              </div>
 
-              <div className="mb-3">
-                <p className={darkMode ? "text-gray-200" : "text-gray-900"}>
-                  {post.content}
-                </p>
-                {post.image !== null && (
-                  <img
-                    className="rounded-xl max-h-80"
-                    src={post.image}
-                    alt="posted image"
-                  ></img>
-                )}
-              </div>
-
-              <div className="flex justify-between max-w-md">
-                <button
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                    ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                    : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-                    }`}
-                >
-                  <MessageCircle size={18} />
-                  <span className="text-sm">{post.replies}</span>
-                </button>
-
-                <button
-                  onClick={handleRetweet}
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
-                    ? darkMode
-                      ? "text-green-400"
-                      : "text-green-500"
-                    : darkMode
-                      ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
-                      : "text-gray-500 hover:text-green-500 hover:bg-green-50"
-                    }`}
-                >
-                  <Repeat2 size={18} />
-                  <span className="text-sm">{retweets}</span>
-                </button>
-
-                <button
-                  onClick={handleLike}
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
-                    ? darkMode
-                      ? "text-red-400"
-                      : "text-red-500"
-                    : darkMode
-                      ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
-                      : "text-gray-500 hover:text-red-500 hover:bg-red-50"
-                    }`}
-                >
-                  <Heart
-                    size={18}
-                    fill={
-                      user &&
-                        post &&
-                        post.likedBy &&
-                        post.likedBy.userIds &&
-                        post.likedBy.userIds.includes(user.id)
-                        ? "currentColor"
-                        : "none"
-                    }
+        <div
+          id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
+            } `}
+          onClick={() => {
+            navigate(`/${postDetails.user.id}/${postDetails.id}`);
+          }}
+        >
+          <img
+            className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
+            src={postUserDetails.profilePicUrl}
+          ></img>
+          <div className="flex-1">
+            <div className="flex items-center space-x-2 mb-1">
+              <a
+                className={`hover:underline font-bold ${darkMode ? "text-white" : "text-black"
+                  }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/profile/${postDetails.user.username}`);
+                }}
+              >
+                {postUserDetails.name} {postUserDetails.surname}
+              </a>
+              <span className="text-gray-500">@{postUserDetails.handle}</span>
+              <span className="text-gray-500">·</span>
+              <span className="text-gray-500">{postDetails.timestamp}</span>
+              {postDetails?.user?.id === user?.id &&
+                <div>
+                  <Trash2 size={18} className="text-red-500" onClick={(e) => {
+                    e.stopPropagation(); setIsModalOpen(true)
+                  }} />
+                  <ConfirmationModal
+                    postId={postDetails?.id}
+                    returnToHomepage={true}
                   />
-                  <span className="text-sm">{likes}</span>
-                </button>
+                </div>}
 
-                <button
-                  className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                    ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                    : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-                    }`}
-                >
-                  <Share size={18} />
-                </button>
-              </div>
+              {(postDetails?.user && user && postDetails?.user?.id !== user?.id && <button
+                className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
+                  ? 'bg-[rgb(239,243,244)] text-black'
+                  : 'bg-black text-white'
+                  }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  { handleFollow(user?.id, postDetails?.user?.id) }
+                }}
+              >
+                {isFollowing(postDetails?.user?.id) ? "Following" : "Follow"}
+              </button>)}
+            </div>
+
+            <div className="mb-3">
+              <p className={darkMode ? "text-gray-200" : "text-gray-900"}>
+                {postDetails?.content}
+              </p>
+              {postDetails?.image !== null && (
+                <img
+                  className="rounded-xl max-h-80"
+                  src={postDetails?.image}
+                  alt="posted image"
+                ></img>
+              )}
+            </div>
+
+            <div className="flex justify-between max-w-md">
+              <button
+                className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+                  ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+                  : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+                  }`}
+              >
+                <MessageCircle size={18} />
+                <span className="text-sm">{postDetails?.replies}</span>
+              </button>
+
+              <button
+                onClick={handleRetweet}
+                className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
+                  ? darkMode
+                    ? "text-green-400"
+                    : "text-green-500"
+                  : darkMode
+                    ? "text-gray-400 hover:text-green-400 hover:bg-green-900/20"
+                    : "text-gray-500 hover:text-green-500 hover:bg-green-50"
+                  }`}
+              >
+                <Repeat2 size={18} />
+                <span className="text-sm">{retweets}</span>
+              </button>
+
+              <button
+                onClick={() => handleLike(postDetails, user)}
+                className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
+                  ? darkMode
+                    ? "text-red-400"
+                    : "text-red-500"
+                  : darkMode
+                    ? "text-gray-400 hover:text-red-400 hover:bg-red-900/20"
+                    : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+                  }`}
+              >
+                <Heart
+                  size={18}
+                  fill={
+                    user && liked
+                      ? "currentColor"
+                      : "none"}
+                />
+                <span className="text-sm">{likes}</span>
+
+              </button>
+
+              <button
+                className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
+                  ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+                  : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+                  }`}
+              >
+                <Share size={18} />
+              </button>
             </div>
           </div>
-        )}
+        </div>
+
 
         {user !== null && (
           <PostComposer
             darkMode={darkMode}
             HOST={HOST}
             user={user}
-            originalPostId={post.id}
+            originalPostId={postDetails?.id}
             redirected="true"
           />
         )}
       </div>
 
-      {post.replies > 0 &&
-        postReplies &&
-        postReplies.map((postReply) => (
-          <Post key={postReply.id} user={user} specificUser={user} HOST={HOST} post={postReply} darkMode={darkMode} followingUsers={followingUsers}
-            updateFollowingStatus={updateFollowingStatus} refetchFollowers={refetchFollowers} />
+      {postDetails?.replies > 0 &&
+        postReplies?.map((postReply) => (
+          <Post key={postReply.id} post={postReply} isReply={false} />
         ))}
     </div>
   );
