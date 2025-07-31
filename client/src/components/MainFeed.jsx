@@ -7,7 +7,6 @@ const MainFeed = () => {
   
   const { darkMode, activeTab, setActiveTab } = useTheme();
   const { followersPosts, user, formattedPosts } = useUser();
-  
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (
@@ -41,19 +40,14 @@ const MainFeed = () => {
         </div>)}
       {user !== null && (
         <PostComposer/>
-      )}
-      {(
+      )}{(
         postsToDisplay?.length > 0 && (
           <div>
             {postsToDisplay.map(post => (
-              <Post
-                key={post.id}
-                post={post}
-              />
+              <Post key={post.id} post={post}/>
             ))}
           </div>
-        )
-      )}
+        ))}
     </div>
   );
 };

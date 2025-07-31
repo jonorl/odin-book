@@ -11,9 +11,8 @@ import ConfirmationModal from './ConfirmationModal';
 const PostDetailsMainFeed = () => {
 
   const { darkMode } = useTheme();
-  const { postDetails, HOST, user, isFollowing, postUserDetails, handleFollow, postReplies, fetchFormattedPosts } = useUser();
+  const { isDisabled, postDetails, HOST, user, isFollowing, postUserDetails, handleFollow, postReplies, fetchFormattedPosts } = useUser();
   const { setIsModalOpen, postLike } = usePost();
-
   const [liked, setLiked] = useState(user && postDetails?.likedBy?.userIds?.includes(user?.id));
   const [likes, setLikes] = useState(postDetails?.likes);
   const [retweeted, setRetweeted] = useState(postDetails?.retweeted);
@@ -73,7 +72,6 @@ const PostDetailsMainFeed = () => {
         </>}
 
         {/* Post Content */}
-
         <div
           id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
             } `}
@@ -151,6 +149,7 @@ const PostDetailsMainFeed = () => {
 
               <button
                 onClick={handleRetweet}
+                disabled={isDisabled}
                 className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
                   ? darkMode
                     ? "text-green-400"
@@ -166,6 +165,7 @@ const PostDetailsMainFeed = () => {
 
               <button
                 onClick={() => handleLike(postDetails, user)}
+                disabled={isDisabled}
                 className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
                   ? darkMode
                     ? "text-red-400"
@@ -197,7 +197,6 @@ const PostDetailsMainFeed = () => {
             </div>
           </div>
         </div>
-
 
         {user !== null && (
           <PostComposer redirected="true"/>

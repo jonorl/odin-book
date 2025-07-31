@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { useUser } from '../hooks/UseUser'
 import { PostsContext } from '../contexts/PostsContext';
 
 export const PostsProvider = ({ children }) => {
@@ -10,10 +9,7 @@ export const PostsProvider = ({ children }) => {
 
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
-  const { user } = useUser();
-
-  const postLike = async (post) => {
-    console.log(post)
+  const postLike = async (post, user) => {
     const id = post.id;
     try {
       const res = await fetch(`${HOST}/api/v1/newLike/`, {

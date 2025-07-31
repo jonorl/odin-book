@@ -570,6 +570,7 @@ mainRouter.post(
 );
 
 mainRouter.post("/api/v1/newLike", async (req, res) => {
+  console.log("user", req.body, "postId", req.body)
   const user = req.body.user.id;
   const postId = req.body.id;
   const postLiked = await queries.toggleLike(user, postId);

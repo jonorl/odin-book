@@ -14,7 +14,7 @@ const Post = ({ post, isReply }) => {
   const navigate = useNavigate();
 
   const { darkMode } = useTheme();
-  const { user, handleFollow, isFollowing } = useUser();
+  const { user, handleFollow, isFollowing, isDisabled } = useUser();
   const { setIsModalOpen, postLike } = usePost();
   const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
 
@@ -122,6 +122,7 @@ const Post = ({ post, isReply }) => {
             </button>
             <button
               onClick={handleRetweet}
+              disabled={isDisabled}
               className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${retweeted
                 ? darkMode
                   ? "text-green-400"
@@ -135,6 +136,7 @@ const Post = ({ post, isReply }) => {
               <span className="text-sm">{retweets}</span>
             </button>
             <button
+              disabled={isDisabled}
               onClick={() => handleLike(post, user)}
               className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${liked
                 ? darkMode

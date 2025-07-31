@@ -275,8 +275,10 @@ export const UserProvider = ({ children }) => {
   let date = specificUser?.createdAt && new Date(specificUser?.createdAt);
   date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 
+  const isDisabled = user ? false : true
+
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, date, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, date, isDisabled, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts }}>
       {children}
     </UserContext.Provider>
   );
