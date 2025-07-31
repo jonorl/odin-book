@@ -17,7 +17,7 @@ const PostComposer = ({ redirected }) => {
         formData.append('user[id]', user.id);
         formData.append('postText', postText);
         try {
-            const res = await fetch(`${HOST}/api/v1/newPost/`, {
+            const res = await fetch(`${HOST}/api/v1/posts/`, {
                 method: "POST",
                 body: formData,
             });
@@ -38,7 +38,7 @@ const PostComposer = ({ redirected }) => {
         formData.append('postText', postText);
         formData.append('originalPostId', postDetails?.id)
         try {
-            const res = await fetch(`${HOST}/api/v1/newComment/`, {
+            const res = await fetch(`${HOST}/api/v1/comments/`, {
                 method: "POST",
                 body: formData,
             });

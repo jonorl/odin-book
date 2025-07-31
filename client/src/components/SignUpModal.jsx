@@ -46,7 +46,7 @@ const SignUpModal = ({ onClose }) => {
         formData.append('profilePic', profilePicFile);
       }
 
-      const response = await fetch(`${HOST}/api/v1/signup`, {
+      const response = await fetch(`${HOST}/api/v1/auth/signup`, {
         method: "POST",
         body: formData,
       });

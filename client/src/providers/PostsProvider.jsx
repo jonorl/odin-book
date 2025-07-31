@@ -12,7 +12,7 @@ export const PostsProvider = ({ children }) => {
   const postLike = async (post, user) => {
     const id = post.id;
     try {
-      const res = await fetch(`${HOST}/api/v1/newLike/`, {
+      const res = await fetch(`${HOST}/api/v1/likes/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, user }),
@@ -27,7 +27,7 @@ export const PostsProvider = ({ children }) => {
   const handleConfirmPostDelete = async (postId, returnToHomepage, navigate) => {
     try {
       console.log("postId", postId)
-      const res = await fetch(`${HOST}/api/v1/deletepost/${postId}`, {
+      const res = await fetch(`${HOST}/api/v1/posts/${postId}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -42,7 +42,7 @@ export const PostsProvider = ({ children }) => {
 
     const handleConfirmUserDelete = async (userId) => {
     try {
-      const res = await fetch(`${HOST}/api/v1/deleteuser/${userId}`, {
+      const res = await fetch(`${HOST}/api/v1/users/${userId}`, {
         method: "DELETE",
       });
       const data = await res.json();

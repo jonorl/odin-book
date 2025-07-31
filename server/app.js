@@ -2,7 +2,8 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import session from "express-session";
-import mainRouter from "./routes/mainRouter.js";
+import apiRouter from "./routes/index.js";
+// import mainRouter from "./routes/mainRouter.js";
 
 // Config
 
@@ -24,13 +25,16 @@ app.use(
 );
 
 // Router triggering
-app.use("/", mainRouter);
+// app.use("/", mainRouter);
+
+// uncomment this when migrating to split routers
+app.use("/api/v1", apiRouter);
 
 // Generate random users
 // seeds();
 
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+// import { PrismaClient } from "@prisma/client";
+// const prisma = new PrismaClient();
 
 // Launch and port confirmation
 app.listen(process.env.PORT, () =>

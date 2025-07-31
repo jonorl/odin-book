@@ -80,7 +80,7 @@ const Settings = () => {
         submitFormData.append('password', formData.password);
       }
 
-      const response = await fetch(`${HOST}/api/v1/updateUser/`, {
+      const response = await fetch(`${HOST}/api/v1/users`, {
         method: "PUT",
         body: submitFormData
       });

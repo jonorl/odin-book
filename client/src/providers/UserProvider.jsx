@@ -24,7 +24,7 @@ export const UserProvider = ({ children }) => {
   // Fetch post details from postDetails API
   const fetchPostDetails = useCallback(async (newPostId) => {
     try {
-      const response = await fetch(`${HOST}/api/v1/postDetails/${newPostId}`);
+      const response = await fetch(`${HOST}/api/v1/posts/${newPostId}/details`);
       const data = await response.json();
       setPostDetails(data.postFeed[0]);
     } catch (err) {
@@ -37,7 +37,7 @@ export const UserProvider = ({ children }) => {
   const fetchUserProfileDetails = useCallback(async (userId) => {
     if (!userId) return;
     try {
-      const response = await fetch(`${HOST}/api/v1/userDetails/${userId}`);
+      const response = await fetch(`${HOST}/api/v1/users/${userId}`);
       const data = await response.json();
       setPostUserDetails(data.user);
     } catch (err) {
@@ -51,7 +51,7 @@ export const UserProvider = ({ children }) => {
   const fetchUserAndData = useCallback(async () => {
     try {
       // Always fetch posts regardless of authentication status
-      const postsRes = await fetch(`${HOST}/api/v1/getPosts/`);
+      const postsRes = await fetch(`${HOST}/api/v1/posts/`);
       const postsData = await postsRes.json();
       setFormattedPosts(postsData.postFeed || []);
 
@@ -68,7 +68,7 @@ export const UserProvider = ({ children }) => {
             setUser(userData.user);
 
             // Fetch followers using userData
-            const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+            const followersRes = await fetch(`${HOST}/api/v1/followers`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userData }),
@@ -127,7 +127,7 @@ export const UserProvider = ({ children }) => {
   const fetchUserAndFollowers = useCallback(async () => {
     if (!user) return;
     try {
-      const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+      const followersRes = await fetch(`${HOST}/api/v1/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userData: user, specificUserData: postUserDetails }),
@@ -155,7 +155,7 @@ export const UserProvider = ({ children }) => {
 
   const followUser = async (userId, targetUserId) => {
     try {
-      const res = await fetch(`${HOST}/api/v1/newFollow/`, {
+      const res = await fetch(`${HOST}/api/v1/follow`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, targetUserId }),
@@ -192,7 +192,7 @@ export const UserProvider = ({ children }) => {
         if (!userRes.ok) throw new Error("Failed to fetch user");
       }
       // Fetch specific user by handle including postCount and replyCount
-      const specificUserRes = await fetch(`${HOST}/api/v1/userHandle/${handle}`);
+      const specificUserRes = await fetch(`${HOST}/api/v1/users/handle/${handle}`);
       const specificUserData = await specificUserRes.json();
       if (!specificUserRes.ok) throw new Error("Failed to fetch specific user");
 
@@ -200,7 +200,7 @@ export const UserProvider = ({ children }) => {
       setSpecificUser(specificUserData.user);
 
       // Fetch followers only if user is logged in and specificUser is available
-      const followersRes = await fetch(`${HOST}/api/v1/followers/`, {
+      const followersRes = await fetch(`${HOST}/api/v1/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userData: userData, specificUserData: specificUserData }),
@@ -239,7 +239,7 @@ export const UserProvider = ({ children }) => {
     async function fetchFormattedPosts() {
       if (!specificUser?.id) return;
       try {
-        const res = await fetch(`${HOST}/api/v1/getPostsFromSpecificUser/${specificUser.id}`);
+        const res = await fetch(`${HOST}/api/v1/users/${specificUser.id}/posts`);
         const data = await res.json();
         if (!res.ok) throw new Error("Failed to fetch posts");
         setFormattedProfilePosts(data.postFeed || []);
@@ -253,7 +253,7 @@ export const UserProvider = ({ children }) => {
 
   const fetchFormattedPosts = useCallback(async (post) => {
     try {
-      const res = await fetch(`${HOST}/api/v1/postReplies/${post.id}/`);
+      const res = await fetch(`${HOST}/api/v1/posts/${post.id}/replies`);
       const data = await res.json();
       setPostReplies(data.postFeed || []);
       return data;
