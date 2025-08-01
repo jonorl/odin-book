@@ -11,7 +11,7 @@ const Profile = () => {
     <div
       className={`flex-1 border ${darkMode ? "border-gray-800" : "border-gray-200"
         }`}
-    >
+    >{console.log("followers", followers)}
       {/* Header Navigation */}
       <div
         className={`flex justify-between p-4 border-b  ${darkMode

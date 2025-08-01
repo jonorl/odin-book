@@ -130,7 +130,7 @@ export const UserProvider = ({ children }) => {
       const followersRes = await fetch(`${HOST}/api/v1/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userData: user, specificUserData: postUserDetails }),
+        body: JSON.stringify({ userData: user, specificUserData: specificUser }),
       });
       const followersData = await followersRes.json();
       if (!followersRes.ok) throw new Error("Failed to refetch followers");
@@ -138,7 +138,7 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Error refetching followers:", err);
     }
-  }, [HOST, user, postUserDetails]);
+  }, [HOST, user, specificUser]);
 
 
   const updateFollowingStatus = useCallback(async (targetUserId, isFollowing) => {
@@ -227,7 +227,7 @@ export const UserProvider = ({ children }) => {
 
     try {
       await followUser(userId, targetUserId);
-      await fetchUserAndData();
+      await fetchUserAndFollowers();
     } catch (error) {
       updateFollowingStatus(targetUserId, wasFollowing);
       console.error("Failed to update follow status, reverting changes", error);
