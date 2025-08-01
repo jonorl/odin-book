@@ -6,7 +6,7 @@ import Post from './Post';
 const MainFeed = () => {
   
   const { darkMode, activeTab, setActiveTab } = useTheme();
-  const { followersPosts, user, formattedPosts } = useUser();
+  const { followersPosts, user, formattedPosts, followers } = useUser();
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (
@@ -27,7 +27,7 @@ const MainFeed = () => {
             onClick={() => setActiveTab("For you")}
           >
             For you
-          </button>
+          </button>{console.log(followersPosts, "followersPosts")}
           <button
             className={`flex-1 py-4 text-center ${activeTab === "Following"
               ? "border-b-2 border-blue-500 text-gray-500 font-medium"
@@ -44,7 +44,7 @@ const MainFeed = () => {
         postsToDisplay?.length > 0 && (
           <div>
             {postsToDisplay.map(post => (
-              <Post key={post.id} post={post}/>
+              <Post key={ post.repostId || post.id} post={post}/>
             ))}
           </div>
         ))}

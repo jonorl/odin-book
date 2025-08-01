@@ -66,12 +66,13 @@ export const UserProvider = ({ children }) => {
           if (userRes.ok) {
             const userData = await userRes.json();
             setUser(userData.user);
+            console.log("specificUser", specificUser)
 
             // Fetch followers using userData
             const followersRes = await fetch(`${HOST}/api/v1/followers`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ userData }),
+              body: JSON.stringify({ userData, specificUserData: specificUser }),
             });
 
             if (followersRes.ok) {
@@ -121,7 +122,7 @@ export const UserProvider = ({ children }) => {
       console.error("Error fetching posts:", err);
       // Even if posts fail, try to maintain user state if possible
     }
-  }, [HOST, TOKEN]);
+  }, [HOST, TOKEN, specificUser]);
 
   // Function to refetch followers when needed (e.g., after follow/unfollow)
   const fetchUserAndFollowers = useCallback(async () => {

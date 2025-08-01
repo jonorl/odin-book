@@ -389,7 +389,6 @@ async function toggleFollow(userId, targetUserId) {
 }
 
 async function getUserFollowersData(userid, targetId) {
-  // Get all the data in parallel
   const [followingUsers, followerCount, followingCount] = await Promise.all([
     // People the user is following
     userid !== null
@@ -400,15 +399,13 @@ async function getUserFollowersData(userid, targetId) {
       : Promise.resolve([]),
     // Count of people who follow this user
     targetId !== null
-      ? prisma.follow.count({
-          where: { followingId: targetId },
-        })
+      ? prisma.follow.count({ where: { followingId: targetId } })
+      : userid !== null
+      ? prisma.follow.count({ where: { followingId: userid } })
       : Promise.resolve(0),
     // Count of people this user follows
-    targetId !== null
-      ? prisma.follow.count({
-          where: { followerId: targetId },
-        })
+    userid !== null
+      ? prisma.follow.count({ where: { followerId: userid } })
       : Promise.resolve(0),
   ]);
 
