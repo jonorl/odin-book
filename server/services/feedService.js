@@ -1,5 +1,3 @@
-import queries from "../db/queries.js";
-
 // A simple function to calculate a "time ago" string
 const getTimeAgo = (timestamp) => {
   const postDate = new Date(timestamp);
@@ -43,7 +41,7 @@ const createCountMaps = (favourites, retweetCount, commentCount) => {
 
   const retweetCountMap = new Map();
   retweetCount.forEach((retweet) => {
-    retweetCountMap.set(retweet.postId, retweet._count.id);
+    retweetCountMap.set(retweet.postId, retweet._count.userId || retweet._count.id);
   });
 
   const commentCountMap = new Map();
@@ -54,14 +52,15 @@ const createCountMaps = (favourites, retweetCount, commentCount) => {
   return { postLikesMap, retweetCountMap, commentCountMap };
 };
 
-// Optimized approach: Batch fetch all required users upfront
+// Updated formatPostsForFeedOptimized to handle retweets
 async function formatPostsForFeedOptimized(
   posts,
   users,
   favourites,
   commentCount,
   retweetCount,
-  originalPosts = []
+  originalPosts = [],
+  retweetedByData = []
 ) {
   const postsArray = Array.isArray(posts) ? posts : [posts];
   
@@ -86,9 +85,19 @@ async function formatPostsForFeedOptimized(
     commentCount
   );
 
+  // Create retweeted by map
+  const retweetedByMap = new Map();
+  retweetedByData.forEach((retweet) => {
+    retweetedByMap.set(retweet.postId, {
+      userIds: retweet.userIds || []
+    });
+  });
+
   const formattedPosts = postsArray.map(post => {
-    const user = usersMap.get(post.authorId);
-    if (!user) {
+    const isRepost = post.type === 'repost';
+    const originalAuthor = usersMap.get(post.authorId);
+    
+    if (!originalAuthor) {
       console.warn(`User not found for post ${post.id}, authorId: ${post.authorId}`);
       return null;
     }
@@ -96,17 +105,18 @@ async function formatPostsForFeedOptimized(
     const likes = postLikesMap.get(post.id) || { count: 0, userIds: [] };
     const retweets = retweetCountMap.get(post.id) || 0;
     const replies = commentCountMap.get(post.id) || 0;
+    const retweetedBy = retweetedByMap.get(post.id) || { userIds: [] };
     
     // Get the original post if this is a reply
     let originalPostWithUser = null;
     if (post.replyToId) {
       const replyPost = allPostsMap.get(post.replyToId);
       if (replyPost) {
-        const originalAuthor = usersMap.get(replyPost.authorId);
-        if (originalAuthor) {
+        const replyAuthor = usersMap.get(replyPost.authorId);
+        if (replyAuthor) {
           originalPostWithUser = {
             id: replyPost.id,
-            user: formatUserData(originalAuthor),
+            user: formatUserData(replyAuthor),
             content: replyPost.text,
             image: replyPost.imageUrl,
             timestamp: getTimeAgo(replyPost.createdAt),
@@ -119,21 +129,22 @@ async function formatPostsForFeedOptimized(
               imageUrl: replyPost.imageUrl,
               createdAt: replyPost.createdAt,
               replyToId: replyPost.replyToId,
-              originalUser: formatUserData(originalAuthor),
+              originalUser: formatUserData(replyAuthor),
             },
           };
         }
       }
     }
 
-    return {
+    const basePost = {
       id: post.id,
-      user: formatUserData(user),
+      user: formatUserData(originalAuthor),
       content: post.text,
       image: post.imageUrl,
       timestamp: getTimeAgo(post.createdAt),
       likes: likes.count || 0,
       likedBy: { userIds: likes.userIds || [] },
+      retweetedBy: { userIds: retweetedBy.userIds },
       retweets: retweets,
       replies: replies,
       replyToId: post.replyToId,
@@ -141,6 +152,23 @@ async function formatPostsForFeedOptimized(
       retweeted: false,
       originalPost: originalPostWithUser,
     };
+
+    // If this is a repost, add repost metadata
+    if (isRepost) {
+      const repostUser = usersMap.get(post.repostUser.id) || post.repostUser;
+      return {
+        ...basePost,
+        isRepost: true,
+        repostUser: formatUserData(repostUser),
+        repostTimestamp: getTimeAgo(post.repostCreatedAt),
+        repostComment: post.repostComment,
+        repostId: post.repostId,
+        // Use repost timestamp for sorting, but keep original post timestamp for display
+        sortTimestamp: post.repostCreatedAt
+      };
+    }
+
+    return basePost;
   }).filter(post => post !== null);
 
   return formattedPosts;

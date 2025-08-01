@@ -24,6 +24,22 @@ export const PostsProvider = ({ children }) => {
     }
   };
 
+      const postRetweet = async (post, user) => {
+      const id = post.id;
+      try {
+        const res = await fetch(`${HOST}/api/v1/retweets/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, user }),
+        });
+        const data = await res.json();
+        return data;
+      } catch (err) {
+        console.error("Failed to post retweet:", err);
+        throw err; // Re-throw to handle in component
+      }
+    };
+
   const handleConfirmPostDelete = async (postId, returnToHomepage, navigate) => {
     try {
       console.log("postId", postId)
@@ -56,7 +72,7 @@ export const PostsProvider = ({ children }) => {
   };
 
   return (
-    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete }}>
+    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet }}>
       {children}
     </PostsContext.Provider>
   );

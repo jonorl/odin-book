@@ -7,22 +7,40 @@ import queries from "../db/queries.js";
 const postRouter = Router();
 
 postRouter.get("/posts", async (req, res) => {
-  const posts = await queries.fetchAllPosts();
-  const postsIdArray = posts.map((obj) => obj.id);
-  const postsUserArray = posts.map((obj) => obj.authorId);
-  const postsUsers = await queries.getPostUsers(postsUserArray);
-  const favourites = await queries.countAllLikes(postsIdArray);
-  const commentCount = await queries.countAllComments(postsIdArray);
-  const retweetCount = await queries.countAllRetweets(postsIdArray);
-  const postFeed = formatPostsForFeedOptimized(
-    posts,
-    postsUsers,
-    favourites,
-    commentCount,
-    retweetCount
-  );
-  const resolvedPostFeed = await postFeed;
-  res.json({ postFeed: resolvedPostFeed });
+  try {
+    const posts = await queries.fetchAllPostsWithRetweets();
+    const postsIdArray = posts.map((obj) => obj.id);
+    const postsUserArray = posts.map((obj) => obj.authorId);
+    
+    // Add repost user IDs to user array
+    posts.forEach(post => {
+      if (post.type === 'repost' && post.repostUser) {
+        postsUserArray.push(post.repostUser.id);
+      }
+    });
+    
+    const uniqueUserIds = [...new Set(postsUserArray)];
+    const postsUsers = await queries.getPostUsers(uniqueUserIds);
+    const favourites = await queries.countAllLikes(postsIdArray);
+    const commentCount = await queries.countAllComments(postsIdArray);
+    const retweetCount = await queries.countAllRetweets(postsIdArray);
+    const retweetedByData = await queries.getAllRetweetData(postsIdArray);
+    
+    const postFeed = formatPostsForFeedOptimized(
+      posts,
+      postsUsers,
+      favourites,
+      commentCount,
+      retweetCount,
+      [],
+      retweetedByData
+    );
+    const resolvedPostFeed = await postFeed;
+    res.json({ postFeed: resolvedPostFeed });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 // postRouter.get("/posts/:id", async (req, res) => {
@@ -35,11 +53,19 @@ postRouter.get("/posts", async (req, res) => {
 
 postRouter.get("/users/:specificUserId/posts", async (req, res) => {
   try {
-    const posts = await queries.fetchAllPostsFromSpecificUser(
+    const posts = await queries.fetchAllPostsFromSpecificUserWithRetweets(
       req.params.specificUserId
     );
     const postsIdArray = posts.map((obj) => obj.id);
     const postsUserArray = posts.map((obj) => obj.authorId);
+    
+    // Add repost user IDs
+    posts.forEach(post => {
+      if (post.type === 'repost' && post.repostUser) {
+        postsUserArray.push(post.repostUser.id);
+      }
+    });
+    
     const replyToIds = posts
       .filter((post) => post.replyToId)
       .map((post) => post.replyToId);
@@ -58,13 +84,16 @@ postRouter.get("/users/:specificUserId/posts", async (req, res) => {
     const favourites = await queries.countAllLikes(postsIdArray);
     const commentCount = await queries.countAllComments(postsIdArray);
     const retweetCount = await queries.countAllRetweets(postsIdArray);
+    const retweetedByData = await queries.getAllRetweetData(postsIdArray);
+    
     const postFeed = await formatPostsForFeedOptimized(
       posts,
       postsUsers,
       favourites,
       commentCount,
       retweetCount,
-      originalPosts
+      originalPosts,
+      retweetedByData
     );
     res.json({ postFeed });
   } catch (error) {
@@ -160,6 +189,23 @@ postRouter.delete("/posts/:postId", async (req, res) => {
   } catch (err) {
     console.error("Failed to delete post:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+postRouter.post("/retweets", async (req, res) => {
+  try {
+    const userId = req.body.user.id;
+    const postId = req.body.id;
+    
+    if (!userId || !postId) {
+      return res.status(400).json({ message: "User ID and Post ID are required" });
+    }
+
+    const retweet = await queries.toggleRetweet(userId, postId);
+    res.json({ retweet });
+  } catch (err) {
+    console.error("Failed to toggle retweet", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 });
 

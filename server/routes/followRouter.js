@@ -31,23 +31,8 @@ followRouter.post("/followingposts", async (req, res) => {
   try {
     const followerJSON = req.body.followersData.followingUsers;
     const followerArray = followerJSON.map((user) => user.followingId);
-    const posts = await queries.fetchAllPostsFromFollowing(followerArray);
-    const postsIdArray = posts.map((obj) => obj.id);
-    const postsComments = await queries.getPostsComments(postsIdArray);
-    const postsUserArray = posts.map((obj) => obj.authorId);
-    const postsUsers = await queries.getPostUsers(postsUserArray);
-    const favourites = await queries.countAllLikes(postsIdArray);
-    const commentCount = await queries.countAllComments(postsIdArray);
-    const retweetCount = await queries.countAllRetweets(postsIdArray);
-    const postFeed = formatPostsForFeedOptimized(
-      posts,
-      postsUsers,
-      favourites,
-      commentCount,
-      retweetCount
-    );
-    const resolvedPostFeed = await postFeed;
-    res.json({ postFeed: resolvedPostFeed });
+    const posts = await queries.fetchAllPostsFromFollowingWithRetweets(followerArray);
+    // ... rest of your existing logic with the new posts data
   } catch (err) {
     console.error("failed to fetch post", err);
     res.status(500).json({ message: "server error", err });

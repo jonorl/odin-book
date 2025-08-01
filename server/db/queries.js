@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 async function fetchAllUsers() {
   const users = await prisma.user.findMany({
-    /* take: 10 */
+    take: 10
   });
   return users;
 }
@@ -52,7 +52,7 @@ async function getPostUser(post) {
 
 async function fetchAllPosts() {
   const users = await prisma.post.findMany({
-    take: 10,
+    take: 20,
     where: { replyToId: null },
     orderBy: [
       {
@@ -65,7 +65,7 @@ async function fetchAllPosts() {
 
 async function fetchAllPostsFromFollowing(usersArray) {
   const users = await prisma.post.findMany({
-    take: 10,
+    take: 20,
     where: {
       replyToId: null,
       authorId: {
@@ -84,7 +84,7 @@ async function fetchAllPostsFromFollowing(usersArray) {
 
 async function fetchAllPostsFromSpecificUser(id) {
   const posts = await prisma.post.findMany({
-    take: 10,
+    take: 20,
     where: { authorId: id },
     orderBy: [
       {
@@ -157,18 +157,31 @@ async function countAllComments(postsIdArray) {
   return commentCount;
 }
 
-async function countAllRetweets(postsIdArray) {
-  const retweetCount = await prisma.repost.groupBy({
-    where: {
-      postId: Array.isArray(postsIdArray) ? { in: postsIdArray } : postsIdArray,
-    },
-    by: ["postId"],
-    _count: {
-      id: true,
-    },
-  });
-  return retweetCount;
-}
+const countAllRetweets = async (postIds) => {
+  try {
+    const postIdsArray = Array.isArray(postIds) ? postIds : [postIds];
+
+    const retweetCounts = await prisma.repost.groupBy({
+      by: ["postId"],
+      where: {
+        postId: {
+          in: postIdsArray,
+        },
+      },
+      _count: {
+        userId: true,
+      },
+    });
+
+    return retweetCounts.map((count) => ({
+      postId: count.postId,
+      _count: { userId: count._count.userId },
+    }));
+  } catch (error) {
+    console.error("Error counting retweets:", error);
+    throw error;
+  }
+};
 
 async function newPost(userId, text, imageUrl) {
   const newPost = await prisma.post.create({
@@ -492,6 +505,246 @@ async function deleteUser(id) {
   return user;
 }
 
+const toggleRetweet = async (userId, postId) => {
+  try {
+    // Check if user already retweeted this post
+    const existingRetweet = await prisma.repost.findUnique({
+      where: {
+        userId_postId: {
+          userId: userId,
+          postId: postId,
+        },
+      },
+    });
+
+    if (existingRetweet) {
+      // Remove retweet
+      await prisma.repost.delete({
+        where: {
+          userId_postId: {
+            userId: userId,
+            postId: postId,
+          },
+        },
+      });
+      return { action: "removed", retweeted: false };
+    } else {
+      // Add retweet
+      await prisma.repost.create({
+        data: {
+          userId: userId,
+          postId: postId,
+        },
+      });
+      return { action: "added", retweeted: true };
+    }
+  } catch (error) {
+    console.error("Error toggling retweet:", error);
+    throw error;
+  }
+};
+
+// Fetch all posts including retweets for main feed
+const fetchAllPostsWithRetweets = async () => {
+  try {
+    // Get original posts
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 20, // Limit for performance
+    });
+
+    // Get reposts (retweets)
+    const reposts = await prisma.repost.findMany({
+      include: {
+        post: true,
+        user: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+
+    // Combine and sort by creation date
+    const combined = [
+      ...posts.map((post) => ({ ...post, type: "post" })),
+      ...reposts.map((repost) => ({
+        ...repost.post,
+        type: "repost",
+        repostUser: repost.user,
+        repostCreatedAt: repost.createdAt,
+        repostComment: repost.comment,
+        repostId: repost.id,
+      })),
+    ];
+
+    // Sort by creation date (original post date for posts, repost date for reposts)
+    combined.sort((a, b) => {
+      const dateA =
+        a.type === "repost"
+          ? new Date(a.repostCreatedAt)
+          : new Date(a.createdAt);
+      const dateB =
+        b.type === "repost"
+          ? new Date(b.repostCreatedAt)
+          : new Date(b.createdAt);
+      return dateB - dateA;
+    });
+
+    return combined.slice(0, 50); // Return top 50 after sorting
+  } catch (error) {
+    console.error("Error fetching posts with retweets:", error);
+    throw error;
+  }
+};
+
+// Fetch posts from specific user including their retweets
+const fetchAllPostsFromSpecificUserWithRetweets = async (userId) => {
+  try {
+    // Get user's original posts
+    const posts = await prisma.post.findMany({
+      where: { authorId: userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Get user's reposts
+    const reposts = await prisma.repost.findMany({
+      where: { userId: userId },
+      include: {
+        post: true,
+        user: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Combine and sort
+    const combined = [
+      ...posts.map((post) => ({ ...post, type: "post" })),
+      ...reposts.map((repost) => ({
+        ...repost.post,
+        type: "repost",
+        repostUser: repost.user,
+        repostCreatedAt: repost.createdAt,
+        repostComment: repost.comment,
+        repostId: repost.id,
+      })),
+    ];
+
+    combined.sort((a, b) => {
+      const dateA =
+        a.type === "repost"
+          ? new Date(a.repostCreatedAt)
+          : new Date(a.createdAt);
+      const dateB =
+        b.type === "repost"
+          ? new Date(b.repostCreatedAt)
+          : new Date(b.createdAt);
+      return dateB - dateA;
+    });
+
+    return combined;
+  } catch (error) {
+    console.error("Error fetching user posts with retweets:", error);
+    throw error;
+  }
+};
+
+// Fetch posts from following users including their retweets
+const fetchAllPostsFromFollowingWithRetweets = async (followingUserIds) => {
+  try {
+    // Get posts from following users
+    const posts = await prisma.post.findMany({
+      where: {
+        authorId: {
+          in: followingUserIds,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+
+    // Get reposts from following users
+    const reposts = await prisma.repost.findMany({
+      where: {
+        userId: {
+          in: followingUserIds,
+        },
+      },
+      include: {
+        post: true,
+        user: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+
+    // Combine and sort
+    const combined = [
+      ...posts.map((post) => ({ ...post, type: "post" })),
+      ...reposts.map((repost) => ({
+        ...repost.post,
+        type: "repost",
+        repostUser: repost.user,
+        repostCreatedAt: repost.repostCreatedAt,
+        repostComment: repost.comment,
+        repostId: repost.id,
+      })),
+    ];
+
+    combined.sort((a, b) => {
+      const dateA =
+        a.type === "repost"
+          ? new Date(a.repostCreatedAt)
+          : new Date(a.createdAt);
+      const dateB =
+        b.type === "repost"
+          ? new Date(b.repostCreatedAt)
+          : new Date(b.createdAt);
+      return dateB - dateA;
+    });
+
+    return combined.slice(0, 50);
+  } catch (error) {
+    console.error("Error fetching following posts with retweets:", error);
+    throw error;
+  }
+};
+
+const getAllRetweetData = async (postIds) => {
+  try {
+    const retweetData = await prisma.repost.groupBy({
+      by: ["postId"],
+      where: {
+        postId: {
+          in: postIds,
+        },
+      },
+      _count: {
+        userId: true,
+      },
+    });
+
+    // Get individual user IDs who retweeted each post
+    const detailedRetweetData = await Promise.all(
+      postIds.map(async (postId) => {
+        const retweets = await prisma.repost.findMany({
+          where: { postId },
+          select: { userId: true },
+        });
+
+        return {
+          postId,
+          userIds: retweets.map((r) => r.userId),
+          _count: { userId: retweets.length },
+        };
+      })
+    );
+
+    return detailedRetweetData;
+  } catch (error) {
+    console.error("Error getting retweet data:", error);
+    throw error;
+  }
+};
+
 export default {
   fetchAllUsers,
   fetchAllPosts,
@@ -525,4 +778,9 @@ export default {
   createGoogleUser,
   deletePost,
   deleteUser,
+  toggleRetweet,
+  fetchAllPostsWithRetweets,
+  fetchAllPostsFromSpecificUserWithRetweets,
+  fetchAllPostsFromFollowingWithRetweets,
+  getAllRetweetData,
 };

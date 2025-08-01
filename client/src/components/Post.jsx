@@ -8,43 +8,85 @@ import { Heart, MessageCircle, Repeat2, Share, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Post = ({ post, isReply }) => {
+
+  const { user, handleFollow, isFollowing, isDisabled } = useUser();
+  const { setIsModalOpen, postLike, postRetweet } = usePost();
   const [likes, setLikes] = useState(post?.likes);
-  const [retweeted, setRetweeted] = useState((post?.retweeted) || false);
+  const [retweeted, setRetweeted] = useState(post?.retweetedBy?.userIds?.includes(user?.id) || false);
   const [retweets, setRetweets] = useState(post?.retweets);
   const navigate = useNavigate();
 
   const { darkMode } = useTheme();
-  const { user, handleFollow, isFollowing, isDisabled } = useUser();
-  const { setIsModalOpen, postLike } = usePost();
+
   const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
 
-  // Trigger re-render when user and post are fully loaded to fetch liked posts.
+  // Trigger re-render when user and post are fully loaded
   useEffect(() => {
     setLiked(user && post?.likedBy?.userIds?.includes(user?.id));
-  }, [user, post?.likedBy?.userIds]);
+    setRetweeted(user && post?.retweetedBy?.userIds?.includes(user?.id));
+  }, [user, post?.likedBy?.userIds, post?.retweetedBy?.userIds]);
 
-  // Checks if post is liked, add/removes counter and does the list POST fetching
+  // Checks if post is liked, add/removes counter and does the API call
   const handleLike = (post, user) => {
     setLikes(liked ? likes - 1 : likes + 1);
     setLiked(!liked);
     postLike(post, user);
   };
 
-  // WIP Retweeting
-  const handleRetweet = () => {
+  // Updated retweet handler with API call
+  const handleRetweet = async () => {
+    if (isDisabled) return;
+
+    const wasRetweeted = retweeted;
     setRetweeted(!retweeted);
     setRetweets(retweeted ? retweets - 1 : retweets + 1);
+
+    try {
+      await postRetweet(post, user);
+    } catch (error) {
+      setRetweeted(wasRetweeted);
+      setRetweets(wasRetweeted ? retweets + 1 : retweets - 1);
+      console.error("Failed to retweet:", error);
+    }
   };
 
   return (
-    <>{(post?.originalPost && isReply) && <PostAddendum post={post} />}
+    <>
+      {(post?.originalPost && isReply) && <PostAddendum post={post} />}
+
+      {/* Retweet Header - Show if this is a repost */}
+      {post?.isRepost && (
+        <div className={`px-4 pt-3 pb-1 border-b ${darkMode ? "border-gray-800 text-gray-400" : "border-gray-200 text-gray-600"}`}>
+          <div className="flex items-center space-x-2 text-sm">
+            <Repeat2 size={16} />
+            <span>
+              <span
+                className="font-medium hover:underline cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/profile/${post.repostUser.username}`);
+                }}
+              >
+                {post.repostUser.name}
+              </span>
+              {" "}retweeted
+            </span>
+            <span>• {post.repostTimestamp}</span>
+          </div>
+          {post.repostComment && (
+            <p className={`mt-2 text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              {post.repostComment}
+            </p>
+          )}
+        </div>
+      )}
+
       <div
         onClick={() => navigate(`/${post?.user.id}/${post?.id}`)}
         id="replies"
         className={`border-b cursor-pointer transition-colors ${darkMode ? "border-gray-800 hover:bg-gray-950" : "border-gray-200 hover:bg-gray-50"
           } relative p-4 flex space-x-3`}
       >
-        {/* The for you implementation needs to take postData.user.id and compare it against each value in the followingUsers array */}
         <img
           onClick={(e) => {
             e.stopPropagation();
@@ -70,7 +112,7 @@ const Post = ({ post, isReply }) => {
               @{post?.user?.username}
             </span>
             <span onClick={(e) => e.stopPropagation()} className="text-gray-500">·</span>
-            <span id="hola" onClick={(e) => e.stopPropagation()} className="text-gray-500">
+            <span onClick={(e) => e.stopPropagation()} className="text-gray-500">
               {post?.timestamp}
             </span>
             {post?.user?.id === user?.id &&
@@ -84,7 +126,7 @@ const Post = ({ post, isReply }) => {
                 />
               </div>}
             {user && post?.user?.id !== user?.id && (
-              <button id="ComoTas?"
+              <button
                 className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
                   }`}
                 onClick={(e) => {
@@ -92,7 +134,6 @@ const Post = ({ post, isReply }) => {
                   handleFollow(user.id, post?.user?.id);
                 }}
               >
-
                 {isFollowing(post?.user?.id) ? "Following" : "Follow"}
               </button>
             )}
@@ -155,7 +196,6 @@ const Post = ({ post, isReply }) => {
                     : "none"}
               />
               <span className="text-sm">{likes}</span>
-
             </button>
             <button
               className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
