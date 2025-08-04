@@ -254,6 +254,7 @@ export const UserProvider = ({ children }) => {
 
   const fetchFormattedPosts = useCallback(async (post) => {
     try {
+      console.log("post.id", post.id)
       const res = await fetch(`${HOST}/api/v1/posts/${post.id}/replies`);
       const data = await res.json();
       setPostReplies(data.postFeed || []);

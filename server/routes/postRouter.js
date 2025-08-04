@@ -1,6 +1,8 @@
 // routes/postRouter.js
 import { Router } from "express";
-import { formatPostsForFeedOptimized, /* getTimeAgo, */} from "../services/feedService.js";
+import {
+  formatPostsForFeedOptimized /* getTimeAgo, */,
+} from "../services/feedService.js";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
 import queries from "../db/queries.js";
 
@@ -11,21 +13,22 @@ postRouter.get("/posts", async (req, res) => {
     const posts = await queries.fetchAllPostsWithRetweets();
     const postsIdArray = posts.map((obj) => obj.id);
     const postsUserArray = posts.map((obj) => obj.authorId);
-    
+
     // Add repost user IDs to user array
-    posts.forEach(post => {
-      if (post.type === 'repost' && post.repostUser) {
+    posts.forEach((post) => {
+      if (post.type === "repost" && post.repostUser) {
         postsUserArray.push(post.repostUser.id);
       }
     });
-    
+
     const uniqueUserIds = [...new Set(postsUserArray)];
     const postsUsers = await queries.getPostUsers(uniqueUserIds);
     const favourites = await queries.countAllLikes(postsIdArray);
     const commentCount = await queries.countAllComments(postsIdArray);
+    console.log("1", postsIdArray);
     const retweetCount = await queries.countAllRetweets(postsIdArray);
     const retweetedByData = await queries.getAllRetweetData(postsIdArray);
-    
+
     const postFeed = formatPostsForFeedOptimized(
       posts,
       postsUsers,
@@ -58,14 +61,14 @@ postRouter.get("/users/:specificUserId/posts", async (req, res) => {
     );
     const postsIdArray = posts.map((obj) => obj.id);
     const postsUserArray = posts.map((obj) => obj.authorId);
-    
+
     // Add repost user IDs
-    posts.forEach(post => {
-      if (post.type === 'repost' && post.repostUser) {
+    posts.forEach((post) => {
+      if (post.type === "repost" && post.repostUser) {
         postsUserArray.push(post.repostUser.id);
       }
     });
-    
+
     const replyToIds = posts
       .filter((post) => post.replyToId)
       .map((post) => post.replyToId);
@@ -83,9 +86,10 @@ postRouter.get("/users/:specificUserId/posts", async (req, res) => {
     const postsUsers = await queries.getPostUsers(uniqueUserIds);
     const favourites = await queries.countAllLikes(postsIdArray);
     const commentCount = await queries.countAllComments(postsIdArray);
+    console.log("2", postsIdArray);
     const retweetCount = await queries.countAllRetweets(postsIdArray);
     const retweetedByData = await queries.getAllRetweetData(postsIdArray);
-    
+
     const postFeed = await formatPostsForFeedOptimized(
       posts,
       postsUsers,
@@ -108,6 +112,7 @@ postRouter.get("/posts/:postId/details", async (req, res) => {
     const postsUsers = await queries.getPostUsers(post.authorId);
     const favourites = await queries.countAllLikes(post.id);
     const commentCount = await queries.countAllComments(post.id);
+    console.log("3", post.id);
     const retweetCount = await queries.countAllRetweets(post.id);
     const postFeed = formatPostsForFeedOptimized(
       post,
@@ -128,10 +133,19 @@ postRouter.get("/posts/:postId/replies", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
     const postsComments = await queries.getPostsComments(post.id);
-    const postsUsers = await queries.getPostUsers(postsComments.authorId);
-    const favourites = await queries.countAllLikes(postsComments.id);
-    const commentCount = await queries.countAllComments(postsComments.id);
-    const retweetCount = await queries.countAllRetweets(postsComments.id);
+    console.log("postsComments", postsComments);
+    const postsUsers = await queries.getPostUsers(
+      postsComments.map((comment) => comment.authorId)
+    );
+    const favourites = await queries.countAllLikes(
+      postsComments.map((comment) => comment.id)
+    );
+    const commentCount = await queries.countAllComments(
+      postsComments.map((comment) => comment.id)
+    );
+    const retweetCount = await queries.countAllRetweets(
+      postsComments.map((comment) => comment.id)
+    );
     const postFeed = formatPostsForFeedOptimized(
       postsComments,
       postsUsers,
@@ -196,9 +210,11 @@ postRouter.post("/retweets", async (req, res) => {
   try {
     const userId = req.body.user.id;
     const postId = req.body.id;
-    
+
     if (!userId || !postId) {
-      return res.status(400).json({ message: "User ID and Post ID are required" });
+      return res
+        .status(400)
+        .json({ message: "User ID and Post ID are required" });
     }
 
     const retweet = await queries.toggleRetweet(userId, postId);

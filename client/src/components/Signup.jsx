@@ -44,7 +44,7 @@ const SignUpCard = () => {
   const handleGuestLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch(`${HOST}/api/v1/guest/`, {
+      const res = await fetch(`${HOST}/api/v1/auth/guest/`, {
         method: 'POST',
       });
       const data = await res.json();

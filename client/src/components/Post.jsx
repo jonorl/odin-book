@@ -56,7 +56,7 @@ const Post = ({ post, isReply }) => {
 
       {/* Retweet Header - Show if this is a repost */}
       {post?.isRepost && (
-        <div className={`px-4 pt-3 pb-1 border-b ${darkMode ? "border-gray-800 text-gray-400" : "border-gray-200 text-gray-600"}`}>
+        <div className={`px-4 pt-3 pb-1 border-t ${darkMode ? "border-gray-800 text-gray-400" : "border-gray-200 text-gray-600"}`}>
           <div className="flex items-center space-x-2 text-sm">
             <Repeat2 size={16} />
             <span>

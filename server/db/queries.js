@@ -160,7 +160,7 @@ async function countAllComments(postsIdArray) {
 const countAllRetweets = async (postIds) => {
   try {
     const postIdsArray = Array.isArray(postIds) ? postIds : [postIds];
-
+    console.log("postIdsArray", postIdsArray) 
     const retweetCounts = await prisma.repost.groupBy({
       by: ["postId"],
       where: {
@@ -707,17 +707,17 @@ const fetchAllPostsFromFollowingWithRetweets = async (followingUserIds) => {
 
 const getAllRetweetData = async (postIds) => {
   try {
-    const retweetData = await prisma.repost.groupBy({
-      by: ["postId"],
-      where: {
-        postId: {
-          in: postIds,
-        },
-      },
-      _count: {
-        userId: true,
-      },
-    });
+    // const retweetData = await prisma.repost.groupBy({
+    //   by: ["postId"],
+    //   where: {
+    //     postId: {
+    //       in: postIds,
+    //     },
+    //   },
+    //   _count: {
+    //     userId: true,
+    //   },
+    // });
 
     // Get individual user IDs who retweeted each post
     const detailedRetweetData = await Promise.all(
