@@ -2,6 +2,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useUser } from '../hooks/UseUser'
 import PostComposer from './PostComposer';
 import Post from './Post';
+import Pagination from './Pagination'
 
 const MainFeed = () => {
   
@@ -38,16 +39,15 @@ const MainFeed = () => {
             Following
           </button>
         </div>)}
-      {user !== null && (
-        <PostComposer/>
-      )}{(
-        postsToDisplay?.length > 0 && (
-          <div>
-            {postsToDisplay.map(post => (
-              <Post key={ post.repostId || post.id} post={post}/>
-            ))}
-          </div>
-        ))}
+      {user !== null && <PostComposer/>}
+      {(postsToDisplay?.length > 0 && (
+        <div>
+          {postsToDisplay.map(post => (
+            <Post key={ post.repostId || post.id} post={post}/>
+          ))}
+        </div>
+      ))}
+    <div><Pagination/></div>
     </div>
   );
 };

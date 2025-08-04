@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { PostsContext } from '../contexts/PostsContext';
 
 export const PostsProvider = ({ children }) => {
 
   const [liked, setLiked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [currentPage, setCurrentPage] = useState(1)
 
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
@@ -24,21 +24,21 @@ export const PostsProvider = ({ children }) => {
     }
   };
 
-      const postRetweet = async (post, user) => {
-      const id = post.id;
-      try {
-        const res = await fetch(`${HOST}/api/v1/retweets/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, user }),
-        });
-        const data = await res.json();
-        return data;
-      } catch (err) {
-        console.error("Failed to post retweet:", err);
-        throw err; // Re-throw to handle in component
-      }
-    };
+  const postRetweet = async (post, user) => {
+    const id = post.id;
+    try {
+      const res = await fetch(`${HOST}/api/v1/retweets/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, user }),
+      });
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to post retweet:", err);
+      throw err; // Re-throw to handle in component
+    }
+  };
 
   const handleConfirmPostDelete = async (postId, returnToHomepage, navigate) => {
     try {
@@ -56,7 +56,7 @@ export const PostsProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
-    const handleConfirmUserDelete = async (userId) => {
+  const handleConfirmUserDelete = async (userId) => {
     try {
       const res = await fetch(`${HOST}/api/v1/users/${userId}`, {
         method: "DELETE",
@@ -71,8 +71,10 @@ export const PostsProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
+  useEffect(() => { console.log(currentPage), [currentPage] })
+
   return (
-    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet }}>
+    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, currentPage, setCurrentPage, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet }}>
       {children}
     </PostsContext.Provider>
   );
