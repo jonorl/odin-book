@@ -1,7 +1,7 @@
 import { useUser } from '../hooks/UseUser'
 
 export const PaginationButtons = () => {
-  const { currentPage, setCurrentPage, postChangePage } = useUser();
+  const { currentPage, setCurrentPage } = useUser();
 
   return (
     <div className="flex justify-center p-4">

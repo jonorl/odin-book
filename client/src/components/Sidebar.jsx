@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { MoreHorizontal, Home, User, Settings, Moon, Sun } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../hooks/useTheme';
 import { useUser } from '../hooks/UseUser'
 
 const Sidebar = () => {
   const { darkMode, toggleDarkMode } = useTheme();
-  const { user } = useUser();
+  const { user, currentPage, setCurrentPage } = useUser();
   const [userPopupMenu, setUserPopupMenu] = useState(false);
   const popupRef = useRef(null); // Ref for the popup container
   const moreHorizontalRef = useRef(null); // Ref for the MoreHorizontal icon
@@ -15,7 +16,7 @@ const Sidebar = () => {
   const menuItems = [
     { icon: Home, label: 'Home', nav: '/', active: true },
     user && { icon: User, nav: `/profile/${user.handle}`, label: 'Profile' },
-    { icon: Settings, nav: '/settings', label: 'Settings' }
+    { icon: Settings, nav: '/settings', label: 'Settings' }, { icon: FaGithub, nav: 'https://github.com/jonorl', label: 'Github' }
   ];
 
   // Function to close the popup when clicking outside
@@ -25,7 +26,7 @@ const Sidebar = () => {
         popupRef.current && !popupRef.current.contains(event.target) &&
         moreHorizontalRef.current && !moreHorizontalRef.current.contains(event.target)
       ) {
-        setUserPopupMenu(false); 
+        setUserPopupMenu(false);
       }
     };
 
@@ -53,7 +54,7 @@ const Sidebar = () => {
       : 'bg-white border-gray-200'
       }`}>
       <div className="mb-8 flex items-center justify-between">
-        <h1 onClick={() => navigate(`/`)} className={`cursor-pointer text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
+        <h1 onClick={() => { currentPage === 1 ? navigate(`/`) : setCurrentPage(1) }} className={`cursor-pointer text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
         <button
           onClick={toggleDarkMode}
           className={`cursor-pointer p-2 rounded-full transition-colors ${darkMode
@@ -69,19 +70,38 @@ const Sidebar = () => {
           <nav className="space-y-2">
             {menuItems.map((item, index) => {
               const Icon = item.icon;
-              return (
-                <button
-                  key={index}
-                  onClick={() => navigate(`${item.nav}`)}
-                  className={`flex items-center space-x-3 w-full p-3 rounded-full transition-colors ${darkMode
-                    ? 'hover:bg-gray-800 text-white'
-                    : 'hover:bg-gray-100 text-black'
-                    } ${item.active ? 'font-bold' : ''}`}
-                >
-                  <Icon size={24} />
-                  <span className="text-xl">{item.label}</span>
-                </button>
-              );
+              const isExternal = item.nav.startsWith('http');
+              if (isExternal) {
+                return (
+                  <a
+                    key={index}
+                    href={item.nav}
+                    target="_blank" // Open external links in a new tab
+                    rel="noopener noreferrer" // Security best practice for external links
+                    className={`flex items-center space-x-3 w-full p-3 rounded-full transition-colors ${darkMode
+                      ? 'hover:bg-gray-800 text-white'
+                      : 'hover:bg-gray-100 text-black'
+                      } ${item.active ? 'font-bold' : ''}`}
+                  >
+                    <Icon size={24} />
+                    <span className="text-xl">{item.label}</span>
+                  </a>
+                );
+              } else {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => navigate(item.nav)}
+                    className={`flex items-center space-x-3 w-full p-3 rounded-full transition-colors ${darkMode
+                      ? 'hover:bg-gray-800 text-white'
+                      : 'hover:bg-gray-100 text-black'
+                      } ${item.active ? 'font-bold' : ''}`}
+                  >
+                    <Icon size={24} />
+                    <span className="text-xl">{item.label}</span>
+                  </button>
+                );
+              }
             })}
           </nav>
 

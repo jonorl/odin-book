@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback } from 'react'
+import { useMemo, useState } from 'react'
 import { PostsContext } from '../contexts/PostsContext';
 
 export const PostsProvider = ({ children }) => {
