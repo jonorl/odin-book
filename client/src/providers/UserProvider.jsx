@@ -18,6 +18,7 @@ export const UserProvider = ({ children }) => {
   const [postReplies, setPostReplies] = useState(null)
   const [followingUsers, setFollowingUsers] = useState(followers?.followingUsers || []);
   const [currentPage, setCurrentPage] = useState(parseInt(1))
+  const [query, setQuery] = useState(null)
 
 
   // Memoize TOKEN to prevent re-evaluation on every render
@@ -51,12 +52,14 @@ export const UserProvider = ({ children }) => {
 
   // get last 20 posts, logged in user data and logged-in user follower data and last 20
   // posts from posters that the user follow.
-  const fetchUserAndData = useCallback(async (pageNum) => {
+  const fetchUserAndData = useCallback(async (pageNum, keyword) => {
     const page = parseInt(pageNum) || 1
+    const searchTerm = keyword
     console.log("page", page)
+    console.log("searchTerm", searchTerm)
     try {
       // Always fetch posts regardless of authentication status
-      const postsRes = await fetch(`${HOST}/api/v1/posts?page=${page}`);
+      const postsRes = await fetch(`${HOST}/api/v1/posts?page=${page}&query=${searchTerm}`);
       const postsData = await postsRes.json();
       setFormattedPosts(postsData.postFeed || []);
 
@@ -269,7 +272,7 @@ export const UserProvider = ({ children }) => {
     }
   }, [HOST]);
 
-    const postChangePage = useCallback(async (page) => {
+  const postChangePage = useCallback(async (page) => {
     try {
       const res = await fetch(`${HOST}/api/v1/posts?page=${page}`);
       const data = await res.json();
@@ -279,12 +282,26 @@ export const UserProvider = ({ children }) => {
     }
   }, [HOST]);
 
-  // Run fetchUserAndData once upon mount.
-  useEffect(() => {
-    fetchUserAndData(currentPage);
-  }, [fetchUserAndData, currentPage]);
+  const postQuery = useCallback(async (query) => {
+    try {
+      console.log(query)
+      const res = await fetch(`${HOST}/api/v1/posts?page=1?query=${query}`);
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to change page", err);
+    }
+  }, [HOST]);
 
-  
+  useEffect(() => {
+    if (query) {
+      fetchUserAndData(1, query);
+    } else {
+      fetchUserAndData(currentPage);
+    }
+  }, [fetchUserAndData, currentPage, query]);
+
+
   // Sync followingUsers with followersData when it changes
   useEffect(() => {
     setFollowingUsers(followers?.followingUsers || []);
@@ -296,7 +313,7 @@ export const UserProvider = ({ children }) => {
   const isDisabled = user ? false : true
 
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, date, isDisabled, currentPage, setCurrentPage, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts, postChangePage }}>
+    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, date, isDisabled, currentPage, query, setQuery, setCurrentPage, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts, postChangePage, postQuery }}>
       {children}
     </UserContext.Provider>
   );

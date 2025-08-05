@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 
 async function fetchAllUsers() {
   const users = await prisma.user.findMany({
-    take: 10
+    take: 10,
   });
   return users;
 }
@@ -400,8 +400,8 @@ async function getUserFollowersData(userid, targetId) {
     targetId !== null
       ? prisma.follow.count({ where: { followingId: targetId } })
       : userid !== null
-      ? prisma.follow.count({ where: { followingId: userid } })
-      : Promise.resolve(0),
+        ? prisma.follow.count({ where: { followingId: userid } })
+        : Promise.resolve(0),
     // Count of people this user follows
     userid !== null
       ? prisma.follow.count({ where: { followerId: userid } })
@@ -541,13 +541,25 @@ const toggleRetweet = async (userId, postId) => {
 };
 
 // Fetch all posts including retweets for main feed
-const fetchAllPostsWithRetweets = async (page) => {
+const fetchAllPostsWithRetweets = async (page, query) => {
   try {
     const ITEMSPERPAGE = 20;
     const skip = ((page || 1) - 1) * ITEMSPERPAGE;
-
+    console.log("query", query);
+    console.log(typeof query)
+    const whereClause =
+      query?.length > 0 && query !== 'undefined'
+        ? {
+            text: {
+              contains: query,
+              mode: "insensitive", // For a case-insensitive search
+            },
+          }
+        : {}; // If no query, use an empty object
+    console.log("whereClause", whereClause);
     // Get original posts
     const posts = await prisma.post.findMany({
+      where: whereClause,
       orderBy: { createdAt: "desc" },
       take: ITEMSPERPAGE,
       skip: skip,
@@ -555,6 +567,7 @@ const fetchAllPostsWithRetweets = async (page) => {
 
     // Get reposts (retweets)
     const reposts = await prisma.repost.findMany({
+      where: { post: whereClause },
       include: {
         post: true,
         user: true,
@@ -566,25 +579,31 @@ const fetchAllPostsWithRetweets = async (page) => {
 
     // ... (rest of your combination and sorting logic)
     const combined = [
-        ...posts.map((post) => ({ ...post, type: "post" })),
-        ...reposts.map((repost) => ({
-            ...repost.post,
-            type: "repost",
-            repostUser: repost.user,
-            repostCreatedAt: repost.createdAt,
-            repostComment: repost.comment,
-            repostId: repost.id,
-        })),
+      ...posts.map((post) => ({ ...post, type: "post" })),
+      ...reposts.map((repost) => ({
+        ...repost.post,
+        type: "repost",
+        repostUser: repost.user,
+        repostCreatedAt: repost.createdAt,
+        repostComment: repost.comment,
+        repostId: repost.id,
+      })),
     ];
 
     combined.sort((a, b) => {
-        const dateA = a.type === "repost" ? new Date(a.repostCreatedAt) : new Date(a.createdAt);
-        const dateB = b.type === "repost" ? new Date(b.repostCreatedAt) : new Date(b.createdAt);
-        return dateB - dateA;
+      const dateA =
+        a.type === "repost"
+          ? new Date(a.repostCreatedAt)
+          : new Date(a.createdAt);
+      const dateB =
+        b.type === "repost"
+          ? new Date(b.repostCreatedAt)
+          : new Date(b.createdAt);
+      return dateB - dateA;
     });
 
     // We no longer need to slice, as we've already taken the correct number of items
-    return combined; 
+    return combined;
   } catch (error) {
     console.error("Error fetching posts with retweets:", error);
     throw error;

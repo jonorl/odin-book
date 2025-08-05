@@ -3,9 +3,11 @@ import { Search} from 'lucide-react';
 import { Input } from "./ui/input";
 import SignUpCard from "./Signup"
 import { useTheme } from '../hooks/useTheme';
+import { useUser } from '../hooks/UseUser'
 
 const RightSidebar = () => {
   const { darkMode } = useTheme();
+  const { setQuery } = useUser();
 
   const trends = [
     { topic: 'Technology', tag: '#ReactJS', posts: '45.2K posts' },
@@ -43,6 +45,7 @@ const RightSidebar = () => {
             className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-black'}`}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
+                setQuery(e.currentTarget.value)
                 // Handle search submission here
                 console.log("Searching for:", e.currentTarget.value);
               }

@@ -65,9 +65,10 @@ postRouter.get("/posts/:postId/replies", async (req, res) => {
 
 postRouter.get("/posts", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  console.log("page", page)
+  const query = req.query.query || null;
+  console.log("query", query)
   try {
-    const posts = await queries.fetchAllPostsWithRetweets(page);
+    const posts = await queries.fetchAllPostsWithRetweets(page, query);
     const postsIdArray = posts.map((obj) => obj.id);
     const postsUserArray = posts.map((obj) => obj.authorId);
 
