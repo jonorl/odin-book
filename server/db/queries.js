@@ -541,12 +541,16 @@ const toggleRetweet = async (userId, postId) => {
 };
 
 // Fetch all posts including retweets for main feed
-const fetchAllPostsWithRetweets = async () => {
+const fetchAllPostsWithRetweets = async (page) => {
   try {
+    const ITEMSPERPAGE = 20;
+    const skip = ((page || 1) - 1) * ITEMSPERPAGE;
+
     // Get original posts
     const posts = await prisma.post.findMany({
       orderBy: { createdAt: "desc" },
-      take: 20, // Limit for performance
+      take: ITEMSPERPAGE,
+      skip: skip,
     });
 
     // Get reposts (retweets)
@@ -556,36 +560,31 @@ const fetchAllPostsWithRetweets = async () => {
         user: true,
       },
       orderBy: { createdAt: "desc" },
-      take: 20,
+      take: ITEMSPERPAGE,
+      skip: skip,
     });
 
-    // Combine and sort by creation date
+    // ... (rest of your combination and sorting logic)
     const combined = [
-      ...posts.map((post) => ({ ...post, type: "post" })),
-      ...reposts.map((repost) => ({
-        ...repost.post,
-        type: "repost",
-        repostUser: repost.user,
-        repostCreatedAt: repost.createdAt,
-        repostComment: repost.comment,
-        repostId: repost.id,
-      })),
+        ...posts.map((post) => ({ ...post, type: "post" })),
+        ...reposts.map((repost) => ({
+            ...repost.post,
+            type: "repost",
+            repostUser: repost.user,
+            repostCreatedAt: repost.createdAt,
+            repostComment: repost.comment,
+            repostId: repost.id,
+        })),
     ];
 
-    // Sort by creation date (original post date for posts, repost date for reposts)
     combined.sort((a, b) => {
-      const dateA =
-        a.type === "repost"
-          ? new Date(a.repostCreatedAt)
-          : new Date(a.createdAt);
-      const dateB =
-        b.type === "repost"
-          ? new Date(b.repostCreatedAt)
-          : new Date(b.createdAt);
-      return dateB - dateA;
+        const dateA = a.type === "repost" ? new Date(a.repostCreatedAt) : new Date(a.createdAt);
+        const dateB = b.type === "repost" ? new Date(b.repostCreatedAt) : new Date(b.createdAt);
+        return dateB - dateA;
     });
 
-    return combined.slice(0, 50); // Return top 50 after sorting
+    // We no longer need to slice, as we've already taken the correct number of items
+    return combined; 
   } catch (error) {
     console.error("Error fetching posts with retweets:", error);
     throw error;

@@ -1,11 +1,10 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import { PostsContext } from '../contexts/PostsContext';
 
 export const PostsProvider = ({ children }) => {
 
   const [liked, setLiked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1)
 
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
@@ -71,22 +70,9 @@ export const PostsProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
-    const postChangePage = async (page) => {
-      console.log(page, page)
-    try {
-      const res = await fetch(`${HOST}/api/v1/posts?page=${page}`, {
-      });
-      const data = await res.json();
-      return data;
-    } catch (err) {
-      console.error("Failed to change page", err);
-    }
-  };
-
-  useEffect(() => { console.log(currentPage), [currentPage] })
 
   return (
-    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, currentPage, setCurrentPage, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet, postChangePage }}>
+    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet }}>
       {children}
     </PostsContext.Provider>
   );
