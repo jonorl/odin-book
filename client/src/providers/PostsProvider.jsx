@@ -71,10 +71,22 @@ export const PostsProvider = ({ children }) => {
     setIsModalOpen(false);
   };
 
+    const postChangePage = async (page) => {
+      console.log(page, page)
+    try {
+      const res = await fetch(`${HOST}/api/v1/posts?page=${page}`, {
+      });
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to change page", err);
+    }
+  };
+
   useEffect(() => { console.log(currentPage), [currentPage] })
 
   return (
-    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, currentPage, setCurrentPage, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet }}>
+    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, currentPage, setCurrentPage, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet, postChangePage }}>
       {children}
     </PostsContext.Provider>
   );

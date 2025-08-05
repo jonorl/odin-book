@@ -8,104 +8,6 @@ import queries from "../db/queries.js";
 
 const postRouter = Router();
 
-postRouter.get("/posts", async (req, res) => {
-  try {
-    const posts = await queries.fetchAllPostsWithRetweets();
-    const postsIdArray = posts.map((obj) => obj.id);
-    const postsUserArray = posts.map((obj) => obj.authorId);
-
-    // Add repost user IDs to user array
-    posts.forEach((post) => {
-      if (post.type === "repost" && post.repostUser) {
-        postsUserArray.push(post.repostUser.id);
-      }
-    });
-
-    const uniqueUserIds = [...new Set(postsUserArray)];
-    const postsUsers = await queries.getPostUsers(uniqueUserIds);
-    const favourites = await queries.countAllLikes(postsIdArray);
-    const commentCount = await queries.countAllComments(postsIdArray);
-    console.log("1", postsIdArray);
-    const retweetCount = await queries.countAllRetweets(postsIdArray);
-    const retweetedByData = await queries.getAllRetweetData(postsIdArray);
-
-    const postFeed = formatPostsForFeedOptimized(
-      posts,
-      postsUsers,
-      favourites,
-      commentCount,
-      retweetCount,
-      [],
-      retweetedByData
-    );
-    const resolvedPostFeed = await postFeed;
-    res.json({ postFeed: resolvedPostFeed });
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-// postRouter.get("/posts/:id", async (req, res) => {
-//   const post = await queries.fetchSpecificPost(req.params.id);
-//   const postUser = await queries.getPostUser(post);
-//   post.user = postUser;
-//   post.timestamp = getTimeAgo(post.createdAt);
-//   res.json({ postFeed: post });
-// });
-
-postRouter.get("/users/:specificUserId/posts", async (req, res) => {
-  try {
-    const posts = await queries.fetchAllPostsFromSpecificUserWithRetweets(
-      req.params.specificUserId
-    );
-    const postsIdArray = posts.map((obj) => obj.id);
-    const postsUserArray = posts.map((obj) => obj.authorId);
-
-    // Add repost user IDs
-    posts.forEach((post) => {
-      if (post.type === "repost" && post.repostUser) {
-        postsUserArray.push(post.repostUser.id);
-      }
-    });
-
-    const replyToIds = posts
-      .filter((post) => post.replyToId)
-      .map((post) => post.replyToId);
-    const originalPosts = [];
-    if (replyToIds.length > 0) {
-      for (const replyToId of replyToIds) {
-        const originalPost = await queries.getPostDetails(replyToId);
-        if (originalPost) {
-          originalPosts.push(originalPost);
-          postsUserArray.push(originalPost.authorId);
-        }
-      }
-    }
-    const uniqueUserIds = [...new Set(postsUserArray)];
-    const postsUsers = await queries.getPostUsers(uniqueUserIds);
-    const favourites = await queries.countAllLikes(postsIdArray);
-    const commentCount = await queries.countAllComments(postsIdArray);
-    console.log("2", postsIdArray);
-    const retweetCount = await queries.countAllRetweets(postsIdArray);
-    const retweetedByData = await queries.getAllRetweetData(postsIdArray);
-
-    const postFeed = await formatPostsForFeedOptimized(
-      posts,
-      postsUsers,
-      favourites,
-      commentCount,
-      retweetCount,
-      originalPosts,
-      retweetedByData
-    );
-    res.json({ postFeed });
-  } catch (error) {
-    console.error("Error fetching user posts:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
 postRouter.get("/posts/:postId/details", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
@@ -158,6 +60,97 @@ postRouter.get("/posts/:postId/replies", async (req, res) => {
   } catch (err) {
     console.error("failed to fetch post", err);
     res.status(500).json({ message: "server error" });
+  }
+});
+
+postRouter.get("/posts", async (req, res) => {
+  const page = req.query.page || 1;
+  try {
+    console.log("page", page);
+    const posts = await queries.fetchAllPostsWithRetweets();
+    const postsIdArray = posts.map((obj) => obj.id);
+    const postsUserArray = posts.map((obj) => obj.authorId);
+
+    // Add repost user IDs to user array
+    posts.forEach((post) => {
+      if (post.type === "repost" && post.repostUser) {
+        postsUserArray.push(post.repostUser.id);
+      }
+    });
+
+    const uniqueUserIds = [...new Set(postsUserArray)];
+    const postsUsers = await queries.getPostUsers(uniqueUserIds);
+    const favourites = await queries.countAllLikes(postsIdArray);
+    const commentCount = await queries.countAllComments(postsIdArray);
+    const retweetCount = await queries.countAllRetweets(postsIdArray);
+    const retweetedByData = await queries.getAllRetweetData(postsIdArray);
+
+    const postFeed = formatPostsForFeedOptimized(
+      posts,
+      postsUsers,
+      favourites,
+      commentCount,
+      retweetCount,
+      [],
+      retweetedByData
+    );
+    const resolvedPostFeed = await postFeed;
+    res.json({ postFeed: resolvedPostFeed });
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+postRouter.get("/users/:specificUserId/posts", async (req, res) => {
+  try {
+    const posts = await queries.fetchAllPostsFromSpecificUserWithRetweets(
+      req.params.specificUserId
+    );
+    const postsIdArray = posts.map((obj) => obj.id);
+    const postsUserArray = posts.map((obj) => obj.authorId);
+
+    // Add repost user IDs
+    posts.forEach((post) => {
+      if (post.type === "repost" && post.repostUser) {
+        postsUserArray.push(post.repostUser.id);
+      }
+    });
+
+    const replyToIds = posts
+      .filter((post) => post.replyToId)
+      .map((post) => post.replyToId);
+    const originalPosts = [];
+    if (replyToIds.length > 0) {
+      for (const replyToId of replyToIds) {
+        const originalPost = await queries.getPostDetails(replyToId);
+        if (originalPost) {
+          originalPosts.push(originalPost);
+          postsUserArray.push(originalPost.authorId);
+        }
+      }
+    }
+    const uniqueUserIds = [...new Set(postsUserArray)];
+    const postsUsers = await queries.getPostUsers(uniqueUserIds);
+    const favourites = await queries.countAllLikes(postsIdArray);
+    const commentCount = await queries.countAllComments(postsIdArray);
+    console.log("2", postsIdArray);
+    const retweetCount = await queries.countAllRetweets(postsIdArray);
+    const retweetedByData = await queries.getAllRetweetData(postsIdArray);
+
+    const postFeed = await formatPostsForFeedOptimized(
+      posts,
+      postsUsers,
+      favourites,
+      commentCount,
+      retweetCount,
+      originalPosts,
+      retweetedByData
+    );
+    res.json({ postFeed });
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

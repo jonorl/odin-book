@@ -51,7 +51,7 @@ export const UserProvider = ({ children }) => {
   const fetchUserAndData = useCallback(async () => {
     try {
       // Always fetch posts regardless of authentication status
-      const postsRes = await fetch(`${HOST}/api/v1/posts/`);
+      const postsRes = await fetch(`${HOST}/api/v1/posts`);
       const postsData = await postsRes.json();
       setFormattedPosts(postsData.postFeed || []);
 

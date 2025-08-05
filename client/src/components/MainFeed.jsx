@@ -7,7 +7,7 @@ import Pagination from './Pagination'
 const MainFeed = () => {
   
   const { darkMode, activeTab, setActiveTab } = useTheme();
-  const { followersPosts, user, formattedPosts, followers } = useUser();
+  const { followersPosts, user, formattedPosts } = useUser();
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (

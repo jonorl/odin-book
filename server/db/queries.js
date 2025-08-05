@@ -160,7 +160,6 @@ async function countAllComments(postsIdArray) {
 const countAllRetweets = async (postIds) => {
   try {
     const postIdsArray = Array.isArray(postIds) ? postIds : [postIds];
-    console.log("postIdsArray", postIdsArray) 
     const retweetCounts = await prisma.repost.groupBy({
       by: ["postId"],
       where: {
