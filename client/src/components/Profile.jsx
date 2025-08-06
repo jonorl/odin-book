@@ -157,13 +157,13 @@ const Profile = () => {
             {profileActiveTab === "posts"
               ? formattedProfilePosts &&
               formattedProfilePosts
-                .filter((post) => post.replyToId === null)
+                .filter((post) => post.replyToId === null || post.isRepost === true)
                 .map((post) => (
                   <Post key={post.id} post={post} isReply={false} />
                 ))
               : formattedProfilePosts &&
               formattedProfilePosts
-                .filter((post) => post.replyToId !== null)
+                .filter((post) => post.replyToId !== null && !post?.isRepost)
                 .map((post) => (
                   <Post key={post.id} post={post} isReply={true} />
                 ))}
