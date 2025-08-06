@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Search} from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from "./ui/input";
 import SignUpCard from "./Signup"
 import { useNavigate } from 'react-router-dom';
@@ -33,26 +33,32 @@ const RightSidebar = () => {
     }
   }, [inputRef]);
 
+  const handleSearch = (value) => {
+    if (value?.trim()) {
+      setSearchActive(true);
+      navigate(`/`);
+      setQuery(value);
+      console.log("Searching for:", value);
+    }
+  };
 
   return (
     <>
       <div className="w-80 p-4 space-y-4">
-      <SignUpCard/>
+        <SignUpCard />
 
         <div className="flex items-center p-2">
-
-          <Search className="text-muted-foreground mr-2 mb-2" />
+          <Search
+            className="text-muted-foreground mr-2 mb-2 cursor-pointer hover:text-foreground transition-colors"
+            onClick={() => handleSearch(inputRef.current?.value)}
+          />
           <Input
             ref={inputRef}
             placeholder="Search..."
             className={`text-xl font-bold mb-3 ${darkMode ? 'text-white' : 'text-black'}`}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                setSearchActive(true)
-                navigate(`/`)
-                setQuery(e.currentTarget.value)
-                // Handle search submission here
-                console.log("Searching for:", e.currentTarget.value);
+                handleSearch(e.currentTarget.value);
               }
             }}
           />

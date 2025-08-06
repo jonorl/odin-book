@@ -6,7 +6,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useUser } from '../hooks/UseUser'
 
 const Sidebar = () => {
-  const { darkMode, toggleDarkMode, setActiveSearch } = useTheme();
+  const { darkMode, toggleDarkMode } = useTheme();
   const { user, currentPage, setCurrentPage } = useUser();
   const [userPopupMenu, setUserPopupMenu] = useState(false);
   const popupRef = useRef(null); // Ref for the popup container
