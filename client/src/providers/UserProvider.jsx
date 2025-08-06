@@ -223,6 +223,7 @@ export const UserProvider = ({ children }) => {
   const handleFollow = async (userId, targetUserId) => {
     const wasFollowing = isFollowing(targetUserId);
     updateFollowingStatus(targetUserId, !wasFollowing);
+    triggerRefetchOnFollowersUpdate()
 
     try {
       await followUser(userId, targetUserId);
@@ -292,13 +293,30 @@ export const UserProvider = ({ children }) => {
     }
   }, [HOST]);
 
+  // useEffect(() => {
+  //   if (query) { fetchUserAndData(1, query) }
+  //   else { fetchUserAndData(currentPage) }
+  // }, [fetchUserAndData, currentPage, query]);
+
+  // useEffect(() => {
+  //   setFollowingUsers(followers?.followingUsers || []);
+
+  // }, [followers]);
+
+  const [followersTrigger, setFollowersTrigger] = useState(0);
+
+  // Expose a function to manually trigger refetch when followers change externally
+  const triggerRefetchOnFollowersUpdate = useCallback(() => {
+    setFollowersTrigger(prev => prev + 1);
+  }, []);
+
   useEffect(() => {
     if (query) {
-      fetchUserAndData(1, query);
+      fetchUserAndData(1, query)
     } else {
-      fetchUserAndData(currentPage);
+      fetchUserAndData(currentPage)
     }
-  }, [fetchUserAndData, currentPage, query]);
+  }, [fetchUserAndData, currentPage, query, followersTrigger]);
 
   useEffect(() => {
     setFollowingUsers(followers?.followingUsers || []);
@@ -342,7 +360,8 @@ export const UserProvider = ({ children }) => {
       isFollowing,
       fetchFormattedPosts,
       postChangePage,
-      postQuery
+      postQuery,
+      triggerRefetchOnFollowersUpdate,
     }}>
       {children}
     </UserContext.Provider>
