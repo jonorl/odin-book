@@ -20,11 +20,11 @@ export default function OdinBook() {
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? "bg-black" : "bg-white"}`}>
-      <div className="flex max-w-7xl mr-auto ml-auto">
-        <Sidebar className="flex ml-64"/>
-        <div className="flex-1 flex mr-auto ml-auto">
+      <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
+        <Sidebar className="hidden md:flex md:ml-64 w-full md:w-64 fixed md:sticky top-0 z-10"/>
+        <div className="flex-1 flex flex-col md:flex-row mx-auto w-full">
           <Profile/>
-          <RightSidebar/>
+          <RightSidebar className="hidden md:flex md:w-80"/>
         </div>
       </div>
     </div>
