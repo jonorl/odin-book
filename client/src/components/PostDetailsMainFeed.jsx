@@ -74,7 +74,7 @@ const PostDetailsMainFeed = () => {
         {/* If original post exists, render it */}
         {(postDetails.replyToId) && <>
           <Post key={postDetails.replyToId} post={originalPost} reply={false} />
-        </>}{console.log("originalPost", originalPost)}
+        </>}
 
         {/* Post Content */}
         <div

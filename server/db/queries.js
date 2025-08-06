@@ -372,7 +372,6 @@ async function toggleFollow(userId, targetUserId) {
         },
       },
     });
-    console.log(`Unfollowed: User ${userId} unfollowed User ${targetUserId}`);
     return { action: "deleted", follow: existingFollow };
   } else {
     // 3. If it doesn't exist, create it
@@ -382,7 +381,6 @@ async function toggleFollow(userId, targetUserId) {
         followingId: targetUserId,
       },
     });
-    console.log(`Followed: User ${userId} followed User ${targetUserId}`);
     return { action: "created", follow: newFollowEntry };
   }
 }
@@ -545,8 +543,6 @@ const fetchAllPostsWithRetweets = async (page, query) => {
   try {
     const ITEMSPERPAGE = 20;
     const skip = ((page || 1) - 1) * ITEMSPERPAGE;
-    console.log("query", query);
-    console.log(typeof query)
     const whereClause =
       query?.length > 0 && query !== 'undefined'
         ? {
@@ -556,7 +552,6 @@ const fetchAllPostsWithRetweets = async (page, query) => {
             },
           }
         : {}; // If no query, use an empty object
-    console.log("whereClause", whereClause);
     // Get original posts
     const posts = await prisma.post.findMany({
       where: whereClause,

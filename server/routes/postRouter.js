@@ -14,7 +14,6 @@ postRouter.get("/posts/:postId/details", async (req, res) => {
     const postsUsers = await queries.getPostUsers(post.authorId);
     const favourites = await queries.countAllLikes(post.id);
     const commentCount = await queries.countAllComments(post.id);
-    console.log("3", post.id);
     const retweetCount = await queries.countAllRetweets(post.id);
     const postFeed = formatPostsForFeedOptimized(
       post,
@@ -35,7 +34,6 @@ postRouter.get("/posts/:postId/replies", async (req, res) => {
   try {
     const post = await queries.getPostDetails(req.params.postId);
     const postsComments = await queries.getPostsComments(post.id);
-    console.log("postsComments", postsComments);
     const postsUsers = await queries.getPostUsers(
       postsComments.map((comment) => comment.authorId)
     );
@@ -66,7 +64,6 @@ postRouter.get("/posts/:postId/replies", async (req, res) => {
 postRouter.get("/posts", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const query = req.query.query || null;
-  console.log("query", query)
   try {
     const posts = await queries.fetchAllPostsWithRetweets(page, query);
     const postsIdArray = posts.map((obj) => obj.id);
@@ -135,7 +132,6 @@ postRouter.get("/users/:specificUserId/posts", async (req, res) => {
     const postsUsers = await queries.getPostUsers(uniqueUserIds);
     const favourites = await queries.countAllLikes(postsIdArray);
     const commentCount = await queries.countAllComments(postsIdArray);
-    console.log("2", postsIdArray);
     const retweetCount = await queries.countAllRetweets(postsIdArray);
     const retweetedByData = await queries.getAllRetweetData(postsIdArray);
 

@@ -18,7 +18,6 @@ followRouter.post("/followers", async (req, res) => {
     const user = req.body.userData?.id || req.body.userData?.user?.id;
     const specificUser =
       req.body.specificUserData?.id || req.body.specificUserData?.user?.id;
-      console.log("specificUser", specificUser)
     const { followingUsers, followerCount, followingCount } =
       await queries.getUserFollowersData(user, specificUser || null);
     res.json({ followingUsers, followerCount, followingCount });

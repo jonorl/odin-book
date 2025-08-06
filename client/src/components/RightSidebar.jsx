@@ -37,7 +37,6 @@ const RightSidebar = () => {
       setSearchActive(true);
       navigate(`/`);
       setQuery(value);
-      console.log("Searching for:", value);
     }
   };
 

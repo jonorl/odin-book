@@ -29,7 +29,7 @@ const MainFeed = () => {
             onClick={() => setActiveTab("For you")}
           >
             For you
-          </button>{console.log(followersPosts, "followersPosts")}
+          </button>
           <button
             className={`flex-1 py-4 text-center ${activeTab === "Following"
               ? "border-b-2 border-blue-500 text-gray-500 font-medium"

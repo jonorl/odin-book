@@ -16,7 +16,6 @@ const SignUpCard = () => {
     const token = urlParams.get("token");
 
     if (token) {
-      console.log("Received token:", token);
       localStorage.setItem("token", token); 
       window.history.replaceState({}, document.title, window.location.pathname);
       window.location.reload();
