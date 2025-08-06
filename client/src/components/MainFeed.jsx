@@ -7,7 +7,7 @@ import LoadingSpinner from './ui/LoadingSpinner';
 
 const MainFeed = () => {
 
-  const { darkMode, activeTab, setActiveTab } = useTheme();
+  const { darkMode, activeTab, setActiveTab, searchActive } = useTheme();
   const { followersPosts, user, formattedPosts, isLoading } = useUser();
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
@@ -19,7 +19,7 @@ const MainFeed = () => {
         }`}>
         <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-black'}`}>Home</h1>
       </div>
-      {user && (
+      {user && searchActive === false && (
         <div className="flex">
           <button
             className={`flex-1 py-4 text-center ${activeTab === "For you"
@@ -40,8 +40,8 @@ const MainFeed = () => {
             Following
           </button>
         </div>)}
-      {user !== null && <PostComposer />}
-      
+      {user !== null && searchActive !== true && <PostComposer />}
+
       {isLoading ? (
         <div className="py-8">
           <LoadingSpinner
