@@ -1,6 +1,5 @@
 import { useTheme } from '../hooks/useTheme';
 import { useUser } from '../hooks/UseUser'
-import Post from './Post'
 import { useNavigate } from "react-router-dom";
 
 const PostAddendum = ({ post }) => {
@@ -63,7 +62,7 @@ const PostAddendum = ({ post }) => {
                   <p className={`mb-3 ${darkMode ? "text-gray-200" : "text-gray-900"}`}>
                     {post?.originalPost?.content}
                   </p>
-                  {post?.post?.originalPost?.post?.originalPost?.image && (
+                  {post?.originalPost?.image && (
                     <img
                       className="rounded-xl max-w-full max-h-80"
                       onClick={(e) => e.stopPropagation()}
@@ -78,9 +77,6 @@ const PostAddendum = ({ post }) => {
               className={`absolute left-10 top-16 w-0.5 ${darkMode ? "bg-gray-600" : "bg-gray-400"}`}
               style={{ height: 'calc(100% - 4rem + 1rem)' }}
             />
-          </div>
-          <div className={`ml-0 pl-0 relative`}>
-            <div className="ml-0 pl-0">{<Post post={post} isReply={false} />}</div>
           </div>
         </div>
       </div>

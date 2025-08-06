@@ -152,7 +152,7 @@ const Profile = () => {
               >
                 Replies
               </button>
-            </div>
+            </div>{console.log("formattedProfilePosts", formattedProfilePosts)}
             {/* 3. Conditionally render content based on the active tab */}
             {profileActiveTab === "posts"
               ? formattedProfilePosts &&
