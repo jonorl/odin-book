@@ -6,26 +6,36 @@ import { useUser } from './hooks/UseUser'
 import Sidebar from "./components/Sidebar"
 import RightSidebar from "./components/RightSidebar"
 import PostDetailsMainFeed from './components/PostDetailsMainFeed';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
 export default function OdinBook() {
 
   const { darkMode } = useTheme();
-  const { postDetails, postUserDetails, fetchPostDetails, fetchUserProfileDetails } = useUser();
+  const { postDetails, postUserDetails, fetchPostDetails, fetchUserProfileDetails, isLoading } = useUser();
   const { postId, userId } = useParams();
 
   // Fetch details of specific post clicked on
   useEffect(() => {
-      fetchPostDetails(postId);
-      fetchUserProfileDetails(userId)
+    fetchPostDetails(postId);
+    fetchUserProfileDetails(userId)
   }, [postId, userId, fetchPostDetails, fetchUserProfileDetails]);
 
   return (
     <div className={`min-h-screen mx-auto ${darkMode ? 'bg-black' : 'bg-white'}`}>
       <div className="flex max-w-7xl mr-auto ml-auto">
-        <Sidebar className="flex ml-64"/>
+        <Sidebar className="flex ml-64" />
         <div className="flex-1 flex mr-auto ml-auto">
-          {postDetails && postUserDetails && <PostDetailsMainFeed/>}
-          <RightSidebar/>
+          {isLoading ? (
+            <div className="mr-auto ml-auto pt-38">
+              <LoadingSpinner
+                size="large"
+                text="Loading posts..."
+                className="flex text-center"
+              />
+            </div>
+          ) : (
+            postDetails && postUserDetails && <PostDetailsMainFeed />)}
+          <RightSidebar />
         </div>
       </div>
     </div>

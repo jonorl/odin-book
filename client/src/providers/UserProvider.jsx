@@ -24,7 +24,8 @@ export const UserProvider = ({ children }) => {
   const TOKEN = useMemo(() => localStorage.getItem("token"), []);
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
-  const fetchPostDetails = useCallback(async (newPostId, isOriginalPost=false) => {
+  const fetchPostDetails = useCallback(async (newPostId, isOriginalPost = false) => {
+    if (newPostId === null) { return }
     setIsLoading(true);
     try {
       const response = await fetch(`${HOST}/api/v1/posts/${newPostId}/details`);
@@ -56,7 +57,7 @@ export const UserProvider = ({ children }) => {
   const fetchUserAndData = useCallback(async (pageNum, keyword) => {
     const page = parseInt(pageNum) || 1;
     const searchTerm = keyword;
-    
+
     setIsLoading(true);
     try {
       const postsRes = await fetch(`${HOST}/api/v1/posts?page=${page}&query=${searchTerm}`);
@@ -178,7 +179,7 @@ export const UserProvider = ({ children }) => {
 
   const fetchUserDetails = useCallback(async (handle) => {
     if (!handle) return;
-    
+
     setIsLoading(true);
     try {
       let userData;
@@ -235,7 +236,7 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     async function fetchFormattedPosts() {
       if (!specificUser?.id) return;
-      
+
       setIsLoading(true);
       try {
         const res = await fetch(`${HOST}/api/v1/users/${specificUser.id}/posts`);
@@ -309,39 +310,39 @@ export const UserProvider = ({ children }) => {
   const isDisabled = user ? false : true;
 
   return (
-    <UserContext.Provider value={{ 
-      HOST, 
-      formattedPosts, 
-      formattedProfilePosts, 
-      user, 
-      followers, 
-      followersPosts, 
-      postUserDetails, 
-      postDetails, 
-      specificUser, 
-      followingUsers, 
-      postReplies, 
-      date, 
-      isDisabled, 
-      currentPage, 
+    <UserContext.Provider value={{
+      HOST,
+      formattedPosts,
+      formattedProfilePosts,
+      user,
+      followers,
+      followersPosts,
+      postUserDetails,
+      postDetails,
+      specificUser,
+      followingUsers,
+      postReplies,
+      date,
+      isDisabled,
+      currentPage,
       query,
       isLoading,
       originalPost,
       // Functions
-      setQuery, 
-      setCurrentPage, 
-      fetchUserAndData, 
-      fetchPostDetails, 
-      fetchUserAndFollowers, 
-      fetchUserDetails, 
-      fetchUserProfileDetails, 
-      updateFollowingStatus, 
-      followUser, 
-      handleFollow, 
-      isFollowing, 
-      fetchFormattedPosts, 
-      postChangePage, 
-      postQuery 
+      setQuery,
+      setCurrentPage,
+      fetchUserAndData,
+      fetchPostDetails,
+      fetchUserAndFollowers,
+      fetchUserDetails,
+      fetchUserProfileDetails,
+      updateFollowingStatus,
+      followUser,
+      handleFollow,
+      isFollowing,
+      fetchFormattedPosts,
+      postChangePage,
+      postQuery
     }}>
       {children}
     </UserContext.Provider>
