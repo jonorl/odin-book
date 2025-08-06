@@ -50,7 +50,7 @@ const Post = ({ post, isReply }) => {
     }
   };
 
-    const handleShare = async (post) => {
+  const handleShare = async (post) => {
     const postUrl = `${window.location.origin}/${post?.user.id}/${post?.id}`;
 
     try {
@@ -228,29 +228,23 @@ const Post = ({ post, isReply }) => {
               <span className="text-sm">{likes}</span>
             </button>
             <button
-              className={`flex items-center space-x-2 rounded-full p-2 group transition-colors ${darkMode
-                ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
-                : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-                }`}
-            >
-              <button
-                onClick={() => handleShare(post)}
-                className={`flex items-center space-x-2 rounded-full p-2 group transition-colors relative ${shareSuccess
+              onClick={() => handleShare(post)}
+              className={`flex items-center space-x-2 rounded-full p-2 group transition-colors relative ${
+                shareSuccess
                   ? darkMode
                     ? "text-green-400"
                     : "text-green-500"
                   : darkMode
                     ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
                     : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
-                  }`}
-              >
-                <Share size={18} />
-                {shareSuccess && (
-                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
-                    Copied!
-                  </span>
-                )}
-              </button>
+              }`}
+            >
+              <Share size={18} />
+              {shareSuccess && (
+                <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+                  Copied!
+                </span>
+              )}
             </button>
           </div>
         </div>
