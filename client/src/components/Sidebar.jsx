@@ -47,6 +47,11 @@ const Sidebar = () => {
     window.location.reload();
   };
 
+  function odinBookButton() {
+    navigate('/')
+    currentPage === 1 ? window.location.reload() : setCurrentPage(1)
+  }
+
 
   return (
     <div className={`w-16 sm:w-20 md:w-64 h-screen p-4 relative ${darkMode // Main sidebar needs 'relative'
@@ -54,7 +59,7 @@ const Sidebar = () => {
       : 'bg-white border-gray-200'
       }`}>
       <div className="mb-8 flex items-center justify-between">
-        <h1 onClick={() => { currentPage === 1 ? window.location.reload() : setCurrentPage(1) }} className={`cursor-pointer text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
+        <h1 onClick={() => odinBookButton()} className={`cursor-pointer text-2xl font-bold ${darkMode ? 'text-white' : 'text-blue-500'}`}>OdinBook</h1>
         <button
           onClick={toggleDarkMode}
           className={`cursor-pointer p-2 rounded-full transition-colors ${darkMode

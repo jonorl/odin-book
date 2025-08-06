@@ -11,7 +11,6 @@ const RightSidebar = () => {
   const { setQuery } = useUser();
   const navigate = useNavigate();
 
-
   const trends = [
     { topic: 'Technology', tag: '#ReactJS', posts: '45.2K posts' },
     { topic: 'Programming', tag: '#JavaScript', posts: '32.1K posts' },

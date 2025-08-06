@@ -9,14 +9,14 @@ import { useNavigate } from "react-router-dom";
 
 const Post = ({ post, isReply }) => {
 
+  const { darkMode } = useTheme();
   const { user, handleFollow, isFollowing, isDisabled } = useUser();
   const { setIsModalOpen, postLike, postRetweet } = usePost();
   const [likes, setLikes] = useState(post?.likes);
   const [retweeted, setRetweeted] = useState(post?.retweetedBy?.userIds?.includes(user?.id) || false);
   const [retweets, setRetweets] = useState(post?.retweets);
+  const [shareSuccess, setShareSuccess] = useState(false);
   const navigate = useNavigate();
-
-  const { darkMode } = useTheme();
 
   const [liked, setLiked] = useState(user && post?.likedBy?.userIds?.includes(user?.id));
 
@@ -47,6 +47,36 @@ const Post = ({ post, isReply }) => {
       setRetweeted(wasRetweeted);
       setRetweets(wasRetweeted ? retweets + 1 : retweets - 1);
       console.error("Failed to retweet:", error);
+    }
+  };
+
+    const handleShare = async (post) => {
+    const postUrl = `${window.location.origin}/${post?.user.id}/${post?.id}`;
+
+    try {
+      if (navigator.share) {
+        // Use native share API if available (mobile devices)
+        await navigator.share({
+          title: `${post?.user?.name} on Twitter Clone`,
+          text: post?.content || post?.text,
+          url: postUrl,
+        });
+      } else {
+        // Fallback to clipboard API
+        await navigator.clipboard.writeText(postUrl);
+        setShareSuccess(true);
+
+        // Reset success state after 2 seconds
+        setTimeout(() => {
+          setShareSuccess(false);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Failed to share:', error);
+      setShareSuccess(true);
+      setTimeout(() => {
+        setShareSuccess(false);
+      }, 2000);
     }
   };
 
@@ -203,7 +233,24 @@ const Post = ({ post, isReply }) => {
                 : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
                 }`}
             >
-              <Share size={18} />
+              <button
+                onClick={() => handleShare(post)}
+                className={`flex items-center space-x-2 rounded-full p-2 group transition-colors relative ${shareSuccess
+                  ? darkMode
+                    ? "text-green-400"
+                    : "text-green-500"
+                  : darkMode
+                    ? "text-gray-400 hover:text-blue-400 hover:bg-blue-900/20"
+                    : "text-gray-500 hover:text-blue-500 hover:bg-blue-50"
+                  }`}
+              >
+                <Share size={18} />
+                {shareSuccess && (
+                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-xs whitespace-nowrap">
+                    Copied!
+                  </span>
+                )}
+              </button>
             </button>
           </div>
         </div>
