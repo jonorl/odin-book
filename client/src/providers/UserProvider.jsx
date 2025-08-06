@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { UserContext } from '../contexts/UserContext';
 
 export const UserProvider = ({ children }) => {
-
   const [formattedPosts, setFormattedPosts] = useState([]);
   const [formattedProfilePosts, setFormattedProfilePosts] = useState([]);
   const [user, setUser] = useState(null);
@@ -15,31 +14,33 @@ export const UserProvider = ({ children }) => {
   const [followersPosts, setFollowersPosts] = useState([]);
   const [postDetails, setPostDetails] = useState(null);
   const [postUserDetails, setPostUserDetails] = useState(null);
-  const [postReplies, setPostReplies] = useState(null)
+  const [postReplies, setPostReplies] = useState(null);
   const [followingUsers, setFollowingUsers] = useState(followers?.followingUsers || []);
-  const [currentPage, setCurrentPage] = useState(parseInt(1))
-  const [query, setQuery] = useState(null)
+  const [currentPage, setCurrentPage] = useState(parseInt(1));
+  const [query, setQuery] = useState(null);
+  const [isLoading, setIsLoading] = useState(false)
+  const [originalPost, setOriginalPost] = useState(null)
 
-
-  // Memoize TOKEN to prevent re-evaluation on every render
   const TOKEN = useMemo(() => localStorage.getItem("token"), []);
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
-  // Fetch post details from postDetails API
-  const fetchPostDetails = useCallback(async (newPostId) => {
+  const fetchPostDetails = useCallback(async (newPostId, isOriginalPost=false) => {
+    setIsLoading(true);
     try {
       const response = await fetch(`${HOST}/api/v1/posts/${newPostId}/details`);
       const data = await response.json();
-      setPostDetails(data.postFeed[0]);
+      isOriginalPost ? setOriginalPost(data.postFeed[0]) : setPostDetails(data.postFeed[0]);
     } catch (err) {
       console.error("Error fetching post details", err);
       setPostDetails(null);
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST]);
 
-  // Get user details from posting user
   const fetchUserProfileDetails = useCallback(async (userId) => {
     if (!userId) return;
+    setIsLoading(true);
     try {
       const response = await fetch(`${HOST}/api/v1/users/${userId}`);
       const data = await response.json();
@@ -47,26 +48,23 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching user details", err);
       setPostUserDetails(null);
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST]);
 
-  // get last 20 posts, logged in user data and logged-in user follower data and last 20
-  // posts from posters that the user follow.
   const fetchUserAndData = useCallback(async (pageNum, keyword) => {
-    const page = parseInt(pageNum) || 1
-    const searchTerm = keyword
-    console.log("page", page)
-    console.log("searchTerm", searchTerm)
+    const page = parseInt(pageNum) || 1;
+    const searchTerm = keyword;
+    
+    setIsLoading(true);
     try {
-      // Always fetch posts regardless of authentication status
       const postsRes = await fetch(`${HOST}/api/v1/posts?page=${page}&query=${searchTerm}`);
       const postsData = await postsRes.json();
       setFormattedPosts(postsData.postFeed || []);
 
-      // Only fetch user-specific data if token exists
       if (TOKEN) {
         try {
-          // Fetch user data and followers
           const userRes = await fetch(`${HOST}/api/v1/me`, {
             headers: { authorization: `Bearer ${TOKEN}` },
           });
@@ -74,9 +72,7 @@ export const UserProvider = ({ children }) => {
           if (userRes.ok) {
             const userData = await userRes.json();
             setUser(userData.user);
-            console.log("specificUser", specificUser)
 
-            // Fetch followers using userData
             const followersRes = await fetch(`${HOST}/api/v1/followers`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -98,7 +94,6 @@ export const UserProvider = ({ children }) => {
               }
             }
           } else {
-            // Token might be invalid, clear it
             localStorage.removeItem("token");
             setUser(null);
             setFollowers({
@@ -109,7 +104,6 @@ export const UserProvider = ({ children }) => {
           }
         } catch (userErr) {
           console.error("Error fetching user data:", userErr);
-          // Don't clear posts on user data error, just clear user state
           setUser(null);
           setFollowers({
             followingUsers: [],
@@ -118,7 +112,6 @@ export const UserProvider = ({ children }) => {
           });
         }
       } else {
-        // No token, ensure user state is cleared
         setUser(null);
         setFollowers({
           followingUsers: [],
@@ -128,11 +121,11 @@ export const UserProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Error fetching posts:", err);
-      // Even if posts fail, try to maintain user state if possible
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST, TOKEN, specificUser]);
 
-  // Function to refetch followers when needed (e.g., after follow/unfollow)
   const fetchUserAndFollowers = useCallback(async () => {
     if (!user) return;
     try {
@@ -148,7 +141,6 @@ export const UserProvider = ({ children }) => {
       console.error("Error refetching followers:", err);
     }
   }, [HOST, user, specificUser]);
-
 
   const updateFollowingStatus = useCallback(async (targetUserId, isFollowing) => {
     if (isFollowing) {
@@ -184,15 +176,13 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  //ProfileDetails
   const fetchUserDetails = useCallback(async (handle) => {
-    if (!handle) {
-      return;
-    }
+    if (!handle) return;
+    
+    setIsLoading(true);
     try {
-      // Fetch authenticated logged-in user
       let userData;
-      const currentToken = localStorage.getItem("token"); // Get fresh token
+      const currentToken = localStorage.getItem("token");
       if (currentToken) {
         const userRes = await fetch(`${HOST}/api/v1/me`, {
           headers: { authorization: `Bearer ${currentToken}` },
@@ -200,7 +190,7 @@ export const UserProvider = ({ children }) => {
         userData = await userRes.json();
         if (!userRes.ok) throw new Error("Failed to fetch user");
       }
-      // Fetch specific user by handle including postCount and replyCount
+
       const specificUserRes = await fetch(`${HOST}/api/v1/users/handle/${handle}`);
       const specificUserData = await specificUserRes.json();
       if (!specificUserRes.ok) throw new Error("Failed to fetch specific user");
@@ -208,7 +198,6 @@ export const UserProvider = ({ children }) => {
       setUser(userData?.user || null);
       setSpecificUser(specificUserData.user);
 
-      // Fetch followers only if user is logged in and specificUser is available
       const followersRes = await fetch(`${HOST}/api/v1/followers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -219,11 +208,11 @@ export const UserProvider = ({ children }) => {
       setFollowers(followersData);
     } catch (err) {
       console.error("Error fetching data:", err);
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST]);
 
-
-  // returns true or false if user is following poster
   const isFollowing = (targetUserId) => {
     return followingUsers?.some(follower =>
       follower.followingId === targetUserId
@@ -243,10 +232,11 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Fetch formatted posts for specific user to be used in ProfileDetails
   useEffect(() => {
     async function fetchFormattedPosts() {
       if (!specificUser?.id) return;
+      
+      setIsLoading(true);
       try {
         const res = await fetch(`${HOST}/api/v1/users/${specificUser.id}/posts`);
         const data = await res.json();
@@ -254,42 +244,50 @@ export const UserProvider = ({ children }) => {
         setFormattedProfilePosts(data.postFeed || []);
       } catch (err) {
         console.error("Failed to fetch formatted posts:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchFormattedPosts();
   }, [specificUser?.id, HOST]);
 
-
   const fetchFormattedPosts = useCallback(async (post) => {
+    setIsLoading(true);
     try {
-      console.log("post.id", post.id)
       const res = await fetch(`${HOST}/api/v1/posts/${post.id}/replies`);
       const data = await res.json();
       setPostReplies(data.postFeed || []);
       return data;
     } catch (err) {
       console.error("Failed to fetch formatted posts:", err);
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST]);
 
   const postChangePage = useCallback(async (page) => {
+    setIsLoading(true);
     try {
       const res = await fetch(`${HOST}/api/v1/posts?page=${page}`);
       const data = await res.json();
       return data;
     } catch (err) {
       console.error("Failed to change page", err);
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST]);
 
   const postQuery = useCallback(async (query) => {
+    setIsLoading(true);
     try {
-      console.log(query)
       const res = await fetch(`${HOST}/api/v1/posts?page=1?query=${query}`);
       const data = await res.json();
       return data;
     } catch (err) {
       console.error("Failed to change page", err);
+    } finally {
+      setIsLoading(false);
     }
   }, [HOST]);
 
@@ -301,8 +299,6 @@ export const UserProvider = ({ children }) => {
     }
   }, [fetchUserAndData, currentPage, query]);
 
-
-  // Sync followingUsers with followersData when it changes
   useEffect(() => {
     setFollowingUsers(followers?.followingUsers || []);
   }, [followers]);
@@ -310,10 +306,43 @@ export const UserProvider = ({ children }) => {
   let date = specificUser?.createdAt && new Date(specificUser?.createdAt);
   date = date?.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 
-  const isDisabled = user ? false : true
+  const isDisabled = user ? false : true;
 
   return (
-    <UserContext.Provider value={{ HOST, formattedPosts, formattedProfilePosts, user, followers, followersPosts, postUserDetails, postDetails, specificUser, followingUsers, postReplies, date, isDisabled, currentPage, query, setQuery, setCurrentPage, fetchUserAndData, fetchPostDetails, fetchUserAndFollowers, fetchUserDetails, fetchUserProfileDetails, updateFollowingStatus, followUser, handleFollow, isFollowing, fetchFormattedPosts, postChangePage, postQuery }}>
+    <UserContext.Provider value={{ 
+      HOST, 
+      formattedPosts, 
+      formattedProfilePosts, 
+      user, 
+      followers, 
+      followersPosts, 
+      postUserDetails, 
+      postDetails, 
+      specificUser, 
+      followingUsers, 
+      postReplies, 
+      date, 
+      isDisabled, 
+      currentPage, 
+      query,
+      isLoading,
+      originalPost,
+      // Functions
+      setQuery, 
+      setCurrentPage, 
+      fetchUserAndData, 
+      fetchPostDetails, 
+      fetchUserAndFollowers, 
+      fetchUserDetails, 
+      fetchUserProfileDetails, 
+      updateFollowingStatus, 
+      followUser, 
+      handleFollow, 
+      isFollowing, 
+      fetchFormattedPosts, 
+      postChangePage, 
+      postQuery 
+    }}>
       {children}
     </UserContext.Provider>
   );

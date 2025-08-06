@@ -2,14 +2,15 @@ import { useMemo, useState } from 'react'
 import { PostsContext } from '../contexts/PostsContext';
 
 export const PostsProvider = ({ children }) => {
-
   const [liked, setLiked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
   const postLike = async (post, user) => {
     const id = post.id;
+    setIsLoading(true);
     try {
       const res = await fetch(`${HOST}/api/v1/likes/`, {
         method: "POST",
@@ -20,11 +21,14 @@ export const PostsProvider = ({ children }) => {
       return data;
     } catch (err) {
       console.error("Failed to post new message:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const postRetweet = async (post, user) => {
     const id = post.id;
+    setIsLoading(true);
     try {
       const res = await fetch(`${HOST}/api/v1/retweets/`, {
         method: "POST",
@@ -35,44 +39,61 @@ export const PostsProvider = ({ children }) => {
       return data;
     } catch (err) {
       console.error("Failed to post retweet:", err);
-      throw err; // Re-throw to handle in component
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleConfirmPostDelete = async (postId, returnToHomepage, navigate) => {
+    setIsLoading(true);
     try {
-      console.log("postId", postId)
+      console.log("postId", postId);
       const res = await fetch(`${HOST}/api/v1/posts/${postId}`, {
         method: "DELETE",
       });
       const data = await res.json();
       returnToHomepage ? (navigate(`/`), window.location.reload()) :
-        window.location.reload()
+        window.location.reload();
       return data;
     } catch (err) {
       console.error("Failed to post new message:", err);
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
   const handleConfirmUserDelete = async (userId) => {
+    setIsLoading(true);
     try {
       const res = await fetch(`${HOST}/api/v1/users/${userId}`, {
         method: "DELETE",
       });
       const data = await res.json();
       localStorage.removeItem("token");
-      window.location.href = `${import.meta.env.VITE_THISHOST}`
+      window.location.href = `${import.meta.env.VITE_THISHOST}`;
       return data;
     } catch (err) {
       console.error("Failed to post new message:", err);
+    } finally {
+      setIsLoading(false);
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
 
-
   return (
-    <PostsContext.Provider value={{ postLike, setLiked, liked, isModalOpen, setIsModalOpen, handleConfirmPostDelete, handleConfirmUserDelete, postRetweet }}>
+    <PostsContext.Provider value={{ 
+      liked, 
+      isModalOpen, 
+      isLoading,
+      postLike, 
+      setLiked, 
+      setIsModalOpen, 
+      handleConfirmPostDelete, 
+      handleConfirmUserDelete, 
+      postRetweet,
+    }}>
       {children}
     </PostsContext.Provider>
   );

@@ -11,7 +11,7 @@ import ConfirmationModal from './ConfirmationModal';
 const PostDetailsMainFeed = () => {
 
   const { darkMode } = useTheme();
-  const { isDisabled, postDetails, HOST, user, isFollowing, postUserDetails, handleFollow, postReplies, fetchFormattedPosts } = useUser();
+  const { isDisabled, postDetails, user, isFollowing, postUserDetails, handleFollow, postReplies, fetchFormattedPosts, originalPost, isLoading, fetchPostDetails } = useUser();
   const { setIsModalOpen, postLike } = usePost();
   const [liked, setLiked] = useState(user && postDetails?.likedBy?.userIds?.includes(user?.id));
   const [likes, setLikes] = useState(postDetails?.likes);
@@ -23,6 +23,11 @@ const PostDetailsMainFeed = () => {
   useEffect(() => {
     fetchFormattedPosts(postDetails);
   }, [postDetails, fetchFormattedPosts]);
+
+  // Fetch all post details including replies upon all hooks loading
+  useEffect(() => {
+    fetchPostDetails(postDetails?.replyToId, true);
+  }, [postDetails?.replyToId, fetchPostDetails]);
 
   // Trigger re-render when user and post are fully loaded to fetch liked posts.
   useEffect(() => {
@@ -68,8 +73,8 @@ const PostDetailsMainFeed = () => {
 
         {/* If original post exists, render it */}
         {(postDetails.replyToId) && <>
-          <Post key={postDetails.replyToId} user={user} HOST={HOST} postId={postDetails.replyToId} darkMode={darkMode} reply={true} />
-        </>}
+          <Post key={postDetails.replyToId} post={originalPost} reply={false} />
+        </>}{console.log("originalPost", originalPost)}
 
         {/* Post Content */}
         <div
@@ -199,7 +204,7 @@ const PostDetailsMainFeed = () => {
         </div>
 
         {user !== null && (
-          <PostComposer redirected="true"/>
+          <PostComposer redirected="true" />
         )}
       </div>
 

@@ -3,11 +3,12 @@ import { useUser } from '../hooks/UseUser'
 import PostComposer from './PostComposer';
 import Post from './Post';
 import Pagination from './Pagination'
+import LoadingSpinner from './ui/LoadingSpinner';
 
 const MainFeed = () => {
-  
+
   const { darkMode, activeTab, setActiveTab } = useTheme();
-  const { followersPosts, user, formattedPosts } = useUser();
+  const { followersPosts, user, formattedPosts, isLoading } = useUser();
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (
@@ -39,15 +40,27 @@ const MainFeed = () => {
             Following
           </button>
         </div>)}
-      {user !== null && <PostComposer/>}
-      {(postsToDisplay?.length > 0 && (
-        <div>
-          {postsToDisplay.map(post => (
-            <Post key={ post.repostId || post.id} post={post}/>
-          ))}
+      {user !== null && <PostComposer />}
+      
+      {isLoading ? (
+        <div className="py-8">
+          <LoadingSpinner
+            size="large"
+            text="Loading posts..."
+            className="text-center"
+          />
         </div>
-      ))}
-    <div><Pagination/></div>
+      ) : (
+        postsToDisplay?.length > 0 && (
+          <div>
+            {postsToDisplay.map(post => (
+              <Post key={post.repostId || post.id} post={post} />
+            ))}
+          </div>
+        )
+      )}
+
+      <div><Pagination /></div>
     </div>
   );
 };
