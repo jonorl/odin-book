@@ -19,13 +19,16 @@ export default function OdinBook() {
   }, [fetchUserDetails, handle]);
 
   return (
-    <div className={`min-h-screen mx-auto ${darkMode ? "bg-black" : "bg-white"}`}>
-      <div className="flex flex-col md:flex-row max-w-7xl mx-auto">
-        <Sidebar className="hidden md:flex md:ml-64 w-full md:w-64 fixed md:sticky top-0 z-10"/>
-        <div className="flex-1 flex flex-col md:flex-row mx-auto w-full">
-          <Profile/>
-          <RightSidebar className="hidden md:flex md:w-80"/>
+    <div className={`min-h-screen ${darkMode ? "bg-black" : "bg-white"}`}>
+      <div className="md:hidden">
+        <Profile />
+      </div>
+      <div className="hidden md:flex max-w-7xl mx-auto">
+        <Sidebar className="w-64 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <Profile />
         </div>
+        <RightSidebar className="w-80 flex-shrink-0 hidden lg:block" />
       </div>
     </div>
   );
