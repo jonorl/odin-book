@@ -47,7 +47,7 @@ const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }
       )}
       {showSuperSlowSlowMessage && (
         <p className="mt-2 text-center text-sm text-red-500">
-          No, seriously, this could take up to a minute if it hasn't been used ina while...
+          No, seriously, this could take up to a minute if it hasn't been used in a while...
         </p>
       )}
     </div>
