@@ -26,7 +26,7 @@ export const UserProvider = ({ children }) => {
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
 
   const fetchPostDetails = useCallback(async (newPostId, isOriginalPost = false) => {
-    if (newPostId === null) { return }
+    if (newPostId || newPostId === null) { return }
     setIsLoading(true);
     try {
       const response = await fetch(`${HOST}/api/v1/posts/${newPostId}/details`);

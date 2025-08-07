@@ -28,13 +28,15 @@ const PostDetailsMainFeed = () => {
 
   // Fetch all post details including replies upon all hooks loading
   useEffect(() => {
-    if (postDetails?.replyToId) {
+    if (postDetails) {
+      console.log("re-render2")
       fetchPostDetails(postDetails?.replyToId, true);
     }
-  }, [postDetails?.replyToId, fetchPostDetails]);
+  }, [postDetails, fetchPostDetails]);
 
   // Trigger re-render when user and post are fully loaded to fetch liked posts.
   useEffect(() => {
+    console.log("re-render3")
     setLiked(user && postDetails?.likedBy?.userIds?.includes(user?.id));
   }, [user, postDetails?.likedBy?.userIds]);
 

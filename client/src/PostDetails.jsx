@@ -17,7 +17,7 @@ export default function OdinBook() {
   // Fetch details of specific post clicked on
   useEffect(() => {
     if (postId && userId) {
-
+      console.log("re-render")
       fetchPostDetails(postId);
       fetchUserProfileDetails(userId)
     }
