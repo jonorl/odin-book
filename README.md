@@ -159,6 +159,8 @@ VITE_THISHOST=http://localhost:5173
 - Notifications
 - Addigs GIFs
 - Adding polls
+- Add searchbar for mobile users
+- Right sidebar "What's Happening" and "Who to follow" sections are hardcoded
 
 ## 👨‍💻 Author
 

@@ -1,9 +1,13 @@
 // components/LoadingSpinner.jsx
 import { useState, useEffect } from 'react';
+import { useTheme } from '../hooks/useTheme';
+
 
 const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }) => {
+  const { darkMode } = useTheme();
   const [showSlowMessage, setShowSlowMessage] = useState(false);
   const [showSuperSlowSlowMessage, setshowSuperSlowSlowMessage] = useState(false);
+  const [showSupertryAgain, setshowSupertryAgain] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -14,7 +18,11 @@ const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }
       setshowSuperSlowSlowMessage(true);
     }, 10000);
 
-    return () => { clearTimeout(timer); clearTimeout(secondTimer); }
+    const thirdTimer = setTimeout(() => {
+      setshowSupertryAgain(true);
+    }, 10000);
+
+    return () => { clearTimeout(timer); clearTimeout(secondTimer); clearTimeout(thirdTimer); }
   }, []);
 
   const sizeClasses = {
@@ -48,6 +56,11 @@ const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }
       {showSuperSlowSlowMessage && (
         <p className="mt-2 text-center text-sm text-red-500">
           No, seriously, this could take up to a minute if it hasn't been used in a while...
+        </p>
+      )}
+      {showSupertryAgain && (
+        <p className={`mt-2 text-center text-sm ${darkMode ? "text-white" : "text-black"} `}>
+          Maybe give that F5 a hit... you've been patient enough
         </p>
       )}
     </div>
