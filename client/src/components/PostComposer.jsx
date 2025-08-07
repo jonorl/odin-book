@@ -56,7 +56,7 @@ const PostComposer = ({ redirected }) => {
             : 'border-gray-200 bg-white'
             }`}>
             <div className="flex space-x-3">
-            <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={user.profilePicUrl}></img>
+                <img className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl" src={user.profilePicUrl}></img>
 
                 <div className="flex-1">
                     <textarea
@@ -78,9 +78,16 @@ const PostComposer = ({ redirected }) => {
                                 id="file-upload"
                                 name="imageFile"
                                 onChange={(e) => setImageFile(e.target.files[0])}
-                                className="hidden"
+                                className={`hidden ${darkMode ? "text-white" : "text-black"}`}
                             />
-                            <label htmlFor="file-upload" className="flex cursor-pointer items-center">
+                            <label className="flex cursor-pointer items-center p-2">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    name="imageFile"
+                                    onChange={(e) => setImageFile(e.target.files[0])}
+                                    className="hidden"
+                                />
                                 <Paperclip className="text-gray-300 hover:text-white w-5 h-5" />
                                 {imageFile && (
                                     <span className="text-sm text-gray-400 ml-2 truncate max-w-[60px]">

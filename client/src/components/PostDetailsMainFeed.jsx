@@ -11,7 +11,7 @@ import ConfirmationModal from './ConfirmationModal';
 const PostDetailsMainFeed = () => {
 
   const { darkMode } = useTheme();
-  const { isDisabled, postDetails, user, isFollowing, postUserDetails, handleFollow, postReplies, originalPost, fetchPostDetails } = useUser();
+  const { isDisabled, postDetails, user, isFollowing, postUserDetails, handleFollow, postReplies, originalPost } = useUser();
   const { setIsModalOpen, postLike } = usePost();
   const [liked, setLiked] = useState(user && postDetails?.likedBy?.userIds?.includes(user?.id));
   const [likes, setLikes] = useState(postDetails?.likes);
