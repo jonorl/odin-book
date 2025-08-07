@@ -3,13 +3,18 @@ import { useState, useEffect } from 'react';
 
 const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }) => {
   const [showSlowMessage, setShowSlowMessage] = useState(false);
+  const [showSuperSlowSlowMessage, setshowSuperSlowSlowMessage] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSlowMessage(true);
     }, 3000);
 
-    return () => clearTimeout(timer);
+    const secondTimer = setTimeout(() => {
+      setshowSuperSlowSlowMessage(true);
+    }, 10000);
+
+    return () => { clearTimeout(timer); clearTimeout(secondTimer); }
   }, []);
 
   const sizeClasses = {
@@ -38,6 +43,11 @@ const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }
       {showSlowMessage && (
         <p className="mt-2 text-center text-sm text-yellow-600">
           Be patient, everything is hosted on a super-slow free service...
+        </p>
+      )}
+      {showSuperSlowSlowMessage && (
+        <p className="mt-2 text-center text-sm text-red-500">
+          No, seriously, this could take up to a minute if it hasn't been used ina while...
         </p>
       )}
     </div>
