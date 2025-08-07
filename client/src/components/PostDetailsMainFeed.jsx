@@ -11,26 +11,16 @@ import ConfirmationModal from './ConfirmationModal';
 const PostDetailsMainFeed = () => {
 
   const { darkMode } = useTheme();
-  const { isDisabled, postDetails, user, isFollowing, postUserDetails, handleFollow, postReplies, fetchFormattedPosts, originalPost, fetchPostDetails } = useUser();
+  const { isDisabled, postDetails, user, isFollowing, postUserDetails, handleFollow, postReplies, originalPost, fetchPostDetails } = useUser();
   const { setIsModalOpen, postLike } = usePost();
   const [liked, setLiked] = useState(user && postDetails?.likedBy?.userIds?.includes(user?.id));
   const [likes, setLikes] = useState(postDetails?.likes);
   const [retweeted, setRetweeted] = useState(postDetails?.retweeted);
   const [retweets, setRetweets] = useState(postDetails?.retweets);
-  const [prevReplyToId, setPrevReplyToId] = useState(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (postDetails?.replyToId && postDetails.replyToId !== prevReplyToId) {
-      console.log("Fetching original post");
-      fetchPostDetails(postDetails.replyToId, true);
-      setPrevReplyToId(postDetails.replyToId);
-    }
-  }, [postDetails]); // Simplified dependency
 
   // Trigger re-render when user and post are fully loaded to fetch liked posts.
   useEffect(() => {
-    console.log("re-render3")
     setLiked(user && postDetails?.likedBy?.userIds?.includes(user?.id));
   }, [user, postDetails?.likedBy?.userIds]);
 

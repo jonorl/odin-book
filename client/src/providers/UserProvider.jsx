@@ -21,6 +21,7 @@ export const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingProfilePosts, setIsLoadingProfilePosts] = useState(false);
   const [originalPost, setOriginalPost] = useState(null)
+  const [prevReplyToId, setPrevReplyToId] = useState(null);
 
   const TOKEN = useMemo(() => localStorage.getItem("token"), []);
   const HOST = useMemo(() => import.meta.env.VITE_LOCALHOST, []);
@@ -312,6 +313,13 @@ export const UserProvider = ({ children }) => {
   const triggerRefetchOnFollowersUpdate = useCallback(() => {
     setFollowersTrigger(prev => prev + 1);
   }, []);
+
+  useEffect(() => {
+    if (postDetails?.replyToId && postDetails.replyToId !== prevReplyToId) {
+      fetchPostDetails(postDetails.replyToId, true);
+      setPrevReplyToId(postDetails.replyToId);
+    }
+  }, [postDetails]); // Simplified dependency
 
   useEffect(() => {
     if (query) {
