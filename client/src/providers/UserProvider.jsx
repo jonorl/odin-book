@@ -33,6 +33,7 @@ export const UserProvider = ({ children }) => {
       const response = await fetch(`${HOST}/api/v1/posts/${newPostId}/details`);
       const data = await response.json();
       isOriginalPost ? setOriginalPost(data.postFeed[0]) : setPostDetails(data.postFeed[0]);
+      fetchFormattedPosts(data.postFeed[0])
     } catch (err) {
       console.error("Error fetching post details", err);
       setPostDetails(null);
