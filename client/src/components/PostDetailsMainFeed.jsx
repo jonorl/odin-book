@@ -20,13 +20,17 @@ const PostDetailsMainFeed = () => {
   const navigate = useNavigate();
 
   // Fetch all post details including replies upon all hooks loading
-  useEffect(() => {
-    fetchFormattedPosts(postDetails);
-  }, [postDetails, fetchFormattedPosts]);
+  // useEffect(() => {
+  //   if (postDetails?.id) {
+  //     fetchFormattedPosts(postDetails);
+  //   }
+  // }, [postDetails, fetchFormattedPosts]);
 
   // Fetch all post details including replies upon all hooks loading
   useEffect(() => {
-    fetchPostDetails(postDetails?.replyToId, true);
+    if (postDetails?.replyToId) {
+      fetchPostDetails(postDetails?.replyToId, true);
+    }
   }, [postDetails?.replyToId, fetchPostDetails]);
 
   // Trigger re-render when user and post are fully loaded to fetch liked posts.
@@ -72,7 +76,7 @@ const PostDetailsMainFeed = () => {
         </div>
 
         {/* If original post exists, render it */}
-        {(postDetails.replyToId) && <>
+        {(postDetails?.replyToId) && <>
           <Post key={postDetails.replyToId} post={originalPost} reply={false} />
         </>}
 
@@ -81,12 +85,12 @@ const PostDetailsMainFeed = () => {
           id="agrega aca el condicional" className={`relative flex space-x-3 border-b p-4 cursor-pointer transition-colors ${darkMode ? "bg-black text-white border-gray-800" : "bg-white text-black border-gray-200"
             } `}
           onClick={() => {
-            navigate(`/${postDetails.user.id}/${postDetails.id}`);
+            navigate(`/${postDetails?.user?.id}/${postDetails?.id}`);
           }}
         >
           <img
             className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 text-xl"
-            src={postUserDetails.profilePicUrl}
+            src={postUserDetails?.profilePicUrl}
           ></img>
           <div className="flex-1">
             <div className="flex items-center space-x-2 mb-1">
@@ -95,14 +99,14 @@ const PostDetailsMainFeed = () => {
                   }`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/profile/${postDetails.user.username}`);
+                  navigate(`/profile/${postDetails?.user?.username}`);
                 }}
               >
-                {postUserDetails.name} {postUserDetails.surname}
+                {postUserDetails?.name} {postUserDetails?.surname}
               </a>
-              <span className="text-gray-500">@{postUserDetails.handle}</span>
+              <span className="text-gray-500">@{postUserDetails?.handle}</span>
               <span className="text-gray-500">·</span>
-              <span className="text-gray-500">{postDetails.timestamp}</span>
+              <span className="text-gray-500">{postDetails?.timestamp}</span>
               {postDetails?.user?.id === user?.id &&
                 <div>
                   <Trash2 size={18} className="text-red-500" onClick={(e) => {
@@ -114,7 +118,7 @@ const PostDetailsMainFeed = () => {
                   />
                 </div>}
 
-              {(postDetails?.user && user && postDetails?.user?.id !== user?.id && <button
+              {(user && postDetails?.user && postDetails?.user?.id !== user?.id && <button
                 className={`text-s px-2 py-0.5 rounded-full ml-auto ${darkMode
                   ? 'bg-[rgb(239,243,244)] text-black'
                   : 'bg-black text-white'

@@ -32,10 +32,6 @@ export default function OdinBook() {
     );
   }
 
-  if (!postDetails || !postUserDetails) {
-    return null;
-  }
-
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-black' : 'bg-white'}`}>
       {/* Mobile: Full-width content only */}

@@ -241,7 +241,7 @@ export const UserProvider = ({ children }) => {
 
       setIsLoadingProfilePosts(true);
       try {
-        const res = await fetch(`${HOST}/api/v1/users/${specificUser.id}/posts`);
+        const res = await fetch(`${HOST}/api/v1/users/${specificUser?.id}/posts`);
         const data = await res.json();
         if (!res.ok) throw new Error("Failed to fetch posts");
         setFormattedProfilePosts(data.postFeed || []);
@@ -255,9 +255,11 @@ export const UserProvider = ({ children }) => {
   }, [specificUser?.id, HOST]);
 
   const fetchFormattedPosts = useCallback(async (post) => {
+    console.log("attempt")
+    if (!post?.id) return;
     setIsLoading(true);
     try {
-      const res = await fetch(`${HOST}/api/v1/posts/${post.id}/replies`);
+      const res = await fetch(`${HOST}/api/v1/posts/${post?.id}/replies`);
       const data = await res.json();
       setPostReplies(data.postFeed || []);
       return data;
