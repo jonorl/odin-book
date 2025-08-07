@@ -11,13 +11,16 @@ import LoadingSpinner from './components/ui/LoadingSpinner';
 export default function OdinBook() {
 
   const { darkMode } = useTheme();
-  const { postDetails, postUserDetails, fetchPostDetails, fetchUserProfileDetails, isLoading } = useUser();
+  const { fetchPostDetails, fetchUserProfileDetails, isLoading } = useUser();
   const { postId, userId } = useParams();
 
   // Fetch details of specific post clicked on
   useEffect(() => {
-    fetchPostDetails(postId);
-    fetchUserProfileDetails(userId)
+    if (postId && userId) {
+
+      fetchPostDetails(postId);
+      fetchUserProfileDetails(userId)
+    }
   }, [postId, userId, fetchPostDetails, fetchUserProfileDetails]);
 
   if (isLoading) {
