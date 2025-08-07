@@ -12,7 +12,7 @@ const MainFeed = () => {
   const postsToDisplay = activeTab === "For you" ? formattedPosts : followersPosts;
 
   return (
-    <div className={`flex-1 border ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
+    <div className={` flex-1 border ${darkMode ? 'border-gray-800' : 'border-gray-200'}`}>
       <div className={`top-0 backdrop-blur p-4 ${darkMode
         ? 'bg-black/80 border-gray-800'
         : 'bg-white/80 border-gray-200'

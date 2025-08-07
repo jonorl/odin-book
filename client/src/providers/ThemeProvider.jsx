@@ -7,10 +7,12 @@ export const ThemeProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState("For you");
   const [profileActiveTab, setProfileActiveTab] = useState("posts")
   const [searchActive, setSearchActive] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   return (
-    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, activeTab, setActiveTab, profileActiveTab, setProfileActiveTab, searchActive, setSearchActive }}>
+    <ThemeContext.Provider value={{ darkMode, toggleDarkMode, activeTab, setActiveTab, profileActiveTab, setProfileActiveTab, searchActive, setSearchActive, isSidebarOpen, setIsSidebarOpen, isRightSidebarOpen, setIsRightSidebarOpen }}>
       {children}
     </ThemeContext.Provider>
   );
