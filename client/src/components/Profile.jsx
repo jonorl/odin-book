@@ -6,7 +6,7 @@ import LoadingSpinner from './ui/LoadingSpinner';
 
 const Profile = () => {
   const { darkMode, profileActiveTab, setProfileActiveTab } = useTheme();
-  const { formattedProfilePosts, followers, date, user, specificUser, handleFollow, isFollowing, isLoading } = useUser();
+  const { formattedProfilePosts, followers, date, user, specificUser, handleFollow, isFollowing, isLoading, isLoadingProfilePosts } = useUser();
 
   return (
     <div
@@ -154,19 +154,27 @@ const Profile = () => {
               </button>
             </div>
             {/* 3. Conditionally render content based on the active tab */}
-            {profileActiveTab === "posts"
-              ? formattedProfilePosts &&
-              formattedProfilePosts
-                .filter((post) => post.replyToId === null || post.isRepost === true)
-                .map((post) => (
-                  <Post key={post.id} post={post} isReply={false} />
-                ))
-              : formattedProfilePosts &&
-              formattedProfilePosts
-                .filter((post) => post.replyToId !== null && !post?.isRepost)
-                .map((post) => (
-                  <Post key={post.id} post={post} isReply={true} />
-                ))}
+            {isLoadingProfilePosts ? (
+              <div className="py-8">
+                <LoadingSpinner
+                  size="large"
+                  text="Loading posts..."
+                  className="text-center"
+                />
+              </div>
+            ) : (
+              profileActiveTab === "posts"
+                ? formattedProfilePosts
+                  .filter((post) => post.replyToId === null || post.isRepost === true)
+                  .map((post) => (
+                    <Post key={post.id} post={post} isReply={false} />
+                  ))
+                : formattedProfilePosts
+                  .filter((post) => post.replyToId !== null && !post?.isRepost)
+                  .map((post) => (
+                    <Post key={post.id} post={post} isReply={true} />
+                  ))
+            )}
           </div>
         </div>)}
     </div>

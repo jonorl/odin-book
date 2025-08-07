@@ -19,6 +19,7 @@ export const UserProvider = ({ children }) => {
   const [currentPage, setCurrentPage] = useState(parseInt(1));
   const [query, setQuery] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingProfilePosts, setIsLoadingProfilePosts] = useState(false);
   const [originalPost, setOriginalPost] = useState(null)
 
   const TOKEN = useMemo(() => localStorage.getItem("token"), []);
@@ -238,7 +239,7 @@ export const UserProvider = ({ children }) => {
     async function fetchFormattedPosts() {
       if (!specificUser?.id) return;
 
-      setIsLoading(true);
+      setIsLoadingProfilePosts(true);
       try {
         const res = await fetch(`${HOST}/api/v1/users/${specificUser.id}/posts`);
         const data = await res.json();
@@ -247,7 +248,7 @@ export const UserProvider = ({ children }) => {
       } catch (err) {
         console.error("Failed to fetch formatted posts:", err);
       } finally {
-        setIsLoading(false);
+        setIsLoadingProfilePosts(false);
       }
     }
     fetchFormattedPosts();
@@ -346,6 +347,7 @@ export const UserProvider = ({ children }) => {
       query,
       isLoading,
       originalPost,
+      isLoadingProfilePosts,
       // Functions
       setQuery,
       setCurrentPage,
