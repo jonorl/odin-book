@@ -15,13 +15,15 @@ export default function OdinBook() {
   const { postId, userId } = useParams();
 
   // Fetch details of specific post clicked on
-  useEffect(() => {
-    if (postId && userId) {
-      console.log("re-render")
-      fetchPostDetails(postId);
-      fetchUserProfileDetails(userId)
-    }
-  }, [postId, userId, fetchPostDetails, fetchUserProfileDetails]);
+useEffect(() => {
+  if (postId && userId) {
+    const fetchData = async () => {
+      await fetchPostDetails(postId);
+      await fetchUserProfileDetails(userId);
+    };
+    fetchData();
+  }
+}, [postId, userId]); // Remove fetch functions from dependencies
 
   if (isLoading) {
     return (

@@ -17,22 +17,16 @@ const PostDetailsMainFeed = () => {
   const [likes, setLikes] = useState(postDetails?.likes);
   const [retweeted, setRetweeted] = useState(postDetails?.retweeted);
   const [retweets, setRetweets] = useState(postDetails?.retweets);
+  const [prevReplyToId, setPrevReplyToId] = useState(null);
   const navigate = useNavigate();
 
-  // Fetch all post details including replies upon all hooks loading
-  // useEffect(() => {
-  //   if (postDetails?.id) {
-  //     fetchFormattedPosts(postDetails);
-  //   }
-  // }, [postDetails, fetchFormattedPosts]);
-
-  // Fetch all post details including replies upon all hooks loading
   useEffect(() => {
-    if (postDetails) {
-      console.log("re-render2")
-      fetchPostDetails(postDetails?.replyToId, true);
+    if (postDetails?.replyToId && postDetails.replyToId !== prevReplyToId) {
+      console.log("Fetching original post");
+      fetchPostDetails(postDetails.replyToId, true);
+      setPrevReplyToId(postDetails.replyToId);
     }
-  }, [postDetails, fetchPostDetails]);
+  }, [postDetails]); // Simplified dependency
 
   // Trigger re-render when user and post are fully loaded to fetch liked posts.
   useEffect(() => {
