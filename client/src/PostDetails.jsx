@@ -39,18 +39,13 @@ useEffect(() => {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-black' : 'bg-white'}`}>
-      {/* Mobile: Full-width content only */}
-      <div className="md:hidden">
-        <PostDetailsMainFeed />
-      </div>
-
-      {/* Desktop: Traditional layout */}
-      <div className="hidden md:flex max-w-7xl mx-auto">
-        <Sidebar className="w-64 flex-shrink-0" />
+      {/* Single instance that adapts to screen size */}
+      <div className="md:flex max-w-7xl mx-auto">
+        <Sidebar className="hidden md:block w-64 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <PostDetailsMainFeed />
         </div>
-        <RightSidebar className="w-80 flex-shrink-0 hidden lg:block" />
+        <RightSidebar className="hidden lg:block w-80 flex-shrink-0" />
       </div>
     </div>
   );
