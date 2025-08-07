@@ -20,7 +20,7 @@ const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }
 
     const thirdTimer = setTimeout(() => {
       setshowSupertryAgain(true);
-    }, 10000);
+    }, 60000);
 
     return () => { clearTimeout(timer); clearTimeout(secondTimer); clearTimeout(thirdTimer); }
   }, []);
