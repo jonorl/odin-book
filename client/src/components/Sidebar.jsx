@@ -17,7 +17,7 @@ const Sidebar = ({ className = "" }) => { // Accept className prop with default 
     { icon: Home, label: 'Home', nav: '/', active: true },
     user && { icon: User, nav: `/profile/${user.handle}`, label: 'Profile' },
     { icon: Settings, nav: '/settings', label: 'Settings' }, 
-    { icon: FaGithub, nav: 'https://github.com/jonorl', label: 'Github' }
+    { icon: FaGithub, nav: 'https://github.com/jonorl/odin-book', label: 'Github' }
   ];
 
   useEffect(() => {
