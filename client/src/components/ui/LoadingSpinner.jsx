@@ -1,6 +1,6 @@
 // components/LoadingSpinner.jsx
 import { useState, useEffect } from 'react';
-import { useTheme } from '../hooks/useTheme';
+import { useTheme } from '../../hooks/useTheme'
 
 
 const LoadingSpinner = ({ size = 'medium', text = 'Loading...', className = '' }) => {
