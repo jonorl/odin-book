@@ -1,7 +1,7 @@
 import { ArrowLeft, Calendar } from "lucide-react";
 import Post from "./Post";
 import { useTheme } from '../hooks/useTheme';
-import { useUser } from '../hooks/UseUser'
+import { useUser } from '../hooks/UseUser';
 import LoadingSpinner from './ui/LoadingSpinner';
 
 const Profile = () => {
@@ -15,10 +15,10 @@ const Profile = () => {
     >
       {/* Header Navigation */}
       <div
-        className={`flex justify-between p-4 border-b  ${darkMode
+        className={`flex justify-between p-4 border-b ${darkMode
           ? "bg-black/80 border-gray-800 text-white"
           : "bg-white/80 border-gray-200 text-black"
-          }}`}
+          }`}
       >
         <div className="flex items-center space-x-8">
           <ArrowLeft
@@ -45,7 +45,6 @@ const Profile = () => {
       </div>
 
       {/* Profile Section */}
-
       {isLoading ? (
         <div className="py-8">
           <LoadingSpinner
@@ -64,8 +63,7 @@ const Profile = () => {
                 src={specificUser?.profilePicUrl}
                 alt={specificUser?.name}
                 className={`w-32 h-32 rounded-full bg-gray-600 ${darkMode ? "text-white" : "text-black"
-                  }
-              }`}
+                  }`}
               />
             </div>
 
@@ -83,7 +81,7 @@ const Profile = () => {
 
               {user && specificUser && user.id !== specificUser.id && (
                 <button
-                  className={`text-s px-2 py-0.5 rounded-full  ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
+                  className={`text-s px-2 py-0.5 rounded-full ${darkMode ? 'bg-[rgb(239,243,244)] text-black' : 'bg-black text-white'
                     }`}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -125,12 +123,11 @@ const Profile = () => {
                   <span className="text-gray-500">Followers</span>
                 </div>
               </div>
-
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className={`border-b ${darkMode ? "border-gray-800" : "border-gray-200"} `}>
+          <div className={`border-b ${darkMode ? "border-gray-800" : "border-gray-200"}`}>
             <div className="flex">
               {/* Posts Button */}
               <button
@@ -153,7 +150,10 @@ const Profile = () => {
                 Replies
               </button>
             </div>
-            {/* 3. Conditionally render content based on the active tab */}
+          </div>
+
+          {/* 3. Conditionally render content based on the active tab */}
+          <div className="flex flex-col gap-4">
             {isLoadingProfilePosts ? (
               <div className="py-8">
                 <LoadingSpinner
@@ -162,21 +162,42 @@ const Profile = () => {
                   className="text-center"
                 />
               </div>
-            ) : (
-              profileActiveTab === "posts"
-                ? formattedProfilePosts
+            ) : profileActiveTab === "posts" ? (
+              // Check if the filtered 'posts' array is empty
+              formattedProfilePosts.filter(
+                (post) => post.replyToId === null || post.isRepost === true
+              ).length > 0 ? (
+                // If not empty, map over the filtered posts
+                formattedProfilePosts
                   .filter((post) => post.replyToId === null || post.isRepost === true)
                   .map((post) => (
                     <Post key={post.id} post={post} isReply={false} />
                   ))
-                : formattedProfilePosts
+              ) : (
+                // If empty, show a message
+                <p className="p-4 text-center text-gray-500">This user has no posts to show</p>
+              )
+            ) : (
+              // Replies tab
+              formattedProfilePosts.filter(
+                (post) => post.replyToId !== null && !post?.isRepost
+              ).length > 0 ? (
+                // If not empty, map over the filtered replies
+                formattedProfilePosts
                   .filter((post) => post.replyToId !== null && !post?.isRepost)
                   .map((post) => (
                     <Post key={post.id} post={post} isReply={true} />
                   ))
+              ) : (
+                // If empty, show a message
+                <p className="p-4 text-center text-gray-500">
+                  This user has no replies to show
+                </p>
+              )
             )}
           </div>
-        </div>)}
+        </div>
+      )}
     </div>
   );
 };
