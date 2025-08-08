@@ -37,7 +37,7 @@ app.use("/api/v1", apiRouter);
 // const prisma = new PrismaClient();
 
 // Launch and port confirmation
-app.listen(process.env.PORT || 3000, () =>
+app.listen(process.env.PORT || 8080, () =>
   console.log(`Listeining on port ${process.env.PORT}`)
 );
 
