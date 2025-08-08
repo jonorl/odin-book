@@ -121,7 +121,7 @@ const Sidebar = ({ className = "" }) => { // Accept className prop with default 
           </nav>
 
           {/* User Profile Area */}
-          <div className="absolute bottom-4 left-4 right-4">
+          <div className="absolute left-4 right-4">
             <div
               className={`flex items-center space-x-3 p-3 rounded-full cursor-pointer transition-colors relative ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'}`}
               onClick={togglePopup}
