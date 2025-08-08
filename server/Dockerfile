@@ -1,16 +1,26 @@
-# Use the official Node.js image as a base
-FROM node:20-alpine
+# Use a recommended Node.js base image
+FROM node:20-slim
 
-# Set the working directory
+# Set the working directory to /app
 WORKDIR /app
 
-# Copy package.json and package-lock.json and install dependencies
+# Define a build argument for the database URL
+ARG DATABASE_URL
+
+# Set the DATABASE_URL environment variable for the build
+ENV DATABASE_URL=$DATABASE_URL
+
+# Copy package.json and package-lock.json first
 COPY package*.json ./
+
+# Copy the prisma directory next, so prisma generate can find the schema
+COPY prisma ./prisma
+
+# Install application dependencies and trigger the postinstall script
 RUN npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Cloud Run will automatically set the PORT environment variable.
-# Your app needs to listen on process.env.PORT.
+# The PORT environment variable is automatically set by Cloud Run.
 CMD ["npm", "start"]

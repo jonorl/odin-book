@@ -1,0 +1,15 @@
+# cloudbuild.yaml
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '-t', 'europe-west1-docker.pkg.dev/odin-book-468211/odin-book/my-server-image',
+    '--build-arg', 'DATABASE_URL=${_DATABASE_URL}',
+    'server/'
+  ]
+images:
+- 'europe-west1-docker.pkg.dev/odin-book-468211/odin-book/my-server-image'
+
+# Define a substitution variable for the database URL
+substitutions:
+  _DATABASE_URL: 'postgresql://neondb_owner:npg_1KgXqp4cZBfS@ep-morning-mode-a2u8z8pi-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
