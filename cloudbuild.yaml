@@ -10,6 +10,12 @@ steps:
 images:
 - 'europe-west1-docker.pkg.dev/odin-book-468211/odin-book/my-server-image'
 
-# Define a substitution variable for the database URL
+# Reference the secret from Secret Manager
 substitutions:
-  _DATABASE_URL: 'postgresql://neondb_owner:npg_1KgXqp4cZBfS@ep-morning-mode-a2u8z8pi-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+  _DATABASE_URL: 'projects/odin-book-468211/secrets/NEON_DATABASE_URL/versions/latest'
+
+# This part tells Cloud Build to pull the value from Secret Manager
+# rather than using it as a hardcoded string.
+# Note: You'll also need to configure permissions for your
+# Cloud Build service account to access Secret Manager.
+secretEnv: ['DATABASE_URL']
