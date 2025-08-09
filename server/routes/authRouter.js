@@ -141,7 +141,6 @@ authRouter.get(
           userData.email ||
           `${userData.id}+${userData.login}@users.noreply.github.com`,
         profilePicUrl: userData.avatar_url || null,
-        hashedPassword: password,
       };
       let user = await queries.getUserByGithubId(githubUser.githubId);
       if (!user) {
@@ -153,7 +152,7 @@ authRouter.get(
           githubUser.name,
           githubUser.surname,
           githubUser.email,
-          githubUser.hashedPassword,
+          password,
           githubUser.profilePicUrl
         );
         console.log("New user created:", user.id);
@@ -269,7 +268,6 @@ authRouter.get("/google/callback", async (req, res) => {
       surname: userData.family_name || userData.name?.split(" ")[1] || "",
       email: userData.email,
       profilePicUrl: userData.picture || null,
-      hashedPassword: password,
     };
     let user = await queries.getUserByGoogleId(googleUser.googleId);
     if (!user) {
@@ -291,7 +289,7 @@ authRouter.get("/google/callback", async (req, res) => {
         googleUser.name,
         googleUser.surname,
         googleUser.email,
-        googleUser.hashedPassword,
+        password,
         googleUser.profilePicUrl
       );
       console.log("New Google user created:", user.id);
