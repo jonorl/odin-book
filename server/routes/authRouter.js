@@ -67,11 +67,7 @@ authRouter.get("/github/callback", async (req, res) => {
     );
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error(
-        "GitHub token exchange failed:",
-        tokenResponse.status,
-        errorText
-      );
+      console.error("GitHub token exchange failed:", tokenResponse.status, errorText);
       return res.status(tokenResponse.status).json({
         error: "Failed to obtain access token from GitHub",
         details: errorText,
@@ -93,11 +89,7 @@ authRouter.get("/github/callback", async (req, res) => {
     });
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error(
-        "GitHub user fetch failed:",
-        userResponse.status,
-        errorText
-      );
+      console.error("GitHub user fetch failed:", userResponse.status, errorText);
       return res.status(userResponse.status).json({
         error: "Failed to fetch user data from GitHub",
         details: errorText,
@@ -112,11 +104,7 @@ authRouter.get("/github/callback", async (req, res) => {
     });
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
-      console.error(
-        "GitHub email fetch failed:",
-        emailResponse.status,
-        errorText
-      );
+      console.error("GitHub email fetch failed:", emailResponse.status, errorText);
       return res.status(emailResponse.status).json({
         error: "Failed to fetch user emails from GitHub",
         details: errorText,
@@ -126,11 +114,11 @@ authRouter.get("/github/callback", async (req, res) => {
     const primaryEmail = Array.isArray(emailData)
       ? emailData.find((email) => email.primary)?.email
       : null;
-
-    // Generate and hash password synchronously
+    
+    // Generate a random password for OAuth users, like in Google flow
     const { password } = generateGuestCredentials();
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    
     const githubUser = {
       githubId: userData.id.toString(),
       handle: userData.login,
@@ -142,7 +130,8 @@ authRouter.get("/github/callback", async (req, res) => {
         `${userData.id}+${userData.login}@users.noreply.github.com`,
       profilePicUrl: userData.avatar_url || null,
     };
-
+    
+    // Ensure unique handle, like in Google flow
     let uniqueHandle = githubUser.handle;
     let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
     let counter = 1;
@@ -163,21 +152,17 @@ authRouter.get("/github/callback", async (req, res) => {
         githubUser.name,
         githubUser.surname,
         githubUser.email,
-        hashedPassword, // Explicitly pass hashedPassword
+        hashedPassword, // Use the generated password hash
         githubUser.profilePicUrl,
         null,
         githubUser.githubId
       );
-      console.log(
-        "New user created with hashedPassword:",
-        hashedPassword,
-        user.id
-      );
+      console.log("New user created:", user.id);
     } else {
       console.log("Existing user logged in:", user.id);
     }
     req.newUser = user;
-    const token = signToken(req, res);
+    const token = signGithubToken(req, res);
     res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
   } catch (error) {
     console.error("Error in GitHub OAuth callback:", error);
@@ -276,6 +261,7 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     const userData = await userResponse.json();
     const { password } = generateGuestCredentials();
+    console.log("password", password);
     const hashedPassword = await bcrypt.hash(password, 10);
     const googleUser = {
       googleId: userData.id.toString(),
@@ -296,7 +282,7 @@ authRouter.get("/google/callback", async (req, res) => {
       let counter = 1;
       while (handleExists) {
         uniqueHandle = `${googleUser.handle}${counter}`;
-        handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+        handleExists = await queries.getUserDetailsByHandle(uniqueHandle);
         counter++;
       }
       googleUser.handle = uniqueHandle;
@@ -315,7 +301,7 @@ authRouter.get("/google/callback", async (req, res) => {
       console.log("Existing user logged in via Google:", user.id);
     }
     req.newUser = user;
-    const token = signToken(req, res); // Fix: Use signToken instead of signGithubToken
+    const token = signGithubToken(req, res);
     res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
   } catch (error) {
     console.error("Error in Google OAuth callback:", error);
@@ -402,7 +388,7 @@ authRouter.post(
         email,
         hashedPassword,
         profilePicUrl,
-        null,
+        null, 
         null
       );
       req.newUser = newUser;
