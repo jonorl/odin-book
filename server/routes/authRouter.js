@@ -67,7 +67,11 @@ authRouter.get("/github/callback", async (req, res) => {
     );
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error("GitHub token exchange failed:", tokenResponse.status, errorText);
+      console.error(
+        "GitHub token exchange failed:",
+        tokenResponse.status,
+        errorText
+      );
       return res.status(tokenResponse.status).json({
         error: "Failed to obtain access token from GitHub",
         details: errorText,
@@ -89,7 +93,11 @@ authRouter.get("/github/callback", async (req, res) => {
     });
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error("GitHub user fetch failed:", userResponse.status, errorText);
+      console.error(
+        "GitHub user fetch failed:",
+        userResponse.status,
+        errorText
+      );
       return res.status(userResponse.status).json({
         error: "Failed to fetch user data from GitHub",
         details: errorText,
@@ -104,7 +112,11 @@ authRouter.get("/github/callback", async (req, res) => {
     });
     if (!emailResponse.ok) {
       const errorText = await emailResponse.text();
-      console.error("GitHub email fetch failed:", emailResponse.status, errorText);
+      console.error(
+        "GitHub email fetch failed:",
+        emailResponse.status,
+        errorText
+      );
       return res.status(emailResponse.status).json({
         error: "Failed to fetch user emails from GitHub",
         details: errorText,
@@ -114,11 +126,11 @@ authRouter.get("/github/callback", async (req, res) => {
     const primaryEmail = Array.isArray(emailData)
       ? emailData.find((email) => email.primary)?.email
       : null;
-    
-    // Generate and hash password
+
+    // Generate and hash password synchronously
     const { password } = generateGuestCredentials();
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const githubUser = {
       githubId: userData.id.toString(),
       handle: userData.login,
@@ -130,8 +142,7 @@ authRouter.get("/github/callback", async (req, res) => {
         `${userData.id}+${userData.login}@users.noreply.github.com`,
       profilePicUrl: userData.avatar_url || null,
     };
-    
-    // Ensure unique handle
+
     let uniqueHandle = githubUser.handle;
     let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
     let counter = 1;
@@ -152,17 +163,21 @@ authRouter.get("/github/callback", async (req, res) => {
         githubUser.name,
         githubUser.surname,
         githubUser.email,
-        hashedPassword, // Ensure this is passed
+        hashedPassword, // Explicitly pass hashedPassword
         githubUser.profilePicUrl,
         null,
         githubUser.githubId
       );
-      console.log("New user created:", user.id);
+      console.log(
+        "New user created with hashedPassword:",
+        hashedPassword,
+        user.id
+      );
     } else {
       console.log("Existing user logged in:", user.id);
     }
     req.newUser = user;
-    const token = signToken(req, res); // Use signToken
+    const token = signToken(req, res);
     res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
   } catch (error) {
     console.error("Error in GitHub OAuth callback:", error);
@@ -221,7 +236,11 @@ authRouter.get("/google/callback", async (req, res) => {
     });
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error("Google token exchange failed:", tokenResponse.status, errorText);
+      console.error(
+        "Google token exchange failed:",
+        tokenResponse.status,
+        errorText
+      );
       return res.status(tokenResponse.status).json({
         error: "Failed to obtain access token from Google",
         details: errorText,
@@ -235,14 +254,21 @@ authRouter.get("/google/callback", async (req, res) => {
         error: "Failed to obtain access token: token missing from response",
       });
     }
-    const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const userResponse = await fetch(
+      "https://www.googleapis.com/oauth2/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error("Google user fetch failed:", userResponse.status, errorText);
+      console.error(
+        "Google user fetch failed:",
+        userResponse.status,
+        errorText
+      );
       return res.status(userResponse.status).json({
         error: "Failed to fetch user data from Google",
         details: errorText,
@@ -265,7 +291,8 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     if (!user) {
       let uniqueHandle = googleUser.handle;
-      let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+      let handleExists =
+        await queries.getUniqueUserDetailsByHandle(uniqueHandle);
       let counter = 1;
       while (handleExists) {
         uniqueHandle = `${googleUser.handle}${counter}`;
