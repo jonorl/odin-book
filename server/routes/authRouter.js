@@ -131,6 +131,7 @@ authRouter.get(
         ? emailData.find((email) => email.primary)?.email
         : null;
       const { password } = generateGuestCredentials();
+      const passwordHash = password
       const githubUser = {
         githubId: userData.id.toString(),
         handle: userData.login,
@@ -152,7 +153,7 @@ authRouter.get(
           githubUser.name,
           githubUser.surname,
           githubUser.email,
-          password,
+          passwordHash,
           githubUser.profilePicUrl
         );
         console.log("New user created:", user.id);
@@ -261,6 +262,7 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     const userData = await userResponse.json();
     const { password } = generateGuestCredentials();
+    const hashedPassword = password
     const googleUser = {
       googleId: userData.id.toString(),
       handle: userData.email.split("@")[0],
@@ -289,7 +291,7 @@ authRouter.get("/google/callback", async (req, res) => {
         googleUser.name,
         googleUser.surname,
         googleUser.email,
-        password,
+        hashedPassword,
         googleUser.profilePicUrl
       );
       console.log("New Google user created:", user.id);
