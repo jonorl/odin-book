@@ -236,7 +236,9 @@ async function createUser(
   surname,
   email,
   hashedPassword,
-  profilePicUrl
+  profilePicUrl,
+  googleId,
+  githubId,
 ) {
   const newUser = await prisma.user.create({
     data: {
@@ -246,6 +248,8 @@ async function createUser(
       email: email,
       passwordHash: hashedPassword,
       profilePicUrl: profilePicUrl || null,
+      googleId: googleId || null,
+      githubId: githubId || null
     },
   });
   return newUser;

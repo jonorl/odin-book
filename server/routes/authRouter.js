@@ -154,7 +154,8 @@ authRouter.get(
           githubUser.surname,
           githubUser.email,
           hashedPassword,
-          githubUser.profilePicUrl
+          githubUser.profilePicUrl,
+          githubId = githubUser.githubId
         );
         console.log("New user created:", user.id);
       } else {
@@ -293,7 +294,8 @@ authRouter.get("/google/callback", async (req, res) => {
         googleUser.surname,
         googleUser.email,
         hashedPassword,
-        googleUser.profilePicUrl
+        googleUser.profilePicUrl,
+        googleUser = googleUser.googleId
       );
       console.log("New Google user created:", user.id);
     } else {
