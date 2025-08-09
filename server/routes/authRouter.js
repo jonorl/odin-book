@@ -2,6 +2,7 @@
 import { Router } from "express";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
 import validateUser from "../controllers/formValidation.js";
+import { validationResult } from 'express-validator';
 import {
   authenticateToken,
   signToken,
@@ -318,6 +319,12 @@ authRouter.post(
   parser.single("profilePic"),
   processCloudinaryUpload,
   async (req, res, next) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
     try {
       const { handle, name, surname, email, password } = req.body;
       const imageUrl = req.imageUrl;
