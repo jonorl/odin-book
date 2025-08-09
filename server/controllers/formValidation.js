@@ -8,7 +8,7 @@ const emailErr = "must be a valid email address";
 const validateUser = [
   body("handle")
     .trim()
-    .notEmpty()
+    // .notEmpty()
     .withMessage("Handle is required.")
     .bail()
     .isLength({ min: 4, max: 10 })
