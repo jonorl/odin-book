@@ -153,10 +153,10 @@ authRouter.get(
           githubUser.name,
           githubUser.surname,
           githubUser.email,
-          hashedPassword, // This was missing!
+          hashedPassword,
           githubUser.profilePicUrl,
-          githubUser.githubId, // Fixed: was `githubId = githubUser.githubId`
-          null // githubId parameter (googleId should be null)
+          null,
+          githubUser.githubId
         );
         console.log("New user created:", user.id);
       } else {
@@ -294,10 +294,10 @@ authRouter.get("/google/callback", async (req, res) => {
         googleUser.name,
         googleUser.surname,
         googleUser.email,
-        hashedPassword,           
+        hashedPassword,
         googleUser.profilePicUrl,
-        googleUser.googleId,      
-        null                      
+        googleUser.googleId,
+        null
       );
       console.log("New Google user created:", user.id);
     } else {
@@ -335,7 +335,9 @@ authRouter.post(
         surname,
         email,
         hashedPassword,
-        imageUrl
+        imageUrl,
+        null,
+        null
       );
       req.newUser = newUser;
       next();
@@ -388,7 +390,9 @@ authRouter.post(
         surname,
         email,
         hashedPassword,
-        profilePicUrl
+        profilePicUrl,
+        null, 
+        null
       );
       req.newUser = newUser;
       next();

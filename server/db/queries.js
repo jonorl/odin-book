@@ -287,6 +287,7 @@ async function getUniqueUserDetailsByHandle(handle) {
   const user = await prisma.user.findUnique({
     where: { handle: handle },
   });
+  return user
 }
 
 async function getUserDetailsByHandle(handle) {
