@@ -115,7 +115,7 @@ authRouter.get("/github/callback", async (req, res) => {
       ? emailData.find((email) => email.primary)?.email
       : null;
     
-    // Generate a random password for OAuth users
+    // Generate and hash password
     const { password } = generateGuestCredentials();
     const hashedPassword = await bcrypt.hash(password, 10);
     
@@ -152,7 +152,7 @@ authRouter.get("/github/callback", async (req, res) => {
         githubUser.name,
         githubUser.surname,
         githubUser.email,
-        hashedPassword,
+        hashedPassword, // Ensure this is passed
         githubUser.profilePicUrl,
         null,
         githubUser.githubId
@@ -162,7 +162,7 @@ authRouter.get("/github/callback", async (req, res) => {
       console.log("Existing user logged in:", user.id);
     }
     req.newUser = user;
-    const token = signToken(req, res); // Use signToken instead of signGithubToken
+    const token = signToken(req, res); // Use signToken
     res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
   } catch (error) {
     console.error("Error in GitHub OAuth callback:", error);
