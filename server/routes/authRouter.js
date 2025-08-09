@@ -3,7 +3,6 @@ import { Router } from "express";
 import { parser, processCloudinaryUpload } from "../controllers/multer.js";
 import validateUser from "../controllers/formValidation.js";
 import {
-  authenticateToken,
   signToken,
   signGithubToken,
 } from "../controllers/authentication.js";
@@ -319,6 +318,12 @@ authRouter.post(
   processCloudinaryUpload,
   async (req, res, next) => {
     try {
+      // Check validation results
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
       const { handle, name, surname, email, password } = req.body;
       const imageUrl = req.imageUrl;
       const existingUser = await queries.getUserByEmail(email);
