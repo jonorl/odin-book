@@ -115,7 +115,7 @@ authRouter.get("/github/callback", async (req, res) => {
       ? emailData.find((email) => email.primary)?.email
       : null;
     
-    // Generate a random password for OAuth users, like in Google flow
+    // Generate a random password for OAuth users
     const { password } = generateGuestCredentials();
     const hashedPassword = await bcrypt.hash(password, 10);
     
@@ -131,7 +131,7 @@ authRouter.get("/github/callback", async (req, res) => {
       profilePicUrl: userData.avatar_url || null,
     };
     
-    // Ensure unique handle, like in Google flow
+    // Ensure unique handle
     let uniqueHandle = githubUser.handle;
     let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
     let counter = 1;
@@ -152,7 +152,7 @@ authRouter.get("/github/callback", async (req, res) => {
         githubUser.name,
         githubUser.surname,
         githubUser.email,
-        hashedPassword, // Use the generated password hash
+        hashedPassword,
         githubUser.profilePicUrl,
         null,
         githubUser.githubId
@@ -162,7 +162,7 @@ authRouter.get("/github/callback", async (req, res) => {
       console.log("Existing user logged in:", user.id);
     }
     req.newUser = user;
-    const token = signGithubToken(req, res);
+    const token = signToken(req, res); // Use signToken instead of signGithubToken
     res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
   } catch (error) {
     console.error("Error in GitHub OAuth callback:", error);
@@ -221,11 +221,7 @@ authRouter.get("/google/callback", async (req, res) => {
     });
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error(
-        "Google token exchange failed:",
-        tokenResponse.status,
-        errorText
-      );
+      console.error("Google token exchange failed:", tokenResponse.status, errorText);
       return res.status(tokenResponse.status).json({
         error: "Failed to obtain access token from Google",
         details: errorText,
@@ -239,21 +235,14 @@ authRouter.get("/google/callback", async (req, res) => {
         error: "Failed to obtain access token: token missing from response",
       });
     }
-    const userResponse = await fetch(
-      "https://www.googleapis.com/oauth2/v2/userinfo",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    const userResponse = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error(
-        "Google user fetch failed:",
-        userResponse.status,
-        errorText
-      );
+      console.error("Google user fetch failed:", userResponse.status, errorText);
       return res.status(userResponse.status).json({
         error: "Failed to fetch user data from Google",
         details: errorText,
@@ -261,7 +250,6 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     const userData = await userResponse.json();
     const { password } = generateGuestCredentials();
-    console.log("password", password);
     const hashedPassword = await bcrypt.hash(password, 10);
     const googleUser = {
       googleId: userData.id.toString(),
@@ -277,12 +265,11 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     if (!user) {
       let uniqueHandle = googleUser.handle;
-      let handleExists =
-        await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+      let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
       let counter = 1;
       while (handleExists) {
         uniqueHandle = `${googleUser.handle}${counter}`;
-        handleExists = await queries.getUserDetailsByHandle(uniqueHandle);
+        handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
         counter++;
       }
       googleUser.handle = uniqueHandle;
@@ -301,7 +288,7 @@ authRouter.get("/google/callback", async (req, res) => {
       console.log("Existing user logged in via Google:", user.id);
     }
     req.newUser = user;
-    const token = signGithubToken(req, res);
+    const token = signToken(req, res); // Fix: Use signToken instead of signGithubToken
     res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
   } catch (error) {
     console.error("Error in Google OAuth callback:", error);
@@ -388,7 +375,7 @@ authRouter.post(
         email,
         hashedPassword,
         profilePicUrl,
-        null, 
+        null,
         null
       );
       req.newUser = newUser;
