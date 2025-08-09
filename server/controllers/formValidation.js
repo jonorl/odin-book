@@ -11,7 +11,7 @@ const validateUser = [
     .notEmpty()
     .withMessage("Handle is required.")
     .bail()
-    .isLength({ min: 1, max: 10 })
+    .isLength({ min: 4, max: 10 })
     .withMessage(`Handle ${lengthErr}`),
   body("name")
     .trim()
@@ -21,7 +21,7 @@ const validateUser = [
     .isAlpha()
     .withMessage(`Name ${alphaErr}`)
     .bail()
-    .isLength({ min: 1, max: 10 })
+    .isLength({ min: 2, max: 10 })
     .withMessage(`Name ${lengthErr}`),
   body("surname")
     .trim()
@@ -31,7 +31,7 @@ const validateUser = [
     .isAlpha()
     .withMessage(`Surname ${alphaErr}`)
     .bail()
-    .isLength({ min: 1, max: 10 })
+    .isLength({ min: 2, max: 10 })
     .withMessage(`Surname ${lengthErr}`),
   body("email")
     .trim()
