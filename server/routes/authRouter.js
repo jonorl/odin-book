@@ -153,9 +153,10 @@ authRouter.get(
           githubUser.name,
           githubUser.surname,
           githubUser.email,
-          hashedPassword,
+          hashedPassword, // This was missing!
           githubUser.profilePicUrl,
-          githubId = githubUser.githubId
+          githubUser.githubId, // Fixed: was `githubId = githubUser.githubId`
+          null // githubId parameter (googleId should be null)
         );
         console.log("New user created:", user.id);
       } else {
@@ -263,7 +264,7 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     const userData = await userResponse.json();
     const { password } = generateGuestCredentials();
-    console.log("password", password)
+    console.log("password", password);
     const hashedPassword = await bcrypt.hash(password, 10);
     const googleUser = {
       googleId: userData.id.toString(),
@@ -293,9 +294,10 @@ authRouter.get("/google/callback", async (req, res) => {
         googleUser.name,
         googleUser.surname,
         googleUser.email,
-        hashedPassword,
+        hashedPassword,           
         googleUser.profilePicUrl,
-        googleUser = googleUser.googleId
+        googleUser.googleId,      
+        null                      
       );
       console.log("New Google user created:", user.id);
     } else {

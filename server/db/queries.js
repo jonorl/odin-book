@@ -238,7 +238,7 @@ async function createUser(
   hashedPassword,
   profilePicUrl,
   googleId,
-  githubId,
+  githubId
 ) {
   const newUser = await prisma.user.create({
     data: {
@@ -249,7 +249,7 @@ async function createUser(
       passwordHash: hashedPassword,
       profilePicUrl: profilePicUrl || null,
       googleId: googleId || null,
-      githubId: githubId || null
+      githubId: githubId || null,
     },
   });
   return newUser;
@@ -548,7 +548,7 @@ const fetchAllPostsWithRetweets = async (page, query) => {
     const ITEMSPERPAGE = 20;
     const skip = ((page || 1) - 1) * ITEMSPERPAGE;
     const whereClause =
-      query?.length > 0 && query !== 'undefined'
+      query?.length > 0 && query !== "undefined"
         ? {
             text: {
               contains: query,
