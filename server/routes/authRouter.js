@@ -107,6 +107,7 @@ authRouter.get("/github/callback", async (req, res) => {
     const primaryEmail = Array.isArray(emailData)
       ? emailData.find((email) => email.primary)?.email
       : null;
+    const { password } = generateGuestCredentials();
     const githubUser = {
       githubId: userData.id.toString(),
       handle: userData.login,
@@ -117,6 +118,7 @@ authRouter.get("/github/callback", async (req, res) => {
         userData.email ||
         `${userData.id}+${userData.login}@users.noreply.github.com`,
       profilePicUrl: userData.avatar_url || null,
+      password: password
     };
     let user = await queries.getUserByGithubId(githubUser.githubId);
     if (!user) {
@@ -216,6 +218,7 @@ authRouter.get("/google/callback", async (req, res) => {
       });
     }
     const userData = await userResponse.json();
+    const { password } = generateGuestCredentials();
     const googleUser = {
       googleId: userData.id.toString(),
       handle: userData.email.split("@")[0],
@@ -223,6 +226,7 @@ authRouter.get("/google/callback", async (req, res) => {
       surname: userData.family_name || userData.name?.split(" ")[1] || "",
       email: userData.email,
       profilePicUrl: userData.picture || null,
+      password: password
     };
     let user = await queries.getUserByGoogleId(googleUser.googleId);
     if (!user) {

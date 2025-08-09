@@ -15,7 +15,7 @@ model User {
   name          String
   surname       String
   handle        String      @unique
-  passwordHash  String?     // Made optional to support OAuth users without passwords
+  passwordHash  String     // Made optional to support OAuth users without passwords
   profilePicUrl String?
   createdAt     DateTime    @default(now())
   posts         Post[]
