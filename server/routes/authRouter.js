@@ -131,7 +131,7 @@ authRouter.get(
         ? emailData.find((email) => email.primary)?.email
         : null;
       const { password } = generateGuestCredentials();
-      const passwordHash = password
+      const hashedPassword = await bcrypt.hash(password, 10);
       const githubUser = {
         githubId: userData.id.toString(),
         handle: userData.login,
@@ -153,7 +153,7 @@ authRouter.get(
           githubUser.name,
           githubUser.surname,
           githubUser.email,
-          passwordHash,
+          hashedPassword,
           githubUser.profilePicUrl
         );
         console.log("New user created:", user.id);
@@ -263,7 +263,7 @@ authRouter.get("/google/callback", async (req, res) => {
     const userData = await userResponse.json();
     const { password } = generateGuestCredentials();
     console.log("password", password)
-    const hashedPassword = password
+    const hashedPassword = await bcrypt.hash(password, 10);
     const googleUser = {
       googleId: userData.id.toString(),
       handle: userData.email.split("@")[0],
