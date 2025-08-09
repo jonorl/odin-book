@@ -262,6 +262,7 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     const userData = await userResponse.json();
     const { password } = generateGuestCredentials();
+    console.log("password", password)
     const hashedPassword = password
     const googleUser = {
       googleId: userData.id.toString(),
