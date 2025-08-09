@@ -33,148 +33,145 @@ authRouter.get("/github", (req, res) => {
   res.redirect(githubAuthUrl);
 });
 
-authRouter.get(
-  "/github/callback",
-  async (req, res) => {
-    try {
-      const { code, state } = req.query;
-      if (state !== req.session.oauthState) {
-        console.log("State mismatch in GitHub callback");
-        return res.status(400).json({ error: "Invalid state parameter" });
-      }
-      delete req.session.oauthState;
-      if (!code) {
-        console.log("No authorization code provided");
-        return res
-          .status(400)
-          .json({ error: "Authorization code not provided" });
-      }
-      if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
-        console.error("Missing GitHub OAuth environment variables");
-        return res.status(500).json({ error: "Server configuration error" });
-      }
-      const tokenResponse = await fetch(
-        "https://github.com/login/oauth/access_token",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            client_id: CLIENT_ID,
-            client_secret: CLIENT_SECRET,
-            code,
-            redirect_uri: REDIRECT_URI,
-          }),
-        }
-      );
-      if (!tokenResponse.ok) {
-        const errorText = await tokenResponse.text();
-        console.error(
-          "GitHub token exchange failed:",
-          tokenResponse.status,
-          errorText
-        );
-        return res.status(tokenResponse.status).json({
-          error: "Failed to obtain access token from GitHub",
-          details: errorText,
-        });
-      }
-      const tokenData = await tokenResponse.json();
-      const accessToken = tokenData.access_token;
-      if (!accessToken) {
-        console.error("Access token missing from GitHub response:", tokenData);
-        return res.status(400).json({
-          error: "Failed to obtain access token: token missing from response",
-        });
-      }
-      const userResponse = await fetch("https://api.github.com/user", {
+authRouter.get("/github/callback", async (req, res) => {
+  try {
+    const { code, state } = req.query;
+    if (state !== req.session.oauthState) {
+      console.log("State mismatch in GitHub callback");
+      return res.status(400).json({ error: "Invalid state parameter" });
+    }
+    delete req.session.oauthState;
+    if (!code) {
+      console.log("No authorization code provided");
+      return res.status(400).json({ error: "Authorization code not provided" });
+    }
+    if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
+      console.error("Missing GitHub OAuth environment variables");
+      return res.status(500).json({ error: "Server configuration error" });
+    }
+    const tokenResponse = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
-      });
-      if (!userResponse.ok) {
-        const errorText = await userResponse.text();
-        console.error(
-          "GitHub user fetch failed:",
-          userResponse.status,
-          errorText
-        );
-        return res.status(userResponse.status).json({
-          error: "Failed to fetch user data from GitHub",
-          details: errorText,
-        });
+        body: JSON.stringify({
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          code,
+          redirect_uri: REDIRECT_URI,
+        }),
       }
-      const userData = await userResponse.json();
-      const emailResponse = await fetch("https://api.github.com/user/emails", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      });
-      if (!emailResponse.ok) {
-        const errorText = await emailResponse.text();
-        console.error(
-          "GitHub email fetch failed:",
-          emailResponse.status,
-          errorText
-        );
-        return res.status(emailResponse.status).json({
-          error: "Failed to fetch user emails from GitHub",
-          details: errorText,
-        });
-      }
-      const emailData = await emailResponse.json();
-      const primaryEmail = Array.isArray(emailData)
-        ? emailData.find((email) => email.primary)?.email
-        : null;
-      const { password } = generateGuestCredentials();
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const githubUser = {
-        githubId: userData.id.toString(),
-        handle: userData.login,
-        name: userData.name?.split(" ")[0] || userData.login,
-        surname: userData.name?.split(" ")[1] || "",
-        email:
-          primaryEmail ||
-          userData.email ||
-          `${userData.id}+${userData.login}@users.noreply.github.com`,
-        profilePicUrl: userData.avatar_url || null,
-      };
-      let user = await queries.getUserByGithubId(githubUser.githubId);
-      if (!user) {
-        user = await queries.getUserByEmail(githubUser.email);
-      }
-      if (!user) {
-        user = await queries.createUser(
-          githubUser.handle,
-          githubUser.name,
-          githubUser.surname,
-          githubUser.email,
-          hashedPassword,
-          githubUser.profilePicUrl,
-          null,
-          githubUser.githubId
-        );
-        console.log("New user created:", user.id);
-      } else {
-        console.log("Existing user logged in:", user.id);
-      }
-      req.newUser = user;
-      const token = signGithubToken(req, res);
-      res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
-    } catch (error) {
-      console.error("Error in GitHub OAuth callback:", error);
-      res.status(500).json({
-        error: "Authentication failed",
-        details: error.message,
+    );
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error("GitHub token exchange failed:", tokenResponse.status, errorText);
+      return res.status(tokenResponse.status).json({
+        error: "Failed to obtain access token from GitHub",
+        details: errorText,
       });
     }
-  },
-  signToken
-);
+    const tokenData = await tokenResponse.json();
+    const accessToken = tokenData.access_token;
+    if (!accessToken) {
+      console.error("Access token missing from GitHub response:", tokenData);
+      return res.status(400).json({
+        error: "Failed to obtain access token: token missing from response",
+      });
+    }
+    const userResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+    if (!userResponse.ok) {
+      const errorText = await userResponse.text();
+      console.error("GitHub user fetch failed:", userResponse.status, errorText);
+      return res.status(userResponse.status).json({
+        error: "Failed to fetch user data from GitHub",
+        details: errorText,
+      });
+    }
+    const userData = await userResponse.json();
+    const emailResponse = await fetch("https://api.github.com/user/emails", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error("GitHub email fetch failed:", emailResponse.status, errorText);
+      return res.status(emailResponse.status).json({
+        error: "Failed to fetch user emails from GitHub",
+        details: errorText,
+      });
+    }
+    const emailData = await emailResponse.json();
+    const primaryEmail = Array.isArray(emailData)
+      ? emailData.find((email) => email.primary)?.email
+      : null;
+    
+    // Generate a random password for OAuth users, like in Google flow
+    const { password } = generateGuestCredentials();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const githubUser = {
+      githubId: userData.id.toString(),
+      handle: userData.login,
+      name: userData.name?.split(" ")[0] || userData.login,
+      surname: userData.name?.split(" ")[1] || "",
+      email:
+        primaryEmail ||
+        userData.email ||
+        `${userData.id}+${userData.login}@users.noreply.github.com`,
+      profilePicUrl: userData.avatar_url || null,
+    };
+    
+    // Ensure unique handle, like in Google flow
+    let uniqueHandle = githubUser.handle;
+    let handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+    let counter = 1;
+    while (handleExists) {
+      uniqueHandle = `${githubUser.handle}${counter}`;
+      handleExists = await queries.getUniqueUserDetailsByHandle(uniqueHandle);
+      counter++;
+    }
+    githubUser.handle = uniqueHandle;
+
+    let user = await queries.getUserByGithubId(githubUser.githubId);
+    if (!user) {
+      user = await queries.getUserByEmail(githubUser.email);
+    }
+    if (!user) {
+      user = await queries.createUser(
+        githubUser.handle,
+        githubUser.name,
+        githubUser.surname,
+        githubUser.email,
+        hashedPassword, // Use the generated password hash
+        githubUser.profilePicUrl,
+        null,
+        githubUser.githubId
+      );
+      console.log("New user created:", user.id);
+    } else {
+      console.log("Existing user logged in:", user.id);
+    }
+    req.newUser = user;
+    const token = signGithubToken(req, res);
+    res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
+  } catch (error) {
+    console.error("Error in GitHub OAuth callback:", error);
+    res.status(500).json({
+      error: "Authentication failed",
+      details: error.message,
+    });
+  }
+});
 
 authRouter.get("/google", (req, res) => {
   const state = crypto.randomBytes(16).toString("hex");
