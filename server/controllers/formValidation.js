@@ -1,5 +1,5 @@
 // formValidation.js
-import { body } from 'express-validator';
+import { body } from "express-validator";
 
 const alphaErr = "must only contain letters.";
 const lengthErr = "must be between 1 and 10 characters.";
@@ -8,11 +8,12 @@ const emailErr = "must be a valid email address";
 const validateUser = [
   body("handle")
     .trim()
-    // .notEmpty()
+    .notEmpty()
     .withMessage("Handle is required.")
     .bail()
     .isLength({ min: 4, max: 10 })
     .withMessage(`Handle ${lengthErr}`),
+
   body("name")
     .trim()
     .notEmpty()
@@ -23,6 +24,7 @@ const validateUser = [
     .bail()
     .isLength({ min: 2, max: 10 })
     .withMessage(`Name ${lengthErr}`),
+
   body("surname")
     .trim()
     .notEmpty()
@@ -33,6 +35,7 @@ const validateUser = [
     .bail()
     .isLength({ min: 2, max: 10 })
     .withMessage(`Surname ${lengthErr}`),
+
   body("email")
     .trim()
     .notEmpty()
@@ -40,6 +43,7 @@ const validateUser = [
     .bail()
     .isEmail()
     .withMessage(`Email ${emailErr}`),
+
   body("password")
     .trim()
     .notEmpty()
@@ -52,8 +56,9 @@ const validateUser = [
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]).{8,}$/
     )
     .withMessage(
-      "Password must contain a minimum of eight characters, at least one letter, one number and one special character."
+      "Password must contain at least one letter, one number, and one special character."
     ),
+
   body("confirmPassword")
     .trim()
     .notEmpty()
