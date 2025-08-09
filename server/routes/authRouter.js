@@ -314,8 +314,9 @@ authRouter.get("/google/callback", async (req, res) => {
 
 authRouter.post(
   "/signup",
-  validateUser,
+  
   parser.single("profilePic"),
+  validateUser,
   processCloudinaryUpload,
   async (req, res, next) => {
     const errors = validationResult(req);
