@@ -30,7 +30,7 @@ app.use(
 // app.use("/", mainRouter);
 
 // uncomment this when migrating to split routers
-app.use("/api/v1", apiRouter);
+// app.use("/api/v1", apiRouter);
 
 // Generate random users
 // seeds();
