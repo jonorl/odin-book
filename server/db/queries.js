@@ -1,14 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-console.log('Prisma client loaded');
 const prisma = new PrismaClient();
-console.log('App and Prisma initialized');
-
-async function fetchAllUsers() {
-  const users = await prisma.user.findMany({
-    take: 10,
-  });
-  return users;
-}
 
 async function getPostsComments(postIdOrArray) {
   const comments = await prisma.post.findMany({
@@ -43,13 +34,6 @@ async function getPostUsers(postUsersArray) {
   });
 
   return users;
-}
-
-async function getPostUser(post) {
-  const user = await prisma.user.findUnique({
-    where: { id: post.authorId },
-  });
-  return user;
 }
 
 async function fetchAllPosts() {
@@ -88,19 +72,6 @@ async function fetchAllPostsFromSpecificUser(id) {
   const posts = await prisma.post.findMany({
     take: 20,
     where: { authorId: id },
-    orderBy: [
-      {
-        createdAt: "desc",
-      },
-    ],
-  });
-  return posts;
-}
-
-async function fetchAllPostRepliesFromSpecificUser(postsArray) {
-  const postIds = postsArray.map((post) => post.id);
-  const posts = await prisma.post.findMany({
-    where: { replyToId: { in: postIds } },
     orderBy: [
       {
         createdAt: "desc",
@@ -193,6 +164,15 @@ async function newPost(userId, text, imageUrl) {
     },
   });
   return newPost;
+}
+
+async function likeCheck(id) {
+  const existingLike = await prisma.favourite.findUnique({
+    where: {
+      userId: id,
+    },
+  });
+  return existingLike;
 }
 
 async function toggleLike(userId, postId) {
@@ -289,7 +269,7 @@ async function getUniqueUserDetailsByHandle(handle) {
   const user = await prisma.user.findUnique({
     where: { handle: handle },
   });
-  return user
+  return user;
 }
 
 async function getUserDetailsByHandle(handle) {
@@ -329,13 +309,6 @@ async function newComment(userId, text, imageUrl, originalPostId) {
     },
   });
   return newPost;
-}
-
-async function fetchSpecificPost(id) {
-  const post = await prisma.post.findUnique({
-    where: { id: id },
-  });
-  return post;
 }
 
 async function updateUser(id, updateData) {
@@ -432,32 +405,6 @@ async function getUserByGithubId(githubId) {
   }
 }
 
-async function createGithubUser({
-  githubId,
-  handle,
-  name,
-  surname,
-  email,
-  profilePicUrl,
-}) {
-  try {
-    const user = await prisma.user.create({
-      data: {
-        githubId,
-        handle,
-        name,
-        surname,
-        email,
-        profilePicUrl,
-      },
-    });
-    return user;
-  } catch (error) {
-    console.error("Error creating GitHub user:", error);
-    throw error;
-  }
-}
-
 // Get user by Google ID
 const getUserByGoogleId = async (googleId) => {
   try {
@@ -467,27 +414,6 @@ const getUserByGoogleId = async (googleId) => {
     return user;
   } catch (error) {
     console.error("Error fetching user by Google ID:", error);
-    throw error;
-  }
-};
-
-// Create new user from Google OAuth
-const createGoogleUser = async (googleUser) => {
-  try {
-    const user = await prisma.user.create({
-      data: {
-        googleId: googleUser.googleId,
-        handle: googleUser.handle,
-        name: googleUser.name,
-        surname: googleUser.surname,
-        email: googleUser.email,
-        profilePicUrl: googleUser.profilePicUrl,
-        // Note: No password hash for OAuth users
-      },
-    });
-    return user;
-  } catch (error) {
-    console.error("Error creating Google user:", error);
     throw error;
   }
 };
@@ -762,7 +688,6 @@ const getAllRetweetData = async (postIds) => {
 };
 
 export default {
-  fetchAllUsers,
   fetchAllPosts,
   countAllLikes,
   countAllComments,
@@ -774,24 +699,20 @@ export default {
   getUserByEmail,
   createUser,
   getMe,
+  likeCheck,
   getUserFromEmail,
   getPostDetails,
   getUserDetails,
   newComment,
-  fetchSpecificPost,
   getUserDetailsByHandle,
   fetchAllPostsFromSpecificUser,
-  fetchAllPostRepliesFromSpecificUser,
-  getPostUser,
   updateUser,
   getUniqueUserDetailsByHandle,
   toggleFollow,
   getUserFollowersData,
   fetchAllPostsFromFollowing,
   getUserByGithubId,
-  createGithubUser,
   getUserByGoogleId,
-  createGoogleUser,
   deletePost,
   deleteUser,
   toggleRetweet,

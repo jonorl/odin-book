@@ -7,7 +7,7 @@ A messaging application built with **Node.js**, **Express** and **PostgreSQL**. 
 - User registration and authentication
 - Login OAuth2 for Google and GitHub
 - PostgreSQL database integration via Prisma
-- Secure password handling (hasing + salting)  with bcrypt
+- Secure password handling (hasing + salting) with bcrypt
 - Timestamps for messages
 - Profile customisation
 - Image attachments using [Cloudinary](https://cloudinary.com/)'s hosting
@@ -16,6 +16,7 @@ A messaging application built with **Node.js**, **Express** and **PostgreSQL**. 
 ## 🧱 Tech Stack
 
 ### Backend
+
 - **Node.js**
 - **Express.js**
 - **PostgreSQL**
@@ -28,6 +29,7 @@ A messaging application built with **Node.js**, **Express** and **PostgreSQL**. 
 - **Faker library**
 
 ### Frontend libraries
+
 - **React**
 - **Tailwind**
 - **Lucide-react**
@@ -58,7 +60,7 @@ messaging-app/
 │   │   └── providers/     # Reusable functions and hooks
 │   ├── .env
 │   ├── App.jsx            # Route for main feed
-│   ├── main.jsx           # Starting point 
+│   ├── main.jsx           # Starting point
 │   ├── PostDetails.jsx    # Route when looking at post details
 │   ├── ProfileDetails.jsx # Route when looking at user's details
 │   ├── Routes.jsx         # React Router
@@ -66,6 +68,53 @@ messaging-app/
 │
 └── README.md             # Project overview
 ```
+
+## API Routes / Endpoints
+
+### Auth Router (`/auth`)
+
+| Method | Route              | Description                                           |
+| ------ | ------------------ | ----------------------------------------------------- |
+| GET    | `/github`          | Initiates GitHub OAuth authentication flow            |
+| GET    | `/github/callback` | Handles GitHub OAuth callback and user creation/login |
+| GET    | `/google`          | Initiates Google OAuth authentication flow            |
+| GET    | `/google/callback` | Handles Google OAuth callback and user creation/login |
+| POST   | `/signup`          | Creates new user account with email/password          |
+| POST   | `/login`           | Authenticates user with email/password                |
+| POST   | `/guest`           | Creates temporary guest user account                  |
+
+### User Router (`/user`)
+
+| Method | Route                   | Description                                    |
+| ------ | ----------------------- | ---------------------------------------------- |
+| GET    | `/me`                   | Retrieves current authenticated user's profile |
+| GET    | `/users/:userId`        | Fetches user profile by user ID                |
+| GET    | `/users/handle/:handle` | Fetches user profile by handle/username        |
+| GET    | `/checkOwnLike`         | Checks if current user liked a specific post   |
+| PUT    | `/users`                | Updates user profile information               |
+| DELETE | `/users/:userId`        | Deletes user account                           |
+
+### Post Router (`/post`)
+
+| Method | Route                          | Description                                                |
+| ------ | ------------------------------ | ---------------------------------------------------------- |
+| GET    | `/posts/:postId/details`       | Retrieves detailed information for a specific post         |
+| GET    | `/posts/:postId/replies`       | Fetches all replies/comments for a specific post           |
+| GET    | `/posts`                       | Retrieves paginated feed of all posts with optional search |
+| GET    | `/users/:specificUserId/posts` | Fetches all posts from a specific user                     |
+| POST   | `/posts`                       | Creates a new post with optional image                     |
+| POST   | `/comments`                    | Creates a new comment/reply to a post                      |
+| POST   | `/likes`                       | Toggles like status on a post                              |
+| POST   | `/retweets`                    | Toggles retweet status on a post                           |
+| DELETE | `/posts/:postId`               | Deletes a specific post                                    |
+
+### Follow Router (`/follow`)
+
+| Method | Route             | Description                                        |
+| ------ | ----------------- | -------------------------------------------------- |
+| POST   | `/follow`         | Toggles follow relationship between users          |
+| POST   | `/followers`      | Retrieves follower/following data for a user       |
+| POST   | `/followingposts` | Fetches posts from users that current user follows |
 
 ## 🛠️ Getting Started
 
@@ -116,9 +165,11 @@ npm run dev
 # Initiate db
 npx prisma migrate dev --name init
 ```
+
 Client runs at: `http://localhost:5173`
 
 ### .env file (backend)
+
 ```bash
 PORT=3000
 PRODUCTION_DATABASE_URL=YOUR_DB_URL
@@ -137,6 +188,7 @@ GOOGLE_REDIRECT_URI=http://localhost:3000/api/v1/auth/google/callback
 ```
 
 ### .env file (frontend)
+
 ```bash
 VITE_LOCALHOST=http://localhost:3000
 VITE_THISHOST=http://localhost:5173
@@ -144,12 +196,12 @@ VITE_THISHOST=http://localhost:5173
 
 🚀 Deployment
 
-* Frontend: Cloudflare --> https://odin-book.pages.dev/
-* Backend: Render --> https://odin-book-snve.onrender.com/
-* PostgreSql: Neon --> https://neon.tech/
-* Image Hosting: Cloudinary --> https://cloudinary.com/
+- Frontend: Cloudflare --> https://odin-book.pages.dev/
+- Backend: Render --> https://odin-book-snve.onrender.com/
+- PostgreSql: Neon --> https://neon.tech/
+- Image Hosting: Cloudinary --> https://cloudinary.com/
 
-* [live version](https://odin-book.pages.dev/)
+- [live version](https://odin-book.pages.dev/)
 
 ![Odin Book Screenshot](https://res.cloudinary.com/dqqdfeuo1/image/upload/v1754577758/Screenshot_2025-08-07_174225_upzgrc.png "Screenshot of my Odin Book")
 
@@ -165,7 +217,7 @@ VITE_THISHOST=http://localhost:5173
 ## 👨‍💻 Author
 
 **Jonathan Orlowski**
-*[GitHub](https://github.com/jonorl)
-*[LinkedIn](https://www.linkedin.com/in/jonathan-orlowski-58910b21/)
+_[GitHub](https://github.com/jonorl)
+_[LinkedIn](https://www.linkedin.com/in/jonathan-orlowski-58910b21/)
 
 > 📚 This project is part of [The Odin Project](https://www.theodinproject.com/), a free and open-source curriculum for aspiring full-stack web developers.
