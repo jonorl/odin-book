@@ -41,7 +41,7 @@ app.use("/api/v1", apiRouter);
 // Launch and port confirmation
 const PORT = process.env.PORT || 8080
 app.listen(PORT, '0.0.0.0', () =>
-  console.log(`Listeining on port ${process.env.PORT}`)
+  console.log(`Listeining on port ${PORT}`)
 );
 
 export default app;
