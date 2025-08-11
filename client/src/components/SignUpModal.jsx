@@ -67,7 +67,7 @@ const SignUpModal = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-      <div className="bg-black text-white rounded-xl w-full max-w-md p-6 relative shadow-xl">
+      <div className="bg-black text-white rounded-xl w-full max-w-md p-6 relative shadow-xl overflow-y-auto max-h-[90vh]">
         {/* Close Button */}
         <button
           className="absolute top-4 left-4 text-white text-2xl"
