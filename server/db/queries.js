@@ -1,5 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+console.log('Prisma client loaded');
 const prisma = new PrismaClient();
+console.log('App and Prisma initialized');
 
 async function fetchAllUsers() {
   const users = await prisma.user.findMany({
