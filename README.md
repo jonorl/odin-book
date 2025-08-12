@@ -207,7 +207,7 @@ VITE_THISHOST=http://localhost:5173
 
 ## 🧱 To-do
 
-- Tidy up code! Eliminate non-used queries + API routes
+- ~~Tidy up code! Eliminate non-used queries + API routes~~
 - Notifications
 - Addigs GIFs
 - Adding polls
@@ -217,7 +217,7 @@ VITE_THISHOST=http://localhost:5173
 ## 👨‍💻 Author
 
 **Jonathan Orlowski**
-_[GitHub](https://github.com/jonorl)
-_[LinkedIn](https://www.linkedin.com/in/jonathan-orlowski-58910b21/)
+[GitHub](https://github.com/jonorl)
+[LinkedIn](https://www.linkedin.com/in/jonathan-orlowski-58910b21/)
 
 > 📚 This project is part of [The Odin Project](https://www.theodinproject.com/), a free and open-source curriculum for aspiring full-stack web developers.
