@@ -1,6 +1,6 @@
 # 📝 Odin Book (monorepo)
 
-A messaging application built with **Node.js**, **Express** and **PostgreSQL**. Developed as the final project of [The Odin Project's Node.js curriculum](https://www.theodinproject.com/lessons/node-path-nodejs-odin-book), this app demonstrates full-stack capabilities including structured database interactions via **Prisma ORM**.
+A social media application built with **Node.js**, **Express** and **PostgreSQL**. Developed as the final project of [The Odin Project's Node.js curriculum](https://www.theodinproject.com/lessons/node-path-nodejs-odin-book), this app demonstrates full-stack capabilities including structured database interactions via **Prisma ORM**.
 
 ## 🚀 Features
 
