@@ -4,6 +4,9 @@ import PostDetails from "./PostDetails"
 import Profile from "./ProfileDetails"
 import Settings from "./Settings"
 
+const hasSubfolder = window.location.pathname.startsWith("/messaging-app");
+const basename = hasSubfolder ? "/messaging-app" : "/";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -21,6 +24,6 @@ const router = createBrowserRouter([
     path: "/Settings",
     element: <Settings />,
   },
-]);
+], { basename });
 
 export default router;
