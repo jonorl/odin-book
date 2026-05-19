@@ -4,8 +4,8 @@ import PostDetails from "./PostDetails"
 import Profile from "./ProfileDetails"
 import Settings from "./Settings"
 
-const hasSubfolder = window.location.pathname.startsWith("/messaging-app");
-const basename = hasSubfolder ? "/messaging-app" : "/";
+const hasSubfolder = window.location.pathname.startsWith("/odin-book");
+const basename = hasSubfolder ? "/odin-book" : "/";
 
 const router = createBrowserRouter([
   {
