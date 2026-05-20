@@ -163,7 +163,7 @@ authRouter.get("/github/callback", async (req, res) => {
     }
     req.newUser = user;
     const token = signGithubToken(req, res);
-    res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL_ODIN}?token=${token}`);
   } catch (error) {
     console.error("Error in GitHub OAuth callback:", error);
     res.status(500).json({
@@ -302,7 +302,7 @@ authRouter.get("/google/callback", async (req, res) => {
     }
     req.newUser = user;
     const token = signGithubToken(req, res);
-    res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
+    res.redirect(`${process.env.FRONTEND_URL_ODIN}?token=${token}`);
   } catch (error) {
     console.error("Error in Google OAuth callback:", error);
     res.status(500).json({

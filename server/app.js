@@ -5,7 +5,6 @@ console.log('Express loaded');
 import cors from "cors";
 import session from "express-session";
 import apiRouter from "./routes/index.js";
-// import mainRouter from "./routes/mainRouter.js";
 
 // Config
 
@@ -19,7 +18,7 @@ app.use(express.json());
 // Session middleware
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET_ODIN,
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }, // Set to true in production with HTTPS
@@ -39,7 +38,7 @@ app.use("/api/v1", apiRouter);
 // const prisma = new PrismaClient();
 
 // Launch and port confirmation
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT_ODIN || 8080
 app.listen(PORT, '0.0.0.0', () =>
   console.log(`Listeining on port ${PORT}`)
 );
