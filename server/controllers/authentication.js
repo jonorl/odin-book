@@ -8,7 +8,7 @@ function authenticateToken(req, res, next) {
 
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET_ODIN, (err, user) => {
     if (err) return res.sendStatus(403);
 
     req.user = user;
@@ -20,7 +20,7 @@ function signToken(req, res, next) {
   const newUser = req.newUser;
   const token = jwt.sign(
     { userId: newUser.id, email: newUser.email },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET_ODIN,
     { expiresIn: "1d" }
   );
   res.status(201).json({ token });
@@ -30,7 +30,7 @@ function signGithubToken(req, res, next) {
   const newUser = req.newUser;
   const token = jwt.sign(
     { userId: newUser.id, email: newUser.email },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET_ODIN,
     { expiresIn: "1d" }
   );
   return token
